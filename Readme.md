@@ -4,7 +4,7 @@ Learn Vision Transformer architectures through hands-on visualizations, mathemat
 
 ## 🚀 Live Demo
 
-**[👉 View Interactive Tutorials](https://yourusername.github.io/vision-transformer-tutorials/)**
+**[👉 View Interactive Tutorials](https://profitmonk.github.io/vision-transformer-tutorials/)**
 
 ## 🌟 Part of Complete Transformer Ecosystem
 
@@ -297,7 +297,7 @@ vision-transformer-tutorials/
 ## 🚀 Getting Started
 
 ### Option 1: View Online (Recommended)
-Simply visit the [live demo](https://yourusername.github.io/vision-transformer-tutorials/) to access all tutorials immediately.
+Simply visit the [live demo](https://profitmonk.github.io/vision-transformer-tutorials/) to access all tutorials immediately.
 
 ### Option 2: Run Locally
 1. Clone this repository:
@@ -391,8 +391,8 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## 📞 Contact & Support
 
-- **🐛 Issues**: [GitHub Issues](https://github.com/yourusername/vision-transformer-tutorials/issues) for bugs or feature requests
-- **💬 Discussions**: [GitHub Discussions](https://github.com/yourusername/vision-transformer-tutorials/discussions) for questions
+- **🐛 Issues**: [GitHub Issues](https://github.com/profitmonk/vision-transformer-tutorials/issues) for bugs or feature requests
+- **💬 Discussions**: [GitHub Discussions](https://github.com/profitmonk/vision-transformer-tutorials/discussions) for questions
 - **🔄 Pull Requests**: Contributions and improvements always welcome
 - **⭐ Star**: If these tutorials helped you, please star the repository!
 
@@ -409,7 +409,7 @@ This project is open source and available under the [MIT License](LICENSE).
 
 <div align="center">
 
-[🚀 **Get Started Now**](https://yourusername.github.io/vision-transformer-tutorials/) | [📚 **Text Transformers**](https://profitmonk.github.io/visual-ai-tutorials/) | [⭐ **Star Repo**](https://github.com/yourusername/vision-transformer-tutorials/stargazers)
+[🚀 **Get Started Now**](https://profitmonk.github.io/vision-transformer-tutorials/) | [📚 **Text Transformers**](https://profitmonk.github.io/visual-ai-tutorials/) | [⭐ **Star Repo**](https://github.com/profitmonk/vision-transformer-tutorials/stargazers)
 
 *Building the future of AI education, one tutorial at a time* 🎓
 
