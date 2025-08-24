@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vision Transformer Architecture Tutorials</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+        
+        .container {
+            background: #ffffff;
+            color: #2d2d2d;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tutorial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+            align-items: stretch;
+        }
+        
+        .tutorial-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            height: 320px;
+            position: relative;
+        }
+        
+        .tutorial-card:hover {
+            border-color: #2d2d2d;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .tutorial-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2d2d2d;
+        }
+        
+        .tutorial-description {
+            color: #555;
+            margin-bottom: 15px;
+            font-size: 14px;
+            flex-grow: 1;
+        }
+        
+        .tutorial-concepts {
+            background: #2d2d2d;
+            color: #e0e0e0;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            margin-top: auto;
+        }
+        
+        .tutorial-link {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 40px 0;
+        }
+        
+        .hero h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #2d2d2d, #1a1a1a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero p {
+            font-size: 1.2em;
+            color: #666;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .feature {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .feature-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .feature-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .github-link {
+            background: #2d2d2d;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 20px 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .github-link:hover {
+            background: #1a1a1a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .foundation-badge {
+            background: #dc3545;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+        
+        .new-badge {
+            background: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+        
+        .coming-soon-badge {
+            background: #6f42c1;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin: 50px 0 30px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            border: 2px solid #dee2e6;
+        }
+        
+        .section-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2d2d2d;
+            margin-bottom: 10px;
+        }
+        
+        .section-description {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .ecosystem-links {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .ecosystem-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2d2d2d;
+        }
+        
+        .ecosystem-description {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .ecosystem-link {
+            background: #6f42c1;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .ecosystem-link:hover {
+            background: #5a32a3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3);
+        }
+        
+        .coming-soon {
+            opacity: 0.6;
+            cursor: not-allowed;
+            position: relative;
+        }
+        
+        .coming-soon::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+            pointer-events: none;
+        }
+        
+        .learning-path {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        
+        .path-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .path-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .path-step {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .step-number {
+            background: rgba(255, 255, 255, 0.2);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .step-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .step-description {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>👁️ Vision Transformer Architecture Tutorials</h1>
+            <p>Master Vision Transformers through hands-on visualizations, mathematical deep dives, and real-world architecture analysis. From ViT fundamentals to multimodal models.</p>
+            
+            <a href="https://github.com/yourusername/vision-transformer-tutorials" class="github-link">
+                📂 View on GitHub
+            </a>
+            <a href="https://github.com/yourusername/vision-transformer-tutorials/stargazers" class="github-link">
+                ⭐ Star Repository
+            </a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="ecosystem-links">
+            <div class="ecosystem-title">🌟 Complete Transformer Learning Ecosystem</div>
+            <div class="ecosystem-description">
+                Master transformers across all modalities with our comprehensive tutorial series
+            </div>
+            <a href="https://profitmonk.github.io/visual-ai-tutorials/" class="ecosystem-link">
+                🔤 Text Transformers & Fine-tuning
+            </a>
+            <a href="#" class="ecosystem-link" style="background: #28a745;">
+                👁️ Vision Transformers (You are here)
+            </a>
+            <a href="#" class="ecosystem-link" style="background: #6c757d;">
+                🎵 Audio Transformers (Coming Soon)
+            </a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="section-header">
+            <div class="section-title">🏛️ Foundation Tutorials</div>
+            <div class="section-description">Essential concepts and architectural understanding</div>
+        </div>
+        
+        <div class="tutorial-grid">
+            <a href="why-transformers-vision.html" class="tutorial-link">
+                <div class="tutorial-card">
+                    <div class="foundation-badge">Start Here</div>
+                    <div class="tutorial-title">🤔 Why Transformers for Vision? CNN vs ViT Revolution</div>
+                    <div class="tutorial-description">
+                        Understand why Vision Transformers revolutionized computer vision. Compare CNN limitations with ViT advantages, analyze the 2020 breakthrough, and learn when to choose each architecture for real applications.
+                    </div>
+                    <div class="tutorial-concepts">
+                        CNN limitations • Global attention • Quadratic scaling • Decision framework
+                    </div>
+                </div>
+            </a>
+            
+            <a href="vit-fundamentals.html" class="tutorial-link">
+                <div class="tutorial-card">
+                    <div class="new-badge">Core</div>
+                    <div class="tutorial-title">🖼️ Vision Transformers: From Pixels to Patches</div>
+                    <div class="tutorial-description">
+                        Master ViT architecture through mathematical deep dive. Patch tokenization, 2D positional encoding, visual attention mechanics, memory analysis, and complete forward pass with real model specifications.
+                    </div>
+                    <div class="tutorial-concepts">
+                        Patch embedding • Position encoding • Visual attention • Memory scaling • Architecture analysis
+                    </div>
+                </div>
+            </a>
+            
+            <a href="#" class="tutorial-link">
+                <div class="tutorial-card coming-soon">
+                    <div class="coming-soon-badge">Coming Soon</div>
+                    <div class="tutorial-title">📐 Patch Embeddings & Positional Encoding Deep Dive</div>
+                    <div class="tutorial-description">
+                        Mathematical analysis of patch size trade-offs, linear projection mechanics, 2D vs 1D positional encoding, learnable vs fixed encodings, and resolution transfer strategies.
+                    </div>
+                    <div class="tutorial-concepts">
+                        Patch size analysis • Linear projection • 2D position encoding • Transfer learning
+                    </div>
+                </div>
+            </a>
+            
+            <a href="#" class="tutorial-link">
+                <div class="tutorial-card coming-soon">
+                    <div class="coming-soon-badge">Coming Soon</div>
+                    <div class="tutorial-title">🎯 Visual Attention Mechanisms Deep Dive</div>
+                    <div class="tutorial-description">
+                        Understand how attention works in the visual domain. Global receptive fields, attention pattern analysis, head specialization, and interpretability through attention visualization.
+                    </div>
+                    <div class="tutorial-concepts">
+                        Global attention • Pattern analysis • Head specialization • Attention visualization
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="section-header">
+            <div class="section-title">⚡ Core Vision-Language Models</div>
+            <div class="section-description">Multimodal architectures connecting vision and language</div>
+        </div>
+        
+        <div class="tutorial-grid">
+            <a href="#" class="tutorial-link">
+                <div class="tutorial-card coming-soon">
+                    <div class="coming-soon-badge">Coming Soon</div>
+                    <div class="tutorial-title">🔗 CLIP: Contrastive Vision-Language Learning</div>
+                    <div class="tutorial-description">
+                        Master CLIP's revolutionary approach to vision-language understanding. Contrastive learning mathematics, joint embedding spaces, zero-shot classification, and scaling laws.
+                    </div>
+                    <div class="tutorial-concepts">
+                        Contrastive learning • Joint embeddings • Zero-shot • InfoNCE loss • Scaling
+                    </div>
+                </div>
+            </a>
+            
+            <a href="#" class="tutorial-link">
+                <div class="tutorial-card coming-soon">
+                    <div class="coming-soon-badge">Coming Soon</div>
+                    <div class="tutorial-title">👁️ Vision-Language Models: GPT-4V, Gemini, Claude</div>
+                    <div class="tutorial-description">
+                        Architecture analysis of modern VLMs. Cross-modal attention, visual token integration, instruction tuning for vision, and comparative analysis of production models.
+                    </div>
+                    <div class="tutorial-concepts">
+                        Cross-modal attention • Visual tokens • Instruction tuning • Production VLMs
+                    </div>
+                </div>
+            </a>
+            
+            <a href="#" class="tutorial-link">
+                <div class="tutorial-card coming-soon">
+                    <div class="coming-soon-badge">Coming Soon</div>
+                    <div class="tutorial-title">🤖 Vision-Language-Action Models (VLAs)</div>
+                    <div class="tutorial-description">
+                        From pixels to robot actions. Embodied AI architectures, action token encoding, multi-task learning, and analysis of RT-1, RT-2, and PaLM-E robotics models.
+                    </div>
+                    <div class="tutorial-concepts">
+                        Embodied AI • Action encoding • Multi-task learning • Robotics transformers
+                    </div>
+                </div>
+            </a>
+            
+            <a href="#" class="tutorial-link">
+                <div class="tutorial-card coming-soon">
+                    <div class="coming-soon-badge">Coming Soon</div>
+                    <div class="tutorial-title">🧠 V-JEPA: Video Joint Embedding Predictive Architecture</div>
+                    <div class="tutorial-description">
+                        Meta's breakthrough in video understanding. World model learning, predictive vs generative approaches, emergent capabilities, and efficiency analysis.
+                    </div>
+                    <div class="tutorial-concepts">
+                        World models • Predictive learning • Video understanding • Emergent capabilities
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="section-header">
+            <div class="section-title">🎨 Generative Vision Models</div>
+            <div class="section-description">From text descriptions to visual creation</div>
+        </div>
+        
+        <div class="tutorial-grid">
+            <a href="#" class="tutorial-link">
+                <div class="tutorial-card coming-soon">
+                    <div class="coming-soon-badge">Coming Soon</div>
+                    <div class="tutorial-title">🎨 Generative Vision Transformers: DALL-E & Beyond</div>
+                    <div class="tutorial-description">
+                        Text-to-image generation architectures. Autoregressive image generation, DALL-E mathematics, VAE tokenization, and scaling laws for visual generation.
+                    </div>
+                    <div class="tutorial-concepts">
+                        Autoregressive generation • VAE tokenization • Text conditioning • Generation scaling
+                    </div>
+                </div>
+            </a>
+            
+            <a href="#" class="tutorial-link">
+                <div class="tutorial-card coming-soon">
+                    <div class="coming-soon-badge">Coming Soon</div>
+                    <div class="tutorial-title">🌊 Diffusion Transformers: DiT Architecture</div>
+                    <div class="tutorial-description">
+                        Transformers meet diffusion models. DiT architecture analysis, U-Net vs pure transformers, conditioning mechanisms, and Stable Diffusion 3 analysis.
+                    </div>
+                    <div class="tutorial-concepts">
+                        Diffusion process • DiT architecture • Conditioning • U-Net vs transformers
+                    </div>
+                </div>
+            </a>
+            
+            <a href="#" class="tutorial-link">
+                <div class="tutorial-card coming-soon">
+                    <div class="coming-soon-badge">Coming Soon</div>
+                    <div class="tutorial-title">📹 Video Generation Transformers</div>
+                    <div class="tutorial-description">
+                        Temporal modeling for video generation. 3D attention patterns, frame conditioning, motion modeling, and analysis of Sora-style architectures.
+                    </div>
+                    <div class="tutorial-concepts">
+                        Temporal modeling • 3D attention • Motion generation • Video diffusion
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="section-header">
+            <div class="section-title">🚀 Advanced & Production Topics</div>
+            <div class="section-description">Optimization, deployment, and cutting-edge research</div>
+        </div>
+        
+        <div class="tutorial-grid">
+            <a href="#" class="tutorial-link">
+                <div class="tutorial-card coming-soon">
+                    <div class="coming-soon-badge">Coming Soon</div>
+                    <div class="tutorial-title">⚡ Vision Transformer Optimization</div>
+                    <div class="tutorial-description">
+                        Production optimization strategies. Efficient architectures (MobileViT, EfficientViT), quantization for vision, dynamic resolution, and hardware-specific optimization.
+                    </div>
+                    <div class="tutorial-concepts">
+                        Efficient architectures • Quantization • Dynamic resolution • Hardware optimization
+                    </div>
+                </div>
+            </a>
+            
+            <a href="#" class="tutorial-link">
+                <div class="tutorial-card coming-soon">
+                    <div class="coming-soon-badge">Coming Soon</div>
+                    <div class="tutorial-title">🔬 Vision Transformer Interpretability</div>
+                    <div class="tutorial-description">
+                        Understanding what ViTs learn. Attention visualization, feature attribution, emergent properties, adversarial robustness, and bias detection in vision models.
+                    </div>
+                    <div class="tutorial-concepts">
+                        Attention visualization • Feature attribution • Emergent properties • Bias detection
+                    </div>
+                </div>
+            </a>
+            
+            <a href="#" class="tutorial-link">
+                <div class="tutorial-card coming-soon">
+                    <div class="coming-soon-badge">Coming Soon</div>
+                    <div class="tutorial-title">🌟 Self-Supervised Vision Learning</div>
+                    <div class="tutorial-description">
+                        Learning without labels. MAE mathematics, contrastive methods (SimCLR, SwAV), data efficiency analysis, and emergent visual capabilities.
+                    </div>
+                    <div class="tutorial-concepts">
+                        MAE • Contrastive learning • Self-supervision • Data efficiency • Emergent capabilities
+                    </div>
+                </div>
+            </a>
+            
+            <a href="#" class="tutorial-link">
+                <div class="tutorial-card coming-soon">
+                    <div class="coming-soon-badge">Coming Soon</div>
+                    <div class="tutorial-title">🏭 Production Vision Systems</div>
+                    <div class="tutorial-description">
+                        Building real-world vision systems. End-to-end pipelines, real-time processing, deployment patterns, monitoring, and case studies from Tesla FSD to medical AI.
+                    </div>
+                    <div class="tutorial-concepts">
+                        Production pipelines • Real-time processing • Deployment • Case studies
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="learning-path">
+            <div class="path-title">🎓 Recommended Learning Path</div>
+            
+            <div class="path-steps">
+                <div class="path-step">
+                    <div class="step-number">1</div>
+                    <div class="step-title">🤔 Why Transformers for Vision?</div>
+                    <div class="step-description">Understand the motivation and breakthrough</div>
+                </div>
+                <div class="path-step">
+                    <div class="step-number">2</div>
+                    <div class="step-title">🖼️ ViT Fundamentals</div>
+                    <div class="step-description">Master the core architecture and mathematics</div>
+                </div>
+                <div class="path-step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">🔗 CLIP Architecture</div>
+                    <div class="step-description">Learn vision-language connections</div>
+                </div>
+                <div class="path-step">
+                    <div class="step-number">4</div>
+                    <div class="step-title">👁️ Modern VLMs</div>
+                    <div class="step-description">Analyze GPT-4V, Gemini, Claude</div>
+                </div>
+                <div class="path-step">
+                    <div class="step-number">5</div>
+                    <div class="step-title">🎨 Generative Models</div>
+                    <div class="step-description">DALL-E, diffusion transformers</div>
+                </div>
+                <div class="path-step">
+                    <div class="step-number">6</div>
+                    <div class="step-title">🚀 Advanced Topics</div>
+                    <div class="step-description">Optimization, interpretability, production</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h2>✨ Tutorial Features</h2>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">📱</div>
+                <div class="feature-title">Responsive Design</div>
+                <div>Works perfectly on desktop, tablet, and mobile</div>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🎨</div>
+                <div class="feature-title">Interactive Visualizations</div>
+                <div>Real-time calculations and visual demonstrations</div>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🔢</div>
+                <div class="feature-title">Mathematical Precision</div>
+                <div>Step-by-step formulas with actual model data</div>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">📊</div>
+                <div class="feature-title">Production Models</div>
+                <div>Real specifications from GPT-4V, Gemini, Claude</div>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🎛️</div>
+                <div class="feature-title">Hands-on Learning</div>
+                <div>Interactive calculators and parameter explorers</div>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🚀</div>
+                <div class="feature-title">Production Ready</div>
+                <div>Real deployment strategies and optimization techniques</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h2>🎯 Target Audience</h2>
+        <ul>
+            <li><strong>Computer Vision Engineers</strong> learning transformer architectures for vision</li>
+            <li><strong>AI/ML Researchers</strong> studying multimodal and generative models</li>
+            <li><strong>Robotics Engineers</strong> working with vision-language-action models</li>
+            <li><strong>Students</strong> in computer vision and deep learning courses</li>
+            <li><strong>Developers</strong> building applications with GPT-4V, Gemini, or Claude</li>
+            <li><strong>Anyone curious</strong> about how modern AI "sees" and processes images</li>
+        </ul>
+    </div>
+    
+    <div class="container">
+        <h2>🛠️ Technology Stack</h2>
+        <ul>
+            <li><strong>Pure HTML/CSS/JavaScript</strong> - No frameworks, works everywhere</li>
+            <li><strong>Interactive mathematical demonstrations</strong> - Real-time calculations</li>
+            <li><strong>Responsive design</strong> - Optimized for all devices</li>
+            <li><strong>GitHub Pages ready</strong> - Deploy with zero configuration</li>
+            <li><strong>Production model data</strong> - Real specifications and benchmarks</li>
+        </ul>
+    </div>
+    
+    <div class="container" style="text-align: center;">
+        <h2>⭐ Star this repository if these tutorials help you master Vision Transformers!</h2>
+        
+        <a href="https://github.com/yourusername/vision-transformer-tutorials" class="github-link">
+            🚀 Get Started Now
+        </a>
+        
+        <p style="margin-top: 30px; color: #666;">
+            <strong>Part of the Complete Transformer Learning Ecosystem</strong><br>
+            📚 <a href="https://profitmonk.github.io/visual-ai-tutorials/" style="color: #6f42c1;">Text Transformers & Fine-tuning</a> • 
+            👁️ Vision Transformers • 
+            🎵 Audio Transformers (Coming Soon)
+        </p>
+    </div>
+</body>
+</html>
