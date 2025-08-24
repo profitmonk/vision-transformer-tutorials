@@ -719,7 +719,50 @@
                 • [CLS] token attends to most discriminative patches for classification
             </div>
         </div>
-        
+
+        <div class="step">
+                <h4>Implementation Pseudocode</h4>
+                <p>Here's how the complete ViT forward pass actually works in code:</p>
+                
+                <div class="example-box">
+# B (batch size) ignored for brevity; add as leading dim in practice
+# 1) Patchify + embed
+patches = extract_patches(x, P=16)          # (196, 768) = (N, 16*16*3)
+tokens  = patches @ W_p + b_p               # (196, 768)
+
+# 2) Add CLS + positions  
+cls     = cls_param                         # (768,)
+X       = concat(cls[None, :], tokens, dim=0) # (197, 768)
+X       = X + E_pos                         # (197, 768)
+
+# 3) L encoder layers (L=12 for ViT-Base)
+for l in range(L):
+    # Pre-norm + Multi-Head Self-Attention
+    U = layernorm1(X)                       # (197, 768)
+    Q = U @ W_q; K = U @ W_k; V = U @ W_v   # each (197, 768)
+    
+    # Reshape for multi-head processing
+    Q = reshape(Q, (197, 12, 64))           # 12 heads, 64 dims each
+    K = reshape(K, (197, 12, 64))           
+    V = reshape(V, (197, 12, 64))
+    
+    # Attention computation per head
+    A = softmax(Q @ K.transpose(-1,-2) / sqrt(64))  # (12, 197, 197)
+    O = A @ V                               # (12, 197, 64)
+    
+    # Concatenate heads and project
+    O = concat_heads(O) @ W_o               # → (197, 768)
+    X = X + O                               # residual connection
+    
+    # Pre-norm + MLP
+    U = layernorm2(X)                       # (197, 768)
+    M = gelu(U @ W1 + b1) @ W2 + b2         # 768→3072→768
+    X = X + M                               # residual connection
+
+# 4) Classification readout
+y = X[0] @ W_head + b_head                  # Extract [CLS] → (1000,)
+                </div>
+            
         <div class="step">
             <h3>Step 7: Feed-Forward Networks (MLP)</h3>
             
