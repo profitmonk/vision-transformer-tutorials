@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Vision Transformers: From Pixels to Patches - Technical Deep Dive</title>
     <style>
         body {
@@ -14,7 +14,6 @@
             color: #e0e0e0;
             line-height: 1.6;
         }
-        
         .container {
             background: #ffffff;
             color: #2d2d2d;
@@ -24,7 +23,6 @@
             border: 1px solid #e0e0e0;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
-        
         .nav-bar {
             background: #2d2d2d;
             color: white;
@@ -37,7 +35,6 @@
             flex-wrap: wrap;
             gap: 15px;
         }
-        
         .nav-home {
             background: #ffffff;
             color: #2d2d2d;
@@ -47,22 +44,18 @@
             font-weight: bold;
             transition: all 0.3s ease;
         }
-        
         .nav-home:hover {
             background: #f8f9fa;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
-        
         .nav-title {
             font-size: 1.2em;
             font-weight: bold;
             flex: 1;
             min-width: 300px;
         }
-        
-        .nav-prev {
-            background: #6c757d;
+        .nav-prev, .nav-next {
             color: white;
             padding: 8px 16px;
             border-radius: 6px;
@@ -70,29 +63,10 @@
             font-weight: bold;
             transition: all 0.3s ease;
         }
-        
-        .nav-prev:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-        
-        .nav-next {
-            background: #28a745;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-        
-        .nav-next:hover {
-            background: #218838;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-        
+        .nav-prev { background: #6c757d; }
+        .nav-prev:hover { background: #5a6268; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); }
+        .nav-next { background: #28a745; }
+        .nav-next:hover { background: #218838; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); }
         .step {
             background: #f8f9fa;
             border: 1px solid #e9ecef;
@@ -101,7 +75,6 @@
             border-radius: 15px;
             border-left: 4px solid #2d2d2d;
         }
-        
         .example-box {
             background: #2d2d2d;
             color: #e0e0e0;
@@ -112,451 +85,98 @@
             overflow-x: auto;
             border: 1px solid #4a4a4a;
         }
-        
-        .controls {
-            display: flex;
-            gap: 15px;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-        
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        
+        .controls { display: flex; gap: 15px; margin: 20px 0; flex-wrap: wrap; }
+        .control-group { display: flex; flex-direction: column; gap: 5px; }
         button {
-            background: #2d2d2d;
-            border: none;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
+            background: #2d2d2d; border: none; color: white; padding: 12px 24px;
+            border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s ease;
         }
-        
-        button:hover {
-            background: #1a1a1a;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-        
+        button:hover { background: #1a1a1a; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); }
         input, select {
-            padding: 8px 12px;
-            border: 1px solid #dadce0;
-            border-radius: 6px;
-            background: #ffffff;
-            color: #2d2d2d;
+            padding: 8px 12px; border: 1px solid #dadce0; border-radius: 6px; background: #ffffff; color: #2d2d2d;
         }
-        
-        .warning {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            color: #856404;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-        }
-        
-        .success {
-            background: #d4edda;
-            border-left: 4px solid #28a745;
-            color: #155724;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-        }
-        
-        .info {
-            background: #d1ecf1;
-            border-left: 4px solid #17a2b8;
-            color: #0c5460;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-        }
-        
-        .danger {
-            background: #f8d7da;
-            border-left: 4px solid #dc3545;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-        }
-        
+        .warning { background: #fff3cd; border-left: 4px solid #ffc107; color: #856404; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .success { background: #d4edda; border-left: 4px solid #28a745; color: #155724; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .info { background: #d1ecf1; border-left: 4px solid #17a2b8; color: #0c5460; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .danger { background: #f8d7da; border-left: 4px solid #dc3545; color: #721c24; padding: 15px; border-radius: 8px; margin: 15px 0; }
         table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
-            background: #ffffff;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            overflow: hidden;
+            width: 100%; border-collapse: collapse; margin: 15px 0; background: #ffffff;
+            border: 1px solid #e9ecef; border-radius: 8px; overflow: hidden;
         }
-        
-        th {
-            background: #2d2d2d;
-            color: white;
-            padding: 12px;
-            text-align: center;
-            font-weight: bold;
-        }
-        
-        td {
-            padding: 12px;
-            text-align: center;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        .winner {
-            background: #d4edda;
-            font-weight: bold;
-        }
-        
-        .moderate {
-            background: #fff3cd;
-        }
-        
-        .poor {
-            background: #f8d7da;
-        }
-        
+        th { background: #2d2d2d; color: white; padding: 12px; text-align: center; font-weight: bold; }
+        td { padding: 12px; text-align: center; border-bottom: 1px solid #e9ecef; }
+        .winner { background: #d4edda; font-weight: bold; }
+        .moderate { background: #fff3cd; }
+        .poor { background: #f8d7da; }
         .math-formula {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 15px 0;
-            font-family: 'Courier New', monospace;
-            text-align: center;
-            font-size: 16px;
+            background: #f8f9fa; border: 1px solid #e9ecef; padding: 20px; border-radius: 8px;
+            margin: 15px 0; font-family: 'Courier New', monospace; text-align: center; font-size: 16px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
-        
         .interactive-demo {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 15px;
-            padding: 25px;
-            margin: 20px 0;
+            background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 15px; padding: 25px; margin: 20px 0;
         }
-        
-        .demo-title {
-            font-size: 1.3em;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-align: center;
-            color: #2d2d2d;
-        }
-        
+        .demo-title { font-size: 1.3em; font-weight: bold; margin-bottom: 20px; text-align: center; color: #2d2d2d; }
         .patch-grid {
-            display: grid;
-            gap: 2px;
-            margin: 20px auto;
-            max-width: 400px;
-            background: #2d2d2d;
-            padding: 10px;
-            border-radius: 8px;
+            display: grid; gap: 2px; margin: 20px auto; max-width: 400px; background: #2d2d2d; padding: 10px; border-radius: 8px;
         }
-        
         .patch-cell {
-            background: #28a745;
-            aspect-ratio: 1;
-            border-radius: 2px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            background: #28a745; aspect-ratio: 1; border-radius: 2px; display: flex;
+            align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: bold; cursor: pointer; transition: all 0.3s ease;
         }
-        
-        .patch-cell:hover {
-            background: #ffc107;
-            transform: scale(1.1);
-            z-index: 10;
-            position: relative;
-        }
-        
-        .patch-cell.selected {
-            background: #dc3545;
-            transform: scale(1.05);
-        }
-        
-        .architecture-flow {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 20px 0;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .flow-step {
-            background: #2d2d2d;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            min-width: 120px;
-            flex: 1;
-        }
-        
-        .flow-arrow {
-            font-size: 24px;
-            font-weight: bold;
-            color: #28a745;
-        }
-        
-        .flow-title {
-            font-size: 12px;
-            color: #28a745;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-        
-        .flow-content {
-            font-size: 14px;
-            line-height: 1.3;
-        }
-        
-        .parameter-box {
-            background: #e3f2fd;
-            border-left: 4px solid #2196f3;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 8px;
-        }
-        
-        .parameter-highlight {
-            background: #ffeb3b;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-weight: bold;
-            color: #2d2d2d;
-        }
-        
+        .patch-cell:hover { background: #ffc107; transform: scale(1.1); z-index: 10; position: relative; }
+        .patch-cell.selected { background: #dc3545; transform: scale(1.05); }
+        .architecture-flow { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; flex-wrap: wrap; gap: 15px; }
+        .flow-step { background: #2d2d2d; color: white; padding: 15px; border-radius: 8px; text-align: center; min-width: 120px; flex: 1; }
+        .flow-arrow { font-size: 24px; font-weight: bold; color: #28a745; }
+        .flow-title { font-size: 12px; color: #28a745; font-weight: bold; margin-bottom: 8px; }
+        .flow-content { font-size: 14px; line-height: 1.3; }
+        .parameter-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; margin: 10px 0; border-radius: 8px; }
+        .parameter-highlight { background: #ffeb3b; padding: 2px 4px; border-radius: 3px; font-weight: bold; color: #2d2d2d; }
         .attention-visualization {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 4px;
-            margin: 20px auto;
-            max-width: 320px;
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
+            display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; margin: 20px auto; max-width: 320px;
+            background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;
         }
-        
         .attention-cell {
-            aspect-ratio: 1;
-            border-radius: 2px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            aspect-ratio: 1; border-radius: 2px; display: flex; align-items: center; justify-content: center;
+            font-size: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s ease;
         }
-        
-        .dimension-flow {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-        
-        .dimension-box {
-            background: #2d2d2d;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            min-width: 100px;
-        }
-        
-        .dimension-label {
-            font-size: 12px;
-            color: #28a745;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .dimension-value {
-            font-size: 16px;
-            font-weight: bold;
-        }
-        
-        .dimension-description {
-            font-size: 10px;
-            color: #adb5bd;
-            margin-top: 5px;
-        }
-        
-        .transform-arrow {
-            font-size: 20px;
-            color: #dc3545;
-            font-weight: bold;
-        }
-        
-        .memory-calculator {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 15px 0;
-        }
-        
-        .memory-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        .memory-row:last-child {
-            border-bottom: none;
-            font-weight: bold;
-            background: #e3f2fd;
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 10px;
-        }
-        
+        .dimension-flow { display: flex; align-items: center; justify-content: center; gap: 20px; margin: 20px 0; flex-wrap: wrap; }
+        .dimension-box { background: #2d2d2d; color: white; padding: 15px; border-radius: 8px; text-align: center; min-width: 100px; }
+        .dimension-label { font-size: 12px; color: #28a745; font-weight: bold; margin-bottom: 5px; }
+        .dimension-value { font-size: 16px; font-weight: bold; }
+        .dimension-description { font-size: 10px; color: #adb5bd; margin-top: 5px; }
+        .transform-arrow { font-size: 20px; color: #dc3545; font-weight: bold; }
+        .memory-calculator { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; margin: 15px 0; }
+        .memory-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #e9ecef; }
+        .memory-row:last-child { border-bottom: none; font-weight: bold; background: #e3f2fd; padding: 12px; border-radius: 6px; margin-top: 10px; }
         .layer-breakdown {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;
         }
-        
         .layer-card {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; text-align: center; cursor: pointer; transition: all 0.3s ease;
         }
-        
-        .layer-card:hover {
-            border-color: #2d2d2d;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-        }
-        
-        .layer-card.selected {
-            border-color: #28a745;
-            background: #d4edda;
-        }
-        
-        .layer-title {
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: #2d2d2d;
-        }
-        
-        .layer-params {
-            font-size: 12px;
-            color: #666;
-            font-family: 'Courier New', monospace;
-        }
-        
+        .layer-card:hover { border-color: #2d2d2d; transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); }
+        .layer-card.selected { border-color: #28a745; background: #d4edda; }
+        .layer-title { font-weight: bold; margin-bottom: 8px; color: #2d2d2d; }
+        .layer-params { font-size: 12px; color: #666; font-family: 'Courier New', monospace; }
         .positional-encoding-viz {
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            gap: 2px;
-            margin: 20px auto;
-            max-width: 500px;
-            background: #2d2d2d;
-            padding: 15px;
-            border-radius: 8px;
+            display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; margin: 20px auto; max-width: 500px; background: #2d2d2d; padding: 15px; border-radius: 8px;
         }
-        
         .pos-cell {
-            aspect-ratio: 1;
-            border-radius: 2px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 8px;
-            color: white;
-            font-weight: bold;
+            aspect-ratio: 1; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 8px; color: white; font-weight: bold;
         }
-        
-        .progress-bar {
-            width: 100%;
-            height: 20px;
-            background: #e9ecef;
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-        
+        .progress-bar { width: 100%; height: 20px; background: #e9ecef; border-radius: 10px; overflow: hidden; margin: 10px 0; }
         .progress-fill {
-            height: 100%;
-            background: linear-gradient(135deg, #28a745, #20c997);
-            transition: width 0.5s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 12px;
-            font-weight: bold;
+            height: 100%; background: linear-gradient(135deg, #28a745, #20c997); transition: width 0.5s ease;
+            display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold;
         }
-        
-        .complexity-analysis {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        
-        .scaling-chart {
-            display: flex;
-            justify-content: space-around;
-            margin: 20px 0;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .scale-point {
-            background: #2d2d2d;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            min-width: 120px;
-        }
-        
-        .scale-label {
-            font-size: 10px;
-            color: #28a745;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .scale-value {
-            font-size: 20px;
-            font-weight: bold;
-            margin: 5px 0;
-        }
-        
-        .scale-metric {
-            font-size: 12px;
-            color: #adb5bd;
-        }
+        .complexity-analysis { background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .scaling-chart { display: flex; justify-content: space-around; margin: 20px 0; flex-wrap: wrap; gap: 15px; }
+        .scale-point { background: #2d2d2d; color: white; padding: 15px; border-radius: 8px; text-align: center; min-width: 120px; }
+        .scale-label { font-size: 10px; color: #28a745; font-weight: bold; margin-bottom: 5px; }
+        .scale-value { font-size: 20px; font-weight: bold; margin: 5px 0; }
+        .scale-metric { font-size: 12px; color: #adb5bd; }
     </style>
 </head>
 <body>
@@ -570,7 +190,6 @@
     <div class="container">
         <h1>🖼️ Vision Transformers: From Pixels to Patches</h1>
         <p>Master the complete mathematical and architectural foundations of Vision Transformers. From the revolutionary patch embedding concept to multi-head self-attention in the visual domain, understand every component that makes ViTs work.</p>
-        
         <div class="info">
             <strong>🎯 What You'll Master:</strong> Patch tokenization mathematics, 2D positional encoding, visual attention mechanics, architecture scaling, memory analysis, and the complete ViT forward pass with real model specifications.
         </div>
@@ -578,12 +197,9 @@
 
     <div class="container">
         <h2>🧩 The Core Innovation: Treating Images as Sequences</h2>
-        
         <div class="step">
             <h3>💡 The Fundamental Insight</h3>
-            
             <p>Vision Transformers revolutionized computer vision with a deceptively simple idea: <strong>treat an image as a sequence of patches</strong>, just like text is a sequence of words.</p>
-            
             <div class="math-formula">
                 <strong>ViT Core Transformation:</strong><br><br>
                 Image(H × W × C) → Patches(N × (P² × C)) → Tokens(N × D)<br><br>
@@ -595,13 +211,11 @@
                 • D = Embedding dimension (768 for ViT-Base)
             </div>
         </div>
-        
+
         <div class="step">
             <h3>🔍 Interactive Patch Tokenization</h3>
-            
             <div class="interactive-demo">
                 <div class="demo-title">🧩 Patch Grid Visualizer</div>
-                
                 <div class="controls">
                     <div class="control-group">
                         <label><strong>Image Size:</strong></label>
@@ -629,7 +243,6 @@
                         </select>
                     </div>
                 </div>
-                
                 <button onclick="generatePatchGrid()">🎨 Generate Patch Visualization</button>
                 <div id="patchGridContainer"></div>
                 <div id="patchAnalysis"></div>
@@ -639,10 +252,8 @@
 
     <div class="container">
         <h2>🏗️ ViT Architecture: Complete Mathematical Breakdown</h2>
-        
         <div class="step">
             <h3>📊 Architecture Flow: From Pixels to Predictions</h3>
-            
             <div class="architecture-flow">
                 <div class="flow-step">
                     <div class="flow-title">Input Image</div>
@@ -670,12 +281,10 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="step">
             <h3>🧮 Step 1: Patch Embedding Mathematics</h3>
-            
             <p>The first crucial step converts image patches into embeddings that transformers can process.</p>
-            
             <div class="math-formula">
                 <strong>Patch Embedding Process:</strong><br><br>
                 1. Extract patches: x<sub>p</sub> ∈ ℝ<sup>N×(P²×C)</sup><br>
@@ -683,10 +292,8 @@
                 3. Where W<sub>p</sub> ∈ ℝ<sup>(P²×C)×D</sup> is learnable projection<br><br>
                 <strong>Key insight:</strong> Each patch becomes a D-dimensional vector
             </div>
-            
             <div class="interactive-demo">
                 <div class="demo-title">🔢 Patch Embedding Calculator</div>
-                
                 <div class="controls">
                     <div class="control-group">
                         <label><strong>Image Resolution:</strong></label>
@@ -708,17 +315,14 @@
                         </select>
                     </div>
                 </div>
-                
                 <button onclick="calculatePatchEmbedding()">🧮 Calculate Embedding Dimensions</button>
                 <div id="embeddingResults"></div>
             </div>
         </div>
-        
+
         <div class="step">
             <h3>📍 Step 2: Positional Encoding for 2D Images</h3>
-            
             <p>Unlike text, images have 2D spatial structure. ViTs use learnable positional embeddings to encode spatial relationships.</p>
-            
             <div class="math-formula">
                 <strong>2D Positional Encoding:</strong><br><br>
                 z₀ = [x<sub>class</sub>; x<sub>p1</sub>E; x<sub>p2</sub>E; ...; x<sub>pN</sub>E] + E<sub>pos</sub><br><br>
@@ -727,10 +331,8 @@
                 • E<sub>pos</sub> ∈ ℝ<sup>(N+1)×D</sup> is learnable position embedding<br>
                 • Each patch gets unique position information
             </div>
-            
             <div class="interactive-demo">
                 <div class="demo-title">📍 Positional Encoding Visualizer</div>
-                
                 <div class="controls">
                     <div class="control-group">
                         <label><strong>Grid Size:</strong></label>
@@ -746,18 +348,15 @@
                         </select>
                     </div>
                 </div>
-                
                 <button onclick="visualizePositionalEncoding()">🎨 Visualize Position Encoding</button>
                 <div id="posEncodingViz"></div>
                 <div id="posEncodingAnalysis"></div>
             </div>
         </div>
-        
+
         <div class="step">
             <h3>🎯 Step 3: Multi-Head Self-Attention for Vision</h3>
-            
             <p>Self-attention in vision enables each patch to attend to all other patches, creating global receptive fields from layer 1.</p>
-            
             <div class="math-formula">
                 <strong>Visual Self-Attention Mathematics:</strong><br><br>
                 Attention(Q,K,V) = softmax(QK<sup>T</sup>/√d<sub>k</sub>)V<br><br>
@@ -766,56 +365,36 @@
                 • K<sub>h</sub> = z<sub>l-1</sub>W<sub>k</sub><sup>h</sup> ∈ ℝ<sup>(N+1)×d<sub>h</sub></sup><br>
                 • V<sub>h</sub> = z<sub>l-1</sub>W<sub>v</sub><sup>h</sup> ∈ ℝ<sup>(N+1)×d<sub>h</sub></sup><br>
                 • d<sub>h</sub> = D/H (head dimension)
-            </math-formula>
-            
+            </div>
+
             <div class="layer-breakdown">
                 <div class="layer-card" onclick="selectLayer('attention')" id="attention-layer">
                     <div class="layer-title">🎯 Multi-Head Attention</div>
-                    <div class="layer-params">
-                        Params: 3×D²<br>
-                        Complexity: O(N²)<br>
-                        Global receptive field
-                    </div>
+                    <div class="layer-params">Params: 3×D²<br>Complexity: O(N²)<br>Global receptive field</div>
                 </div>
                 <div class="layer-card" onclick="selectLayer('mlp')" id="mlp-layer">
                     <div class="layer-title">🧠 MLP Block</div>
-                    <div class="layer-params">
-                        Params: 8×D²<br>
-                        Hidden: 4×D<br>
-                        GELU activation
-                    </div>
+                    <div class="layer-params">Params: 8×D²<br>Hidden: 4×D<br>GELU activation</div>
                 </div>
                 <div class="layer-card" onclick="selectLayer('norm')" id="norm-layer">
                     <div class="layer-title">📊 Layer Normalization</div>
-                    <div class="layer-params">
-                        Params: 2×D<br>
-                        Pre-norm architecture<br>
-                        Stabilizes training
-                    </div>
+                    <div class="layer-params">Params: 2×D<br>Pre-norm architecture<br>Stabilizes training</div>
                 </div>
                 <div class="layer-card" onclick="selectLayer('residual')" id="residual-layer">
                     <div class="layer-title">🔗 Residual Connections</div>
-                    <div class="layer-params">
-                        Params: 0<br>
-                        Enables deep networks<br>
-                        Gradient flow
-                    </div>
+                    <div class="layer-params">Params: 0<br>Enables deep networks<br>Gradient flow</div>
                 </div>
             </div>
-            
             <div id="layerAnalysis"></div>
         </div>
     </div>
 
     <div class="container">
         <h2>📏 ViT Model Variants: Scaling Analysis</h2>
-        
         <div class="step">
             <h3>🔢 Complete Model Specifications</h3>
-            
             <div class="interactive-demo">
                 <div class="demo-title">⚖️ ViT Model Comparison</div>
-                
                 <div class="controls">
                     <div class="control-group">
                         <label><strong>Model Variant:</strong></label>
@@ -846,35 +425,29 @@
                         </select>
                     </div>
                 </div>
-                
                 <button onclick="analyzeViTVariant()">📊 Analyze Model Variant</button>
                 <div id="vitAnalysisResults"></div>
             </div>
         </div>
-        
+
         <div class="step">
             <h3>💾 Memory Scaling: The Quadratic Challenge</h3>
-            
             <p>Vision Transformers face the same quadratic scaling challenge as text transformers, but with 2D images creating even larger sequence lengths.</p>
-            
             <div class="complexity-analysis">
                 <strong>⚠️ ViT Computational Complexity:</strong><br><br>
-                
                 <strong>Self-Attention Complexity:</strong><br>
                 • Memory: O(N²) where N = (H×W)/P²<br>
                 • For 384×384 image with 16×16 patches: N = 576<br>
                 • Attention matrix: 576² = 331,776 elements per head<br>
                 • With 12 heads: ~4M attention weights per layer<br><br>
-                
                 <strong>Why This Matters:</strong><br>
                 • Doubling image size → 4× more attention computation<br>
                 • 1024×1024 images → 4,096 patches → 16M attention matrix<br>
                 • Memory becomes the primary constraint for high-resolution images
             </div>
-            
+
             <div class="interactive-demo">
                 <div class="demo-title">💾 Memory Scaling Calculator</div>
-                
                 <div class="controls">
                     <div class="control-group">
                         <label><strong>Image Resolution:</strong></label>
@@ -895,7 +468,6 @@
                         </select>
                     </div>
                 </div>
-                
                 <button onclick="calculateMemoryUsage()">💻 Calculate Memory Requirements</button>
                 <div id="memoryResults"></div>
             </div>
@@ -904,15 +476,11 @@
 
     <div class="container">
         <h2>🔬 Advanced ViT Concepts</h2>
-        
         <div class="step">
             <h3>🎯 Attention Pattern Analysis</h3>
-            
             <p>Understanding what ViTs "see" through attention patterns reveals how they process visual information differently from CNNs.</p>
-            
             <div class="interactive-demo">
                 <div class="demo-title">🔍 Attention Pattern Simulator</div>
-                
                 <div class="controls">
                     <div class="control-group">
                         <label><strong>Layer Depth:</strong></label>
@@ -934,18 +502,15 @@
                         </select>
                     </div>
                 </div>
-                
                 <button onclick="simulateAttentionPatterns()">🎨 Generate Attention Visualization</button>
                 <div id="attentionVisualization"></div>
                 <div id="attentionInsights"></div>
             </div>
         </div>
-        
+
         <div class="step">
             <h3>📈 Performance vs Scale: Empirical Analysis</h3>
-            
             <p>Real-world performance data shows how ViT variants perform across different scales and datasets.</p>
-            
             <table>
                 <tr>
                     <th>Model</th>
@@ -988,7 +553,6 @@
                     <td class="poor">30+ days</td>
                 </tr>
             </table>
-            
             <div class="success">
                 <strong>🎯 Key Insights:</strong><br>
                 • ViTs scale predictably with parameters and data<br>
@@ -1002,49 +566,30 @@
 
     <div class="container">
         <h2>🚀 Production Considerations</h2>
-        
         <div class="step">
             <h3>⚡ Inference Optimization Strategies</h3>
-            
             <div class="layer-breakdown">
                 <div class="layer-card">
                     <div class="layer-title">✂️ Patch Size Optimization</div>
-                    <div class="layer-params">
-                        Larger patches → Fewer tokens<br>
-                        16×16 vs 32×32 trade-off<br>
-                        Resolution vs efficiency
-                    </div>
+                    <div class="layer-params">Larger patches → Fewer tokens<br>16×16 vs 32×32 trade-off<br>Resolution vs efficiency</div>
                 </div>
                 <div class="layer-card">
                     <div class="layer-title">🎯 Attention Optimization</div>
-                    <div class="layer-params">
-                        Linear attention variants<br>
-                        Sparse attention patterns<br>
-                        Local attention windows
-                    </div>
+                    <div class="layer-params">Linear attention variants<br>Sparse attention patterns<br>Local attention windows</div>
                 </div>
                 <div class="layer-card">
                     <div class="layer-title">📱 Mobile-Friendly ViTs</div>
-                    <div class="layer-params">
-                        MobileViT architectures<br>
-                        Quantization strategies<br>
-                        Knowledge distillation
-                    </div>
+                    <div class="layer-params">MobileViT architectures<br>Quantization strategies<br>Knowledge distillation</div>
                 </div>
                 <div class="layer-card">
                     <div class="layer-title">🔄 Dynamic Resolution</div>
-                    <div class="layer-params">
-                        Adaptive input sizing<br>
-                        Multi-scale inference<br>
-                        Efficiency-accuracy trade-offs
-                    </div>
+                    <div class="layer-params">Adaptive input sizing<br>Multi-scale inference<br>Efficiency-accuracy trade-offs</div>
                 </div>
             </div>
         </div>
-        
+
         <div class="step">
             <h3>🎯 When to Choose ViT: Decision Framework</h3>
-            
             <div class="success">
                 <strong>✅ Use ViT When:</strong><br>
                 • Large datasets available (10M+ images)<br>
@@ -1052,7 +597,6 @@
                 • Transfer learning from large pre-trained models<br>
                 • Multimodal applications (vision + language)<br>
                 • Research exploring attention patterns<br><br>
-                
                 <strong>⚠️ Consider Alternatives When:</strong><br>
                 • Limited training data (<1M images)<br>
                 • Mobile/edge deployment constraints<br>
@@ -1061,40 +605,44 @@
                 • Extremely high-resolution images (>1024px)
             </div>
         </div>
-        
+
         <div class="info">
             <strong>🎓 Next Steps:</strong> Now that you understand ViT fundamentals, you're ready to explore patch embeddings in detail, cross-modal attention in CLIP, and advanced architectures like Swin Transformers. The mathematical foundation you've built here applies to all vision transformer variants.
         </div>
     </div>
 
     <script>
-        // Model specifications for ViT variants
+        // ---------- Model specs ----------
         const vitModels = {
-            tiny: { layers: 12, dim: 192, heads: 3, mlpRatio: 4, params: 5.7e6, patches: 16 },
-            small: { layers: 12, dim: 384, heads: 6, mlpRatio: 4, params: 22e6, patches: 16 },
-            base: { layers: 12, dim: 768, heads: 12, mlpRatio: 4, params: 86e6, patches: 16 },
-            large: { layers: 24, dim: 1024, heads: 16, mlpRatio: 4, params: 307e6, patches: 16 },
-            huge: { layers: 32, dim: 1280, heads: 16, mlpRatio: 4, params: 632e6, patches: 14 },
-            giant: { layers: 40, dim: 1408, heads: 16, mlpRatio: 48/11, params: 1.8e9, patches: 14 }
+            tiny:  { layers: 12, dim: 192,  heads: 3,  mlpRatio: 4,      params: 5.7e6,  patches: 16 },
+            small: { layers: 12, dim: 384,  heads: 6,  mlpRatio: 4,      params: 22e6,   patches: 16 },
+            base:  { layers: 12, dim: 768,  heads: 12, mlpRatio: 4,      params: 86e6,   patches: 16 },
+            large: { layers: 24, dim: 1024, heads: 16, mlpRatio: 4,      params: 307e6,  patches: 16 },
+            huge:  { layers: 32, dim: 1280, heads: 16, mlpRatio: 4,      params: 632e6,  patches: 14 },
+            giant: { layers: 40, dim: 1408, heads: 16, mlpRatio: 48/11,  params: 1.8e9,  patches: 14 }
         };
 
+        // ---------- Helpers ----------
+        const clamp01 = (x) => Math.max(0, Math.min(1, x));
+
+        // ---------- Patch grid ----------
         function generatePatchGrid() {
             const imageSize = parseInt(document.getElementById('imageSize').value);
             const patchSize = parseInt(document.getElementById('patchSize').value);
-            const vizMode = document.getElementById('vizMode').value;
-            
+            const vizMode   = document.getElementById('vizMode').value;
+
             const patchesPerSide = imageSize / patchSize;
-            const totalPatches = patchesPerSide * patchesPerSide;
-            
+            const totalPatches   = patchesPerSide * patchesPerSide;
+
             let gridHtml = `<div class="patch-grid" style="grid-template-columns: repeat(${patchesPerSide}, 1fr);">`;
-            
+
             for (let i = 0; i < totalPatches; i++) {
                 const row = Math.floor(i / patchesPerSide);
                 const col = i % patchesPerSide;
-                
+
                 let cellContent = '';
                 let cellClass = 'patch-cell';
-                
+
                 if (vizMode === 'patches') {
                     cellContent = `${row},${col}`;
                 } else if (vizMode === 'sequence') {
@@ -1104,16 +652,14 @@
                     cellClass += intensity > 0 ? ' selected' : '';
                     cellContent = Math.round(Math.abs(intensity) * 9);
                 }
-                
+
                 gridHtml += `<div class="${cellClass}" onclick="selectPatch(${i})">${cellContent}</div>`;
             }
-            
             gridHtml += '</div>';
-            
+
             const analysisHtml = `
                 <div class="step">
                     <h4>📊 Patch Analysis: ${imageSize}×${imageSize} → ${patchSize}×${patchSize}</h4>
-                    
                     <div class="parameter-box">
                         <strong>Tokenization Results:</strong><br>
                         • <span class="parameter-highlight">Total Patches:</span> ${totalPatches}<br>
@@ -1121,7 +667,6 @@
                         • <span class="parameter-highlight">Patch Resolution:</span> ${patchesPerSide}×${patchesPerSide} grid<br>
                         • <span class="parameter-highlight">Information Density:</span> ${(imageSize * imageSize) / totalPatches} pixels/token
                     </div>
-                    
                     <div class="memory-calculator">
                         <div class="memory-row">
                             <span>Raw Image Size:</span>
@@ -1137,30 +682,29 @@
                         </div>
                         <div class="memory-row">
                             <span>Total Sequence Memory:</span>
-                            <span>${((totalPatches + 1) * 768 * 2 / 1024).toFixed(2)} KB (FP16)</span>
+                            <span>${(((totalPatches + 1) * 768 * 2) / 1024).toFixed(2)} KB (FP16)</span>
                         </div>
                     </div>
                 </div>
             `;
-            
             document.getElementById('patchGridContainer').innerHTML = gridHtml;
             document.getElementById('patchAnalysis').innerHTML = analysisHtml;
         }
 
+        // ---------- Patch embedding calculator ----------
         function calculatePatchEmbedding() {
             const imageRes = parseInt(document.getElementById('embedImageRes').value);
             const patchSize = parseInt(document.getElementById('embedPatchSize').value);
             const embedDim = parseInt(document.getElementById('embedDim').value);
-            
+
             const patchesPerSide = imageRes / patchSize;
             const numPatches = patchesPerSide * patchesPerSide;
             const patchElements = patchSize * patchSize * 3; // RGB channels
             const embeddingParams = patchElements * embedDim;
-            
+
             let html = `
                 <div class="step">
                     <h4>🧮 Patch Embedding Calculation</h4>
-                    
                     <div class="dimension-flow">
                         <div class="dimension-box">
                             <div class="dimension-label">Input Patches</div>
@@ -1180,7 +724,6 @@
                             <div class="dimension-description">Linear projection</div>
                         </div>
                     </div>
-                    
                     <table>
                         <tr><th>Component</th><th>Dimensions</th><th>Parameters</th><th>Memory (FP16)</th></tr>
                         <tr>
@@ -1202,7 +745,6 @@
                             <td>${((numPatches * embedDim * 2) / 1024).toFixed(1)} KB</td>
                         </tr>
                     </table>
-                    
                     <div class="info">
                         <strong>💡 Key Insights:</strong><br>
                         • Patch embedding is the largest parameter component after attention<br>
@@ -1212,1192 +754,480 @@
                     </div>
                 </div>
             `;
-            
             document.getElementById('embeddingResults').innerHTML = html;
         }
 
+        // ---------- Positional encoding ----------
         function visualizePositionalEncoding() {
             const gridSize = parseInt(document.getElementById('posGridSize').value);
             const encodingType = document.getElementById('posEncodingType').value;
-            
+
             let vizHtml = `<div class="positional-encoding-viz" style="grid-template-columns: repeat(${gridSize}, 1fr);">`;
-            
-            // Add CLS token
+            // CLS token
             vizHtml += `<div class="pos-cell" style="background: #dc3545;">CLS</div>`;
-            
-            // Add positional encodings for patches
+
+            // Patches
             for (let i = 0; i < gridSize * gridSize - 1; i++) {
                 const row = Math.floor(i / gridSize);
                 const col = i % gridSize;
-                
+
                 let intensity;
                 if (encodingType === 'learnable') {
                     intensity = (i + 1) / (gridSize * gridSize);
                 } else if (encodingType === 'sinusoidal') {
                     intensity = (Math.sin(row * 0.5) + Math.cos(col * 0.5) + 2) / 4;
                 } else { // relative
-                    const distance = Math.sqrt(Math.pow(row - gridSize/2, 2) + Math.pow(col - gridSize/2, 2));
+                    const distance = Math.sqrt((row - gridSize/2) ** 2 + (col - gridSize/2) ** 2);
                     intensity = 1 - (distance / (gridSize * 0.7));
                 }
-                
+                intensity = clamp01(intensity);
                 const color = `hsl(${intensity * 240}, 70%, ${50 + intensity * 30}%)`;
                 vizHtml += `<div class="pos-cell" style="background: ${color};">${i + 1}</div>`;
             }
-            
             vizHtml += '</div>';
-            
+
             const analysisHtml = `
                 <div class="step">
                     <h4>📍 Positional Encoding Analysis</h4>
-                    
                     <div class="parameter-box">
                         <strong>Encoding Configuration:</strong><br>
                         • <span class="parameter-highlight">Type:</span> ${encodingType.charAt(0).toUpperCase() + encodingType.slice(1)}<br>
                         • <span class="parameter-highlight">Grid Size:</span> ${gridSize}×${gridSize}<br>
-                        • <span class="parameter-highlight">Total Positions:</span> ${gridSize * gridSize + 1} (including CLS)<br>
+                        • <span class="parameter-highlight">Total Positions:</span> ${gridSize * gridSize} (including CLS)<br>
                         • <span class="parameter-highlight">Parameters:</span> ${encodingType === 'learnable' ? (gridSize * gridSize + 1) + '×D learnable' : 'Fixed mathematical'}
                     </div>
-                    
                     <div class="${encodingType === 'learnable' ? 'success' : 'info'}">
                         <strong>${encodingType === 'learnable' ? '✅' : '💡'} ${encodingType.charAt(0).toUpperCase() + encodingType.slice(1)} Encoding:</strong><br>
-                        ${encodingType === 'learnable' ? 
-                            'Standard ViT approach - each position learns unique embedding during training. Flexible but requires more parameters.' :
-                            encodingType === 'sinusoidal' ?
-                            'Fixed mathematical encoding using sine/cosine functions. Parameter-free but less flexible for 2D spatial relationships.' :
-                            'Relative position encoding - encodes relationships between positions rather than absolute positions. Better for variable input sizes.'
+                        ${encodingType === 'learnable'
+                            ? 'Standard ViT approach - each position learns unique embedding during training. Flexible but requires more parameters.'
+                            : encodingType === 'sinusoidal'
+                                ? 'Fixed mathematical encoding using sine/cosine functions. Parameter-free but less flexible for 2D spatial relationships.'
+                                : 'Relative position encoding - encodes relationships between positions rather than absolute positions. Better for variable input sizes.'
                         }
                     </div>
                 </div>
             `;
-            
             document.getElementById('posEncodingViz').innerHTML = vizHtml;
             document.getElementById('posEncodingAnalysis').innerHTML = analysisHtml;
+        }
+
+        // ---------- Layer card selection ----------
+        function selectLayer(layerType) {
+            document.querySelectorAll('.layer-card').forEach(card => card.classList.remove('selected'));
+            const target = document.getElementById(layerType + '-layer');
+            if (target) target.classList.add('selected');
+
+            const layerSpecs = {
+                attention: {
+                    name: 'Multi-Head Self-Attention',
+                    params: '3×D² (Q,K,V projections) + D² (output projection)',
+                    complexity: 'O(N²×D) for attention matrix + O(N×D²) for projections',
+                    function: 'Enables global receptive field - every patch can attend to every other patch',
+                    insights: [
+                        'Quadratic memory scaling with sequence length',
+                        'Different heads learn different attention patterns',
+                        'Global context from layer 1 unlike CNNs',
+                        'Attention weights provide interpretability'
+                    ]
+                },
+                mlp: {
+                    name: 'Multi-Layer Perceptron',
+                    params: '2×4D² (hidden dimension is 4×D)',
+                    complexity: 'O(N×D²) - linear in sequence length',
+                    function: 'Position-wise feed-forward processing for feature transformation',
+                    insights: [
+                        'Largest parameter component in transformer',
+                        'Hidden dimension typically 4× embedding dimension',
+                        'GELU activation for smooth gradients',
+                        'Independent processing for each token'
+                    ]
+                },
+                norm: {
+                    name: 'Layer Normalization',
+                    params: '2×D (scale and shift parameters)',
+                    complexity: 'O(N×D) - very efficient',
+                    function: 'Normalizes layer inputs for stable training',
+                    insights: [
+                        'Pre-norm architecture (before attention/MLP)',
+                        'Helps with gradient flow in deep networks',
+                        'Reduces internal covariate shift',
+                        'Minimal parameter overhead'
+                    ]
+                },
+                residual: {
+                    name: 'Residual Connections',
+                    params: '0 (no additional parameters)',
+                    complexity: 'O(N×D) - just addition',
+                    function: 'Enables training of very deep networks',
+                    insights: [
+                        'Prevents vanishing gradient problem',
+                        'Allows information to skip layers',
+                        'Essential for training 24+ layer models',
+                        'Identity mapping preserves gradients'
+                    ]
+                }
+            };
+
+            const spec = layerSpecs[layerType];
+            if (!spec) return;
+
+            const html = `
+                <div class="step">
+                    <h4>🔍 ${spec.name} Deep Dive</h4>
+                    <div class="parameter-box">
+                        <strong>Mathematical Specification:</strong><br>
+                        • <span class="parameter-highlight">Parameters:</span> ${spec.params}<br>
+                        • <span class="parameter-highlight">Complexity:</span> ${spec.complexity}<br>
+                        • <span class="parameter-highlight">Function:</span> ${spec.function}
+                    </div>
+                    <div class="success">
+                        <strong>🎯 Key Insights:</strong><br>
+                        ${spec.insights.map(insight => `• ${insight}`).join('<br>')}
+                    </div>
+                </div>
+            `;
+            document.getElementById('layerAnalysis').innerHTML = html;
+        }
+
+        // ---------- Variant analysis ----------
+        function analyzeViTVariant() {
+            const variant = document.getElementById('vitVariant').value;
+            const resolution = parseInt(document.getElementById('vitResolution').value);
+            const analysisType = document.getElementById('analysisType').value;
+
+            const model = vitModels[variant];
+            const patchSize = model.patches;
+            const numPatches = (resolution / patchSize) ** 2;
+            const seqLen = numPatches + 1; // +1 for CLS
+
+            let html = `<div class="step"><h4>📊 ${variant.toUpperCase()} Analysis</h4>`;
+
+            if (analysisType === 'parameters') {
+                const patchEmbedParams = (patchSize * patchSize * 3) * model.dim;
+                const posEmbedParams   = seqLen * model.dim;
+                const attentionParams  = model.layers * 4 * model.dim * model.dim; // Q,K,V,O projections
+                const mlpParams        = model.layers * 2 * model.dim * (model.dim * model.mlpRatio);
+                const normParams       = model.layers * 2 * 2 * model.dim; // 2 norms per layer, 2 params each
+
+                html += `
+                    <table>
+                        <tr><th>Component</th><th>Parameters</th><th>Percentage</th><th>Memory (FP16)</th></tr>
+                        <tr>
+                            <td><strong>Patch Embedding</strong></td>
+                            <td>${(patchEmbedParams / 1e6).toFixed(1)}M</td>
+                            <td>${(patchEmbedParams / model.params * 100).toFixed(1)}%</td>
+                            <td>${(patchEmbedParams * 2 / 1024 / 1024).toFixed(1)}MB</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Position Embedding</strong></td>
+                            <td>${(posEmbedParams / 1e3).toFixed(0)}K</td>
+                            <td>${(posEmbedParams / model.params * 100).toFixed(2)}%</td>
+                            <td>${(posEmbedParams * 2 / 1024).toFixed(1)}KB</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Attention Layers</strong></td>
+                            <td class="moderate">${(attentionParams / 1e6).toFixed(1)}M</td>
+                            <td>${(attentionParams / model.params * 100).toFixed(1)}%</td>
+                            <td>${(attentionParams * 2 / 1024 / 1024).toFixed(1)}MB</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MLP Layers</strong></td>
+                            <td class="poor">${(mlpParams / 1e6).toFixed(1)}M</td>
+                            <td>${(mlpParams / model.params * 100).toFixed(1)}%</td>
+                            <td>${(mlpParams * 2 / 1024 / 1024).toFixed(1)}MB</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Layer Norms</strong></td>
+                            <td>${(normParams / 1e3).toFixed(0)}K</td>
+                            <td>${(normParams / model.params * 100).toFixed(2)}%</td>
+                            <td>${(normParams * 2 / 1024).toFixed(1)}KB</td>
+                        </tr>
+                    </table>
+                `;
+            } else if (analysisType === 'memory') {
+                const modelMemory     = model.params * 2 / 1024 / 1024; // FP16 MB
+                const attentionMemory = model.layers * model.heads * seqLen * seqLen * 2 / 1024 / 1024; // FP16 MB
+                const activationMemory= model.layers * seqLen * model.dim * 2 / 1024 / 1024; // FP16 MB
+                const totalMemory     = modelMemory + attentionMemory + activationMemory;
+
+                html += `
+                    <table>
+                        <tr><th>Memory Component</th><th>Size (MB)</th><th>Scaling</th><th>Notes</th></tr>
+                        <tr>
+                            <td><strong>Model Parameters</strong></td>
+                            <td class="moderate">${modelMemory.toFixed(0)}MB</td>
+                            <td>O(1)</td>
+                            <td>Fixed regardless of input size</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Attention Maps</strong></td>
+                            <td class="poor">${attentionMemory.toFixed(0)}MB</td>
+                            <td>O(N²)</td>
+                            <td>Quadratic in sequence length</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Activations</strong></td>
+                            <td class="moderate">${activationMemory.toFixed(0)}MB</td>
+                            <td>O(N)</td>
+                            <td>Linear in sequence length</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total Memory</strong></td>
+                            <td class="${totalMemory < 4000 ? 'winner' : totalMemory < 8000 ? 'moderate' : 'poor'}">${totalMemory.toFixed(0)}MB</td>
+                            <td>O(N²)</td>
+                            <td>${totalMemory < 4000 ? 'Single GPU friendly' : totalMemory < 8000 ? 'High-end GPU needed' : 'Multi-GPU required'}</td>
+                        </tr>
+                    </table>
+                    <div class="warning">
+                        <strong>⚠️ Memory Bottleneck:</strong> At ${resolution}×${resolution} with ${patchSize}×${patchSize} patches,
+                        attention memory dominates for batch sizes > 1. Consider gradient checkpointing or smaller batch sizes.
+                    </div>
+                `;
+            } else if (analysisType === 'flops') {
+                const patchEmbedFlops = numPatches * (patchSize * patchSize * 3) * model.dim;
+                const attentionFlops  = model.layers * (
+                    3 * seqLen * model.dim * model.dim +           // Q,K,V
+                    model.heads * seqLen * seqLen * (model.dim / model.heads) + // attn
+                    seqLen * model.dim * model.dim                // output proj
+                );
+                const mlpFlops        = model.layers * 2 * seqLen * model.dim * (model.dim * model.mlpRatio);
+                const totalFlops      = patchEmbedFlops + attentionFlops + mlpFlops;
+
+                html += `
+                    <table>
+                        <tr><th>Operation</th><th>FLOPs</th><th>Percentage</th><th>Complexity</th></tr>
+                        <tr>
+                            <td><strong>Patch Embedding</strong></td>
+                            <td>${(patchEmbedFlops / 1e9).toFixed(2)}G</td>
+                            <td>${(patchEmbedFlops / totalFlops * 100).toFixed(1)}%</td>
+                            <td>O(N×D²)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Attention Layers</strong></td>
+                            <td class="moderate">${(attentionFlops / 1e9).toFixed(2)}G</td>
+                            <td>${(attentionFlops / totalFlops * 100).toFixed(1)}%</td>
+                            <td>O(N²×D)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MLP Layers</strong></td>
+                            <td class="poor">${(mlpFlops / 1e9).toFixed(2)}G</td>
+                            <td>${(mlpFlops / totalFlops * 100).toFixed(1)}%</td>
+                            <td>O(N×D²)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total FLOPs</strong></td>
+                            <td class="winner">${(totalFlops / 1e9).toFixed(2)}G</td>
+                            <td>100%</td>
+                            <td>O(N²×D + N×D²)</td>
+                        </tr>
+                    </table>
+                    <div class="info">
+                        <strong>💡 Computational Insights:</strong><br>
+                        • MLP layers dominate compute for typical model sizes<br>
+                        • Attention becomes bottleneck at very high resolutions<br>
+                        • Total FLOPs: ${(totalFlops / 1e12).toFixed(3)} TFLOPs for single forward pass
+                    </div>
+                `;
+            } else {
+                const baselineParams = vitModels.base.params;
+                const baselinePerf = 77.9;
+                const estimatedPerf = baselinePerf + Math.log(model.params / baselineParams) * 8; // heuristic
+
+                html += `
+                    <div class="scaling-chart">
+                        <div class="scale-point">
+                            <div class="scale-label">Model Size</div>
+                            <div class="scale-value">${(model.params / 1e6).toFixed(0)}M</div>
+                            <div class="scale-metric">Parameters</div>
+                        </div>
+                        <div class="scale-point">
+                            <div class="scale-label">Est. Performance</div>
+                            <div class="scale-value">${estimatedPerf.toFixed(1)}%</div>
+                            <div class="scale-metric">ImageNet Top-1</div>
+                        </div>
+                        <div class="scale-point">
+                            <div class="scale-label">Training Cost</div>
+                            <div class="scale-value">${Math.round(model.params / 1e8)}×</div>
+                            <div class="scale-metric">vs ViT-Base</div>
+                        </div>
+                        <div class="scale-point">
+                            <div class="scale-label">Inference Speed</div>
+                            <div class="scale-value">${(baselineParams / model.params).toFixed(2)}×</div>
+                            <div class="scale-metric">Relative to Base</div>
+                        </div>
+                    </div>
+                    <div class="success">
+                        <strong>📈 Scaling Analysis:</strong><br>
+                        • Performance scales logarithmically with parameters<br>
+                        • Training cost scales super-linearly (data + compute needs)<br>
+                        • Inference speed scales roughly linearly with parameters<br>
+                        • Diminishing returns beyond ViT-Large for most applications
+                    </div>
+                `;
+            }
+            html += '</div>';
+            document.getElementById('vitAnalysisResults').innerHTML = html;
+        }
+
+        // ---------- Memory usage ----------
+        function calculateMemoryUsage() {
+            const resolution = parseInt(document.getElementById('memImageRes').value);
+            const batchSize  = parseInt(document.getElementById('memBatchSize').value);
+            const precision  = document.getElementById('memPrecision').value;
+
+            const bytesPerParam = (precision === 'fp32') ? 4 : 2; // FP16/BF16
+            const patchSize = 16; // standard ViT
+            const numPatches = (resolution / patchSize) ** 2;
+            const seqLen = numPatches + 1;
+            const embedDim = 768; // ViT-Base
+            const numLayers = 12, numHeads = 12;
+
+            const modelParams       = 86e6 * bytesPerParam;
+            const inputMemory       = batchSize * resolution * resolution * 3 * bytesPerParam;
+            const embeddingMemory   = batchSize * seqLen * embedDim * bytesPerParam;
+            const attentionMemory   = batchSize * numLayers * numHeads * seqLen * seqLen * bytesPerParam;
+            const activationMemory  = batchSize * numLayers * seqLen * embedDim * 4 * bytesPerParam;
+
+            const totalMemory = modelParams + inputMemory + embeddingMemory + attentionMemory + activationMemory;
+
+            const html = `
+                <div class="step">
+                    <h4>💾 Memory Analysis: ${resolution}×${resolution}, Batch=${batchSize}, ${precision.toUpperCase()}</h4>
+                    <div class="memory-calculator">
+                        <div class="memory-row"><span>Model Parameters:</span><span>${(modelParams / 1024 / 1024).toFixed(0)} MB</span></div>
+                        <div class="memory-row"><span>Input Images:</span><span>${(inputMemory / 1024 / 1024).toFixed(0)} MB</span></div>
+                        <div class="memory-row"><span>Patch Embeddings:</span><span>${(embeddingMemory / 1024 / 1024).toFixed(0)} MB</span></div>
+                        <div class="memory-row"><span>Attention Maps:</span><span>${(attentionMemory / 1024 / 1024).toFixed(0)} MB</span></div>
+                        <div class="memory-row"><span>Activations:</span><span>${(activationMemory / 1024 / 1024).toFixed(0)} MB</span></div>
+                        <div class="memory-row"><span>Total GPU Memory:</span><span>${(totalMemory / 1024 / 1024 / 1024).toFixed(1)} GB</span></div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${Math.min(100, (totalMemory / 1024 / 1024 / 1024) / 80 * 100)}%">
+                            ${(totalMemory / 1024 / 1024 / 1024).toFixed(1)} GB / 80GB (A100)
+                        </div>
+                    </div>
+                    <div class="${totalMemory / 1024 / 1024 / 1024 < 24 ? 'success' : totalMemory / 1024 / 1024 / 1024 < 40 ? 'warning' : 'danger'}">
+                        <strong>Hardware Recommendation:</strong><br>
+                        ${
+                            totalMemory / 1024 / 1024 / 1024 < 12 ? 'RTX 3080/4080 (12GB) sufficient' :
+                            totalMemory / 1024 / 1024 / 1024 < 24 ? 'RTX 3090/4090 (24GB) recommended' :
+                            totalMemory / 1024 / 1024 / 1024 < 40 ? 'A100 (40GB) required' :
+                            totalMemory / 1024 / 1024 / 1024 < 80 ? 'A100 (80GB) required' :
+                            'Multi-GPU setup required'
+                        }<br><br>
+                        <strong>Optimization Strategies:</strong><br>
+                        ${
+                            totalMemory / 1024 / 1024 / 1024 > 24
+                            ? '• Reduce batch size or use gradient accumulation<br>• Enable gradient checkpointing<br>• Consider mixed precision training<br>• Use attention approximation methods'
+                            : '• Current configuration should work well<br>• Consider larger batch sizes for better GPU utilization'
+                        }
+                    </div>
+                </div>
+            `;
+            document.getElementById('memoryResults').innerHTML = html;
+        }
+
+        // ---------- Attention patterns ----------
+        function simulateAttentionPatterns() {
+            const layer   = parseInt(document.getElementById('attentionLayer').value);
+            const head    = parseInt(document.getElementById('attentionHead').value);
+            const pattern = document.getElementById('attentionPattern').value;
+
+            const gridSize = 8;
+            let vizHtml = `<div class="attention-visualization">`;
+
+            for (let i = 0; i < gridSize * gridSize; i++) {
+                const row = Math.floor(i / gridSize);
+                const col = i % gridSize;
+
+                let intensity;
+                if (pattern === 'local') {
+                    const centerRow = 3.5, centerCol = 3.5;
+                    const distance = Math.sqrt((row - centerRow)**2 + (col - centerCol)**2);
+                    intensity = Math.max(0, 1 - distance / 4) * (1 - layer / 12 * 0.7);
+                } else if (pattern === 'global') {
+                    intensity = (layer / 12) * Math.random() * 0.8 + 0.2;
+                } else if (pattern === 'object') {
+                    const objCenters = [[2, 2], [5, 5]];
+                    intensity = 0.1;
+                    objCenters.forEach(([oRow, oCol]) => {
+                        const dist = Math.sqrt((row - oRow)**2 + (col - oCol)**2);
+                        if (dist < 2) intensity = Math.max(intensity, 0.9 - dist * 0.3);
+                    });
+                } else {
+                    intensity = Math.sin(row * Math.PI / 4) * Math.cos(col * Math.PI / 4) * 0.5 + 0.5;
+                }
+
+                const opacity = Math.max(0.1, Math.min(1, intensity));
+                const backgroundColor = `rgba(40, 167, 69, ${opacity})`;
+                vizHtml += `<div class="attention-cell" style="background-color: ${backgroundColor};">${Math.round(intensity * 9)}</div>`;
+            }
+            vizHtml += '</div>';
+
+            const insightsHtml = `
+                <div class="step">
+                    <h4>🔍 Attention Pattern Analysis</h4>
+                    <div class="parameter-box">
+                        <strong>Configuration:</strong><br>
+                        • <span class="parameter-highlight">Layer:</span> ${layer}/12 (${layer < 4 ? 'Early' : layer < 8 ? 'Middle' : 'Late'})<br>
+                        • <span class="parameter-highlight">Head:</span> ${head}/12<br>
+                        • <span class="parameter-highlight">Pattern Type:</span> ${pattern.charAt(0).toUpperCase() + pattern.slice(1)}<br>
+                        • <span class="parameter-highlight">Visualization:</span> Attention weights from CLS token
+                    </div>
+                    <div class="info">
+                        <strong>💡 Attention Insights:</strong><br>
+                        ${
+                            pattern === 'local'
+                                ? '• Early layers often learn local spatial relationships<br>• Similar to CNN receptive fields but learned, not fixed<br>• Important for detecting edges, textures, and basic shapes'
+                                : pattern === 'global'
+                                    ? '• Later layers develop global attention patterns<br>• Can relate distant image regions<br>• Enables complex reasoning about entire image content'
+                                    : pattern === 'object'
+                                        ? '• Some heads specialize in object detection<br>• Attention clusters around salient regions<br>• Emerges naturally without explicit supervision'
+                                        : '• Spatial attention captures geometric relationships<br>• Important for scene understanding<br>• Helps with tasks requiring spatial reasoning'
+                        }<br><br>
+                        <strong>🎯 Layer ${layer} Characteristics:</strong><br>
+                        ${
+                            layer < 4
+                                ? '• Typically learns local patterns and textures<br>• Attention radius gradually increases<br>• Foundation for higher-level features'
+                                : layer < 8
+                                    ? '• Balances local and global information<br>• Object parts and relationships emerge<br>• Critical transition layer range'
+                                    : '• Global context and object-level reasoning<br>• Task-specific attention patterns<br>• Most interpretable attention visualizations'
+                        }
+                    </div>
+                </div>
+            `;
+            document.getElementById('attentionVisualization').innerHTML = vizHtml;
+            document.getElementById('attentionInsights').innerHTML = insightsHtml;
+        }
+
+        // ---------- UX glue ----------
+        function selectPatch(patchId) {
+            document.querySelectorAll('.patch-cell').forEach(cell => cell.classList.remove('selected'));
+            const cells = document.querySelectorAll('.patch-cell');
+            if (cells[patchId]) cells[patchId].classList.add('selected');
         }
 
         function updateSliders() {
-            document.getElementById('embedImageResValue').textContent = 
-                document.getElementById('embedImageRes').value + '×' + document.getElementById('embedImageRes').value;
-            document.getElementById('embedPatchSizeValue').textContent = 
-                document.getElementById('embedPatchSize').value + '×' + document.getElementById('embedPatchSize').value;
-            document.getElementById('posGridSizeValue').textContent = 
-                document.getElementById('posGridSize').value + '×' + document.getElementById('posGridSize').value;
-            document.getElementById('memImageResValue').textContent = 
-                document.getElementById('memImageRes').value + '×' + document.getElementById('memImageRes').value;
-            document.getElementById('memBatchSizeValue').textContent = 
-                document.getElementById('memBatchSize').value;
-            document.getElementById('attentionLayerValue').textContent = 
-                'Layer ' + document.getElementById('attentionLayer').value + '/12';
-            document.getElementById('attentionHeadValue').textContent = 
-                'Head ' + document.getElementById('attentionHead').value + '/12';
+            const get = (id) => document.getElementById(id);
+            get('embedImageResValue').textContent = get('embedImageRes').value + '×' + get('embedImageRes').value;
+            get('embedPatchSizeValue').textContent = get('embedPatchSize').value + '×' + get('embedPatchSize').value;
+            get('posGridSizeValue').textContent   = get('posGridSize').value + '×' + get('posGridSize').value;
+            get('memImageResValue').textContent   = get('memImageRes').value + '×' + get('memImageRes').value;
+            get('memBatchSizeValue').textContent  = get('memBatchSize').value;
+            get('attentionLayerValue').textContent= 'Layer ' + get('attentionLayer').value + '/12';
+            get('attentionHeadValue').textContent = 'Head ' + get('attentionHead').value + '/12';
         }
 
-        function selectLayer(layerType) {
-            // Clear previous selections
-            document.querySelectorAll('.layer-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            
-            // Select clicked layer
-            document.getElementById(layerType + '-layer').classList.add('selected');
-            
-            const layerSpecs = {
-                attention: {
-                    name: 'Multi-Head Self-Attention',
-                    params: '3×D² (Q,K,V projections) + D² (output projection)',
-                    complexity: 'O(N²×D) for attention matrix + O(N×D²) for projections',
-                    function: 'Enables global receptive field - every patch can attend to every other patch',
-                    insights: [
-                        'Quadratic memory scaling with sequence length',
-                        'Different heads learn different attention patterns',
-                        'Global context from layer 1 unlike CNNs',
-                        'Attention weights provide interpretability'
-                    ]
-                },
-                mlp: {
-                    name: 'Multi-Layer Perceptron',
-                    params: '2×4D² (hidden dimension is 4×D)',
-                    complexity: 'O(N×D²) - linear in sequence length',
-                    function: 'Position-wise feed-forward processing for feature transformation',
-                    insights: [
-                        'Largest parameter component in transformer',
-                        'Hidden dimension typically 4× embedding dimension',
-                        'GELU activation for smooth gradients',
-                        'Independent processing for each token'
-                    ]
-                },
-                norm: {
-                    name: 'Layer Normalization',
-                    params: '2×D (scale and shift parameters)',
-                    complexity: 'O(N×D) - very efficient',
-                    function: 'Normalizes layer inputs for stable training',
-                    insights: [
-                        'Pre-norm architecture (before attention/MLP)',
-                        'Helps with gradient flow in deep networks',
-                        'Reduces internal covariate shift',
-                        'Minimal parameter overhead'
-                    ]
-                },
-                residual: {
-                    name: 'Residual Connections',
-                    params: '0 (no additional parameters)',
-                    complexity: 'O(N×D) - just addition',
-                    function: 'Enables training of very deep networks',
-                    insights: [
-                        'Prevents vanishing gradient problem',
-                        'Allows information to skip layers',
-                        'Essential for training 24+ layer models',
-                        'Identity mapping preserves gradients'
-                    ]
-                }
-            };
-            
-            const spec = layerSpecs[layerType];
-            
-            let html = `
-                <div class="step">
-                    <h4>🔍 ${spec.name} Deep Dive</h4>
-                    
-                    <div class="parameter-box">
-                        <strong>Mathematical Specification:</strong><br>
-                        • <span class="parameter-highlight">Parameters:</span> ${spec.params}<br>
-                        • <span class="parameter-highlight">Complexity:</span> ${spec.complexity}<br>
-                        • <span class="parameter-highlight">Function:</span> ${spec.function}
-                    </div>
-                    
-                    <div class="success">
-                        <strong>🎯 Key Insights:</strong><br>
-                        ${spec.insights.map(insight => `• ${insight}`).join('<br>')}
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('layerAnalysis').innerHTML = html;
-        }
+        // ---------- Init ----------
+        document.addEventListener('DOMContentLoaded', function () {
+            // Wire slider updates
+            ['embedImageRes','embedPatchSize','posGridSize','memImageRes','memBatchSize','attentionLayer','attentionHead']
+                .forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.addEventListener('input', updateSliders);
+                });
 
-        function analyzeViTVariant() {
-            const variant = document.getElementById('vitVariant').value;
-            const resolution = parseInt(document.getElementById('vitResolution').value);
-            const analysisType = document.getElementById('analysisType').value;
-            
-            const model = vitModels[variant];
-            const patchSize = model.patches;
-            const numPatches = (resolution / patchSize) ** 2;
-            const seqLen = numPatches + 1; // +1 for CLS token
-            
-            let html = `<div class="step"><h4>📊 ${variant.toUpperCase()} Analysis</h4>`;
-            
-            if (analysisType === 'parameters') {
-                const patchEmbedParams = (patchSize * patchSize * 3) * model.dim;
-                const posEmbedParams = seqLen * model.dim;
-                const attentionParams = model.layers * 4 * model.dim * model.dim; // Q,K,V,O projections
-                const mlpParams = model.layers * 2 * model.dim * (model.dim * model.mlpRatio);
-                const normParams = model.layers * 2 * 2 * model.dim; // 2 norms per layer, 2 params each
-                
-                html += `
-                    <table>
-                        <tr><th>Component</th><th>Parameters</th><th>Percentage</th><th>Memory (FP16)</th></tr>
-                        <tr>
-                            <td><strong>Patch Embedding</strong></td>
-                            <td>${(patchEmbedParams / 1e6).toFixed(1)}M</td>
-                            <td>${(patchEmbedParams / model.params * 100).toFixed(1)}%</td>
-                            <td>${(patchEmbedParams * 2 / 1024 / 1024).toFixed(1)}MB</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Position Embedding</strong></td>
-                            <td>${(posEmbedParams / 1e3).toFixed(0)}K</td>
-                            <td>${(posEmbedParams / model.params * 100).toFixed(2)}%</td>
-                            <td>${(posEmbedParams * 2 / 1024).toFixed(1)}KB</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Attention Layers</strong></td>
-                            <td class="moderate">${(attentionParams / 1e6).toFixed(1)}M</td>
-                            <td>${(attentionParams / model.params * 100).toFixed(1)}%</td>
-                            <td>${(attentionParams * 2 / 1024 / 1024).toFixed(1)}MB</td>
-                        </tr>
-                        <tr>
-                            <td><strong>MLP Layers</strong></td>
-                            <td class="poor">${(mlpParams / 1e6).toFixed(1)}M</td>
-                            <td>${(mlpParams / model.params * 100).toFixed(1)}%</td>
-                            <td>${(mlpParams * 2 / 1024 / 1024).toFixed(1)}MB</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Layer Norms</strong></td>
-                            <td>${(normParams / 1e3).toFixed(0)}K</td>
-                            <td>${(normParams / model.params * 100).toFixed(2)}%</td>
-                            <td>${(normParams * 2 / 1024).toFixed(1)}KB</td>
-                        </tr>
-                    </table>
-                `;
-            } else if (analysisType === 'memory') {
-                const modelMemory = model.params * 2 / 1024 / 1024; // FP16 in MB
-                const attentionMemory = model.layers * model.heads * seqLen * seqLen * 2 / 1024 / 1024; // FP16
-                const activationMemory = model.layers * seqLen * model.dim * 2 / 1024 / 1024; // FP16
-                const totalMemory = modelMemory + attentionMemory + activationMemory;
-                
-                html += `
-                    <table>
-                        <tr><th>Memory Component</th><th>Size (MB)</th><th>Scaling</th><th>Notes</th></tr>
-                        <tr>
-                            <td><strong>Model Parameters</strong></td>
-                            <td class="moderate">${modelMemory.toFixed(0)}MB</td>
-                            <td>O(1)</td>
-                            <td>Fixed regardless of input size</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Attention Maps</strong></td>
-                            <td class="poor">${attentionMemory.toFixed(0)}MB</td>
-                            <td>O(N²)</td>
-                            <td>Quadratic in sequence length</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Activations</strong></td>
-                            <td class="moderate">${activationMemory.toFixed(0)}MB</td>
-                            <td>O(N)</td>
-                            <td>Linear in sequence length</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Total Memory</strong></td>
-                            <td class="${totalMemory < 4000 ? 'winner' : totalMemory < 8000 ? 'moderate' : 'poor'}">${totalMemory.toFixed(0)}MB</td>
-                            <td>O(N²)</td>
-                            <td>${totalMemory < 4000 ? 'Single GPU friendly' : totalMemory < 8000 ? 'High-end GPU needed' : 'Multi-GPU required'}</td>
-                        </tr>
-                    </table>
-                    
-                    <div class="warning">
-                        <strong>⚠️ Memory Bottleneck:</strong> At ${resolution}×${resolution} resolution with ${patchSize}×${patchSize} patches, 
-                        attention memory dominates for batch sizes > 1. Consider gradient checkpointing or smaller batch sizes.
-                    </div>
-                `;
-            } else if (analysisType === 'flops') {
-                const patchEmbedFlops = numPatches * (patchSize * patchSize * 3) * model.dim;
-                const attentionFlops = model.layers * (
-                    3 * seqLen * model.dim * model.dim + // Q,K,V projections
-                    model.heads * seqLen * seqLen * model.dim / model.heads + // Attention computation
-                    seqLen * model.dim * model.dim // Output projection
-                );
-                const mlpFlops = model.layers * 2 * seqLen * model.dim * (model.dim * model.mlpRatio);
-                const totalFlops = patchEmbedFlops + attentionFlops + mlpFlops;
-                
-                html += `
-                    <table>
-                        <tr><th>Operation</th><th>FLOPs</th><th>Percentage</th><th>Complexity</th></tr>
-                        <tr>
-                            <td><strong>Patch Embedding</strong></td>
-                            <td>${(patchEmbedFlops / 1e9).toFixed(2)}G</td>
-                            <td>${(patchEmbedFlops / totalFlops * 100).toFixed(1)}%</td>
-                            <td>O(N×D²)</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Attention Layers</strong></td>
-                            <td class="moderate">${(attentionFlops / 1e9).toFixed(2)}G</td>
-                            <td>${(attentionFlops / totalFlops * 100).toFixed(1)}%</td>
-                            <td>O(N²×D)</td>
-                        </tr>
-                        <tr>
-                            <td><strong>MLP Layers</strong></td>
-                            <td class="poor">${(mlpFlops / 1e9).toFixed(2)}G</td>
-                            <td>${(mlpFlops / totalFlops * 100).toFixed(1)}%</td>
-                            <td>O(N×D²)</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Total FLOPs</strong></td>
-                            <td class="winner">${(totalFlops / 1e9).toFixed(2)}G</td>
-                            <td>100%</td>
-                            <td>O(N²×D + N×D²)</td>
-                        </tr>
-                    </table>
-                    
-                    <div class="info">
-                        <strong>💡 Computational Insights:</strong><br>
-                        • MLP layers dominate compute for typical model sizes<br>
-                        • Attention becomes bottleneck at very high resolutions<br>
-                        • Total FLOPs: ${(totalFlops / 1e12).toFixed(3)} TFLOPs for single forward pass
-                    </div>
-                `;
-            } else { // scaling
-                const baselineParams = vitModels.base.params;
-                const baselinePerf = 77.9; // ViT-Base ImageNet accuracy
-                const estimatedPerf = baselinePerf + Math.log(model.params / baselineParams) * 8; // Rough scaling law
-                
-                html += `
-                    <div class="scaling-chart">
-                        <div class="scale-point">
-                            <div class="scale-label">Model Size</div>
-                            <div class="scale-value">${(model.params / 1e6).toFixed(0)}M</div>
-                            <div class="scale-metric">Parameters</div>
-                        </div>
-                        <div class="scale-point">
-                            <div class="scale-label">Est. Performance</div>
-                            <div class="scale-value">${estimatedPerf.toFixed(1)}%</div>
-                            <div class="scale-metric">ImageNet Top-1</div>
-                        </div>
-                        <div class="scale-point">
-                            <div class="scale-label">Training Cost</div>
-                            <div class="scale-value">${Math.round(model.params / 1e8)}×</div>
-                            <div class="scale-metric">vs ViT-Base</div>
-                        </div>
-                        <div class="scale-point">
-                            <div class="scale-label">Inference Speed</div>
-                            <div class="scale-value">${(baselineParams / model.params).toFixed(2)}×</div>
-                            <div class="scale-metric">Relative to Base</div>
-                        </div>
-                    </div>
-                    
-                    <div class="success">
-                        <strong>📈 Scaling Analysis:</strong><br>
-                        • Performance scales logarithmically with parameters<br>
-                        • Training cost scales super-linearly (data + compute needs)<br>
-                        • Inference speed scales roughly linearly with parameters<br>
-                        • Diminishing returns beyond ViT-Large for most applications
-                    </div>
-                `;
-            }
-            
-            html += '</div>';
-            document.getElementById('vitAnalysisResults').innerHTML = html;
-        }
-
-        function calculateMemoryUsage() {
-            const resolution = parseInt(document.getElementById('memImageRes').value);
-            const batchSize = parseInt(document.getElementById('memBatchSize').value);
-            const precision = document.getElementById('memPrecision').value;
-            
-            const bytesPerParam = precision === 'fp32' ? 4 : 2; // FP16/BF16 = 2 bytes
-            const patchSize = 16; // Standard ViT patch size
-            const numPatches = (resolution / patchSize) ** 2;
-            const seqLen = numPatches + 1;
-            const embedDim = 768; // ViT-Base
-            const numLayers = 12;
-            const numHeads = 12;
-            
-            // Memory components (per sample)
-            const modelParams = 86e6 * bytesPerParam; // ViT-Base parameters
-            const inputMemory = batchSize * resolution * resolution * 3 * bytesPerParam;
-            const embeddingMemory = batchSize * seqLen * embedDim * bytesPerParam;
-            const attentionMemory = batchSize * numLayers * numHeads * seqLen * seqLen * bytesPerParam;
-            const activationMemory = batchSize * numLayers * seqLen * embedDim * 4 * bytesPerParam; // Intermediate activations
-            
-            const totalMemory = modelParams + inputMemory + embeddingMemory + attentionMemory + activationMemory;
-            
-            let html = `
-                <div class="step">
-                    <h4>💾 Memory Analysis: ${resolution}×${resolution}, Batch=${batchSize}, ${precision.toUpperCase()}</h4>
-                    
-                    <div class="memory-calculator">
-                        <div class="memory-row">
-                            <span>Model Parameters:</span>
-                            <span>${(modelParams / 1024 / 1024).toFixed(0)} MB</span>
-                        </div>
-                        <div class="memory-row">
-                            <span>Input Images:</span>
-                            <span>${(inputMemory / 1024 / 1024).toFixed(0)} MB</span>
-                        </div>
-                        <div class="memory-row">
-                            <span>Patch Embeddings:</span>
-                            <span>${(embeddingMemory / 1024 / 1024).toFixed(0)} MB</span>
-                        </div>
-                        <div class="memory-row">
-                            <span>Attention Maps:</span>
-                            <span>${(attentionMemory / 1024 / 1024).toFixed(0)} MB</span>
-                        </div>
-                        <div class="memory-row">
-                            <span>Activations:</span>
-                            <span>${(activationMemory / 1024 / 1024).toFixed(0)} MB</span>
-                        </div>
-                        <div class="memory-row">
-                            <span>Total GPU Memory:</span>
-                            <span>${(totalMemory / 1024 / 1024 / 1024).toFixed(1)} GB</span>
-                        </div>
-                    </div>
-                    
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${Math.min(100, totalMemory / 1024 / 1024 / 1024 / 80 * 100)}%">
-                            ${(totalMemory / 1024 / 1024 / 1024).toFixed(1)} GB / 80GB (A100)
-                        </div>
-                    </div>
-                    
-                    <div class="${totalMemory / 1024 / 1024 / 1024 < 24 ? 'success' : totalMemory / 1024 / 1024 / 1024 < 40 ? 'warning' : 'danger'}">
-                        <strong>Hardware Recommendation:</strong><br>
-                        ${totalMemory / 1024 / 1024 / 1024 < 12 ? 'RTX 3080/4080 (12GB) sufficient' :
-                          totalMemory / 1024 / 1024 / 1024 < 24 ? 'RTX 3090/4090 (24GB) recommended' :
-                          totalMemory / 1024 / 1024 / 1024 < 40 ? 'A100 (40GB) required' :
-                          totalMemory / 1024 / 1024 / 1024 < 80 ? 'A100 (80GB) required' :
-                          'Multi-GPU setup required'}<br><br>
-                        <strong>Optimization Strategies:</strong><br>
-                        ${totalMemory / 1024 / 1024 / 1024 > 24 ? 
-                          '• Reduce batch size or use gradient accumulation<br>• Enable gradient checkpointing<br>• Consider mixed precision training<br>• Use attention approximation methods' :
-                          '• Current configuration should work well<br>• Consider larger batch sizes for better GPU utilization'
-                        }
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('memoryResults').innerHTML = html;
-        }
-
-        function simulateAttentionPatterns() {
-            const layer = parseInt(document.getElementById('attentionLayer').value);
-            const head = parseInt(document.getElementById('attentionHead').value);
-            const pattern = document.getElementById('attentionPattern').value;
-            
-            const gridSize = 8; // 8x8 for visualization
-            const totalTokens = gridSize * gridSize + 1; // +1 for CLS
-            
-            let vizHtml = `<div class="attention-visualization">`;
-            
-            // Generate attention pattern based on type and layer/head
-            for (let i = 0; i < gridSize * gridSize; i++) {
-                const row = Math.floor(i / gridSize);
-                const col = i % gridSize;
-                
-                let intensity;
-                if (pattern === 'local') {
-                    // Early layers tend to focus locally
-                    const centerRow = 3.5, centerCol = 3.5;
-                    const distance = Math.sqrt((row - centerRow)**2 + (col - centerCol)**2);
-                    intensity = Math.max(0, 1 - distance / 4) * (1 - layer / 12 * 0.7);
-                } else if (pattern === 'global') {
-                    // Later layers focus globally
-                    intensity = (layer / 12) * Math.random() * 0.8 + 0.2;
-                } else if (pattern === 'object') {
-                    // Object-focused attention (simulated)
-                    const objCenters = [[2, 2], [5, 5]];
-                    intensity = 0.1;
-                    objCenters.forEach(([oRow, oCol]) => {
-                        const dist = Math.sqrt((row - oRow)**2 + (col - oCol)**2);
-                        if (dist < 2) intensity = Math.max(intensity, 0.9 - dist * 0.3);
-                    });
-                } else { // spatial
-                    // Spatial relationship patterns
-                    intensity = Math.sin(row * Math.PI / 4) * Math.cos(col * Math.PI / 4) * 0.5 + 0.5;
-                }
-                
-                const opacity = Math.max(0.1, Math.min(1, intensity));
-                const backgroundColor = `rgba(40, 167, 69, ${opacity})`;
-                
-                vizHtml += `<div class="attention-cell" style="background-color: ${backgroundColor};">${Math.round(intensity * 9)}</div>`;
-            }
-            
-            vizHtml += '</div>';
-            
-            const insightsHtml = `
-                <div class="step">
-                    <h4>🔍 Attention Pattern Analysis</h4>
-                    
-                    <div class="parameter-box">
-                        <strong>Configuration:</strong><br>
-                        • <span class="parameter-highlight">Layer:</span> ${layer}/12 (${layer < 4 ? 'Early' : layer < 8 ? 'Middle' : 'Late'})<br>
-                        • <span class="parameter-highlight">Head:</span> ${head}/12<br>
-                        • <span class="parameter-highlight">Pattern Type:</span> ${pattern.charAt(0).toUpperCase() + pattern.slice(1)}<br>
-                        • <span class="parameter-highlight">Visualization:</span> Attention weights from CLS token
-                    </div>
-                    
-                    <div class="info">
-                        <strong>💡 Attention Insights:</strong><br>
-                        ${pattern === 'local' ? 
-                            '• Early layers often learn local spatial relationships<br>• Similar to CNN receptive fields but learned, not fixed<br>• Important for detecting edges, textures, and basic shapes' :
-                            pattern === 'global' ?
-                            '• Later layers develop global attention patterns<br>• Can relate distant image regions<br>• Enables complex reasoning about entire image content' :
-                            pattern === 'object' ?
-                            '• Some heads specialize in object detection<br>• Attention clusters around salient regions<br>• Emerges naturally without explicit supervision' :
-                            '• Spatial attention captures geometric relationships<br>• Important for scene understanding<br>• Helps with tasks requiring spatial reasoning'
-                        }<br><br>
-                        <strong>🎯 Layer ${layer} Characteristics:</strong><br>
-                        ${layer < 4 ?
-                            '• Typically learns local patterns and textures<br>• Attention radius gradually increases<br>• Foundation for higher-level features' :
-                            layer < 8 ?
-                            '• Balances local and global information<br>• Object parts and relationships emerge<br>• Critical transition layer range' :
-                            '• Global context and object-level reasoning<br>• Task-specific attention patterns<br>• Most interpretable attention visualizations'
-                        }
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('attentionVisualization').innerHTML = vizHtml;
-            document.getElementById('attentionInsights').innerHTML = insightsHtml;
-        }
-
-        function selectPatch(patchId) {
-            // Visual feedback for patch selection
-            document.querySelectorAll('.patch-cell').forEach(cell => {
-                cell.classList.remove('selected');
-            });
-            
-            const cells = document.querySelectorAll('.patch-cell');
-            if (cells[patchId]) {
-                cells[patchId].classList.add('selected');
-            }
-        }
-
-        // Event listeners and initialization
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('embedImageResValue').textContent = 
-                document.getElementById('embedImageRes').value + '×' + document.getElementById('embedImageRes').value;
-            document.getElementById('embedPatchSizeValue').textContent = 
-                document.getElementById('embedPatchSize').value + '×' + document.getElementById('embedPatchSize').value;
-            document.getElementById('posGridSizeValue').textContent = 
-                document.getElementById('posGridSize').value + '×' + document.getElementById('posGridSize').value;
-            document.getElementById('memImageResValue').textContent = 
-                document.getElementById('memImageRes').value + '×' + document.getElementById('memImageRes').value;
-            document.getElementById('memBatchSizeValue').textContent = 
-                document.getElementById('memBatchSize').value;
-            document.getElementById('attentionLayerValue').textContent = 
-                'Layer ' + document.getElementById('attentionLayer').value + '/12';
-            document.getElementById('attentionHeadValue').textContent = 
-                'Head ' + document.getElementById('attentionHead').value + '/12';
-        }
-
-        function generatePatchGrid() {
-            const imageSize = parseInt(document.getElementById('imageSize').value);
-            const patchSize = parseInt(document.getElementById('patchSize').value);
-            const vizMode = document.getElementById('vizMode').value;
-            
-            const patchesPerSide = imageSize / patchSize;
-            const totalPatches = patchesPerSide * patchesPerSide;
-            
-            let gridHtml = `<div class="patch-grid" style="grid-template-columns: repeat(${patchesPerSide}, 1fr);">`;
-            
-            for (let i = 0; i < totalPatches; i++) {
-                const row = Math.floor(i / patchesPerSide);
-                const col = i % patchesPerSide;
-                
-                let cellContent = '';
-                let cellClass = 'patch-cell';
-                
-                if (vizMode === 'patches') {
-                    cellContent = `${row},${col}`;
-                } else if (vizMode === 'sequence') {
-                    cellContent = i;
-                } else { // attention
-                    const intensity = Math.sin(row * 0.5) * Math.cos(col * 0.5);
-                    cellClass += intensity > 0 ? ' selected' : '';
-                    cellContent = Math.round(Math.abs(intensity) * 9);
-                }
-                
-                gridHtml += `<div class="${cellClass}" onclick="selectPatch(${i})">${cellContent}</div>`;
-            }
-            
-            gridHtml += '</div>';
-            
-            const analysisHtml = `
-                <div class="step">
-                    <h4>📊 Patch Analysis: ${imageSize}×${imageSize} → ${patchSize}×${patchSize}</h4>
-                    
-                    <div class="parameter-box">
-                        <strong>Tokenization Results:</strong><br>
-                        • <span class="parameter-highlight">Total Patches:</span> ${totalPatches}<br>
-                        • <span class="parameter-highlight">Sequence Length:</span> ${totalPatches + 1} (including [CLS])<br>
-                        • <span class="parameter-highlight">Patch Resolution:</span> ${patchesPerSide}×${patchesPerSide} grid<br>
-                        • <span class="parameter-highlight">Information Density:</span> ${(imageSize * imageSize) / totalPatches} pixels/token
-                    </div>
-                    
-                    <div class="memory-calculator">
-                        <div class="memory-row">
-                            <span>Raw Image Size:</span>
-                            <span>${((imageSize * imageSize * 3 * 4) / 1024 / 1024).toFixed(2)} MB (FP32)</span>
-                        </div>
-                        <div class="memory-row">
-                            <span>Patch Tokens:</span>
-                            <span>${totalPatches} patches</span>
-                        </div>
-                        <div class="memory-row">
-                            <span>Token Dimensions:</span>
-                            <span>${patchSize * patchSize * 3} → 768 (embedding)</span>
-                        </div>
-                        <div class="memory-row">
-                            <span>Total Sequence Memory:</span>
-                            <span>${((totalPatches + 1) * 768 * 2 / 1024).toFixed(2)} KB (FP16)</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('patchGridContainer').innerHTML = gridHtml;
-            document.getElementById('patchAnalysis').innerHTML = analysisHtml;
-        }
-
-        function calculatePatchEmbedding() {
-            const imageRes = parseInt(document.getElementById('embedImageRes').value);
-            const patchSize = parseInt(document.getElementById('embedPatchSize').value);
-            const embedDim = parseInt(document.getElementById('embedDim').value);
-            
-            const patchesPerSide = imageRes / patchSize;
-            const numPatches = patchesPerSide * patchesPerSide;
-            const patchElements = patchSize * patchSize * 3; // RGB channels
-            const embeddingParams = patchElements * embedDim;
-            
-            let html = `
-                <div class="step">
-                    <h4>🧮 Patch Embedding Calculation</h4>
-                    
-                    <div class="dimension-flow">
-                        <div class="dimension-box">
-                            <div class="dimension-label">Input Patches</div>
-                            <div class="dimension-value">${numPatches}</div>
-                            <div class="dimension-description">${patchesPerSide}×${patchesPerSide} grid</div>
-                        </div>
-                        <div class="transform-arrow">×</div>
-                        <div class="dimension-box">
-                            <div class="dimension-label">Patch Elements</div>
-                            <div class="dimension-value">${patchElements}</div>
-                            <div class="dimension-description">${patchSize}²×3 pixels</div>
-                        </div>
-                        <div class="transform-arrow">→</div>
-                        <div class="dimension-box">
-                            <div class="dimension-label">Embedding Dim</div>
-                            <div class="dimension-value">${embedDim}</div>
-                            <div class="dimension-description">Linear projection</div>
-                        </div>
-                    </div>
-                    
-                    <table>
-                        <tr><th>Component</th><th>Dimensions</th><th>Parameters</th><th>Memory (FP16)</th></tr>
-                        <tr>
-                            <td><strong>Patch Extraction</strong></td>
-                            <td>${numPatches} × ${patchElements}</td>
-                            <td>0 (reshaping only)</td>
-                            <td>${((numPatches * patchElements * 2) / 1024).toFixed(1)} KB</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Linear Projection</strong></td>
-                            <td>${patchElements} → ${embedDim}</td>
-                            <td class="winner">${(embeddingParams / 1e6).toFixed(1)}M</td>
-                            <td>${((embeddingParams * 2) / 1024 / 1024).toFixed(1)} MB</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Output Embeddings</strong></td>
-                            <td>${numPatches} × ${embedDim}</td>
-                            <td>0 (activations)</td>
-                            <td>${((numPatches * embedDim * 2) / 1024).toFixed(1)} KB</td>
-                        </tr>
-                    </table>
-                    
-                    <div class="info">
-                        <strong>💡 Key Insights:</strong><br>
-                        • Patch embedding is the largest parameter component after attention<br>
-                        • Smaller patches = more tokens = quadratically more attention computation<br>
-                        • Larger patches = less spatial detail = potential information loss<br>
-                        • The ${patchSize}×${patchSize} choice balances efficiency and detail
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('embeddingResults').innerHTML = html;
-        }
-
-        function visualizePositionalEncoding() {
-            const gridSize = parseInt(document.getElementById('posGridSize').value);
-            const encodingType = document.getElementById('posEncodingType').value;
-            
-            let vizHtml = `<div class="positional-encoding-viz" style="grid-template-columns: repeat(${gridSize}, 1fr);">`;
-            
-            // Add CLS token
-            vizHtml += `<div class="pos-cell" style="background: #dc3545;">CLS</div>`;
-            
-            // Add positional encodings for patches
-            for (let i = 0; i < gridSize * gridSize - 1; i++) {
-                const row = Math.floor(i / gridSize);
-                const col = i % gridSize;
-                
-                let intensity;
-                if (encodingType === 'learnable') {
-                    intensity = (i + 1) / (gridSize * gridSize);
-                } else if (encodingType === 'sinusoidal') {
-                    intensity = (Math.sin(row * 0.5) + Math.cos(col * 0.5) + 2) / 4;
-                } else { // relative
-                    const distance = Math.sqrt(Math.pow(row - gridSize/2, 2) + Math.pow(col - gridSize/2, 2));
-                    intensity = 1 - (distance / (gridSize * 0.7));
-                }
-                
-                const color = `hsl(${intensity * 240}, 70%, ${50 + intensity * 30}%)`;
-                vizHtml += `<div class="pos-cell" style="background: ${color};">${i + 1}</div>`;
-            }
-            
-            vizHtml += '</div>';
-            
-            const analysisHtml = `
-                <div class="step">
-                    <h4>📍 Positional Encoding Analysis</h4>
-                    
-                    <div class="parameter-box">
-                        <strong>Encoding Configuration:</strong><br>
-                        • <span class="parameter-highlight">Type:</span> ${encodingType.charAt(0).toUpperCase() + encodingType.slice(1)}<br>
-                        • <span class="parameter-highlight">Grid Size:</span> ${gridSize}×${gridSize}<br>
-                        • <span class="parameter-highlight">Total Positions:</span> ${gridSize * gridSize + 1} (including CLS)<br>
-                        • <span class="parameter-highlight">Parameters:</span> ${encodingType === 'learnable' ? (gridSize * gridSize + 1) + '×D learnable' : 'Fixed mathematical'}
-                    </div>
-                    
-                    <div class="${encodingType === 'learnable' ? 'success' : 'info'}">
-                        <strong>${encodingType === 'learnable' ? '✅' : '💡'} ${encodingType.charAt(0).toUpperCase() + encodingType.slice(1)} Encoding:</strong><br>
-                        ${encodingType === 'learnable' ? 
-                            'Standard ViT approach - each position learns unique embedding during training. Flexible but requires more parameters.' :
-                            encodingType === 'sinusoidal' ?
-                            'Fixed mathematical encoding using sine/cosine functions. Parameter-free but less flexible for 2D spatial relationships.' :
-                            'Relative position encoding - encodes relationships between positions rather than absolute positions. Better for variable input sizes.'
-                        }
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('posEncodingViz').innerHTML = vizHtml;
-            document.getElementById('posEncodingAnalysis').innerHTML = analysisHtml;
-        }
-
-        function selectLayer(layerType) {
-            // Clear previous selections
-            document.querySelectorAll('.layer-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            
-            // Select clicked layer
-            document.getElementById(layerType + '-layer').classList.add('selected');
-            
-            const layerSpecs = {
-                attention: {
-                    name: 'Multi-Head Self-Attention',
-                    params: '3×D² (Q,K,V projections) + D² (output projection)',
-                    complexity: 'O(N²×D) for attention matrix + O(N×D²) for projections',
-                    function: 'Enables global receptive field - every patch can attend to every other patch',
-                    insights: [
-                        'Quadratic memory scaling with sequence length',
-                        'Different heads learn different attention patterns',
-                        'Global context from layer 1 unlike CNNs',
-                        'Attention weights provide interpretability'
-                    ]
-                },
-                mlp: {
-                    name: 'Multi-Layer Perceptron',
-                    params: '2×4D² (hidden dimension is 4×D)',
-                    complexity: 'O(N×D²) - linear in sequence length',
-                    function: 'Position-wise feed-forward processing for feature transformation',
-                    insights: [
-                        'Largest parameter component in transformer',
-                        'Hidden dimension typically 4× embedding dimension',
-                        'GELU activation for smooth gradients',
-                        'Independent processing for each token'
-                    ]
-                },
-                norm: {
-                    name: 'Layer Normalization',
-                    params: '2×D (scale and shift parameters)',
-                    complexity: 'O(N×D) - very efficient',
-                    function: 'Normalizes layer inputs for stable training',
-                    insights: [
-                        'Pre-norm architecture (before attention/MLP)',
-                        'Helps with gradient flow in deep networks',
-                        'Reduces internal covariate shift',
-                        'Minimal parameter overhead'
-                    ]
-                },
-                residual: {
-                    name: 'Residual Connections',
-                    params: '0 (no additional parameters)',
-                    complexity: 'O(N×D) - just addition',
-                    function: 'Enables training of very deep networks',
-                    insights: [
-                        'Prevents vanishing gradient problem',
-                        'Allows information to skip layers',
-                        'Essential for training 24+ layer models',
-                        'Identity mapping preserves gradients'
-                    ]
-                }
-            };
-            
-            const spec = layerSpecs[layerType];
-            
-            let html = `
-                <div class="step">
-                    <h4>🔍 ${spec.name} Deep Dive</h4>
-                    
-                    <div class="parameter-box">
-                        <strong>Mathematical Specification:</strong><br>
-                        • <span class="parameter-highlight">Parameters:</span> ${spec.params}<br>
-                        • <span class="parameter-highlight">Complexity:</span> ${spec.complexity}<br>
-                        • <span class="parameter-highlight">Function:</span> ${spec.function}
-                    </div>
-                    
-                    <div class="success">
-                        <strong>🎯 Key Insights:</strong><br>
-                        ${spec.insights.map(insight => `• ${insight}`).join('<br>')}
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('layerAnalysis').innerHTML = html;
-        }
-
-        function analyzeViTVariant() {
-            const variant = document.getElementById('vitVariant').value;
-            const resolution = parseInt(document.getElementById('vitResolution').value);
-            const analysisType = document.getElementById('analysisType').value;
-            
-            const model = vitModels[variant];
-            const patchSize = model.patches;
-            const numPatches = (resolution / patchSize) ** 2;
-            const seqLen = numPatches + 1; // +1 for CLS token
-            
-            let html = `<div class="step"><h4>📊 ${variant.toUpperCase()} Analysis</h4>`;
-            
-            if (analysisType === 'parameters') {
-                const patchEmbedParams = (patchSize * patchSize * 3) * model.dim;
-                const posEmbedParams = seqLen * model.dim;
-                const attentionParams = model.layers * 4 * model.dim * model.dim; // Q,K,V,O projections
-                const mlpParams = model.layers * 2 * model.dim * (model.dim * model.mlpRatio);
-                const normParams = model.layers * 2 * 2 * model.dim; // 2 norms per layer, 2 params each
-                
-                html += `
-                    <table>
-                        <tr><th>Component</th><th>Parameters</th><th>Percentage</th><th>Memory (FP16)</th></tr>
-                        <tr>
-                            <td><strong>Patch Embedding</strong></td>
-                            <td>${(patchEmbedParams / 1e6).toFixed(1)}M</td>
-                            <td>${(patchEmbedParams / model.params * 100).toFixed(1)}%</td>
-                            <td>${(patchEmbedParams * 2 / 1024 / 1024).toFixed(1)}MB</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Position Embedding</strong></td>
-                            <td>${(posEmbedParams / 1e3).toFixed(0)}K</td>
-                            <td>${(posEmbedParams / model.params * 100).toFixed(2)}%</td>
-                            <td>${(posEmbedParams * 2 / 1024).toFixed(1)}KB</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Attention Layers</strong></td>
-                            <td class="moderate">${(attentionParams / 1e6).toFixed(1)}M</td>
-                            <td>${(attentionParams / model.params * 100).toFixed(1)}%</td>
-                            <td>${(attentionParams * 2 / 1024 / 1024).toFixed(1)}MB</td>
-                        </tr>
-                        <tr>
-                            <td><strong>MLP Layers</strong></td>
-                            <td class="poor">${(mlpParams / 1e6).toFixed(1)}M</td>
-                            <td>${(mlpParams / model.params * 100).toFixed(1)}%</td>
-                            <td>${(mlpParams * 2 / 1024 / 1024).toFixed(1)}MB</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Layer Norms</strong></td>
-                            <td>${(normParams / 1e3).toFixed(0)}K</td>
-                            <td>${(normParams / model.params * 100).toFixed(2)}%</td>
-                            <td>${(normParams * 2 / 1024).toFixed(1)}KB</td>
-                        </tr>
-                    </table>
-                `;
-            } else if (analysisType === 'memory') {
-                const modelMemory = model.params * 2 / 1024 / 1024; // FP16 in MB
-                const attentionMemory = model.layers * model.heads * seqLen * seqLen * 2 / 1024 / 1024; // FP16
-                const activationMemory = model.layers * seqLen * model.dim * 2 / 1024 / 1024; // FP16
-                const totalMemory = modelMemory + attentionMemory + activationMemory;
-                
-                html += `
-                    <table>
-                        <tr><th>Memory Component</th><th>Size (MB)</th><th>Scaling</th><th>Notes</th></tr>
-                        <tr>
-                            <td><strong>Model Parameters</strong></td>
-                            <td class="moderate">${modelMemory.toFixed(0)}MB</td>
-                            <td>O(1)</td>
-                            <td>Fixed regardless of input size</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Attention Maps</strong></td>
-                            <td class="poor">${attentionMemory.toFixed(0)}MB</td>
-                            <td>O(N²)</td>
-                            <td>Quadratic in sequence length</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Activations</strong></td>
-                            <td class="moderate">${activationMemory.toFixed(0)}MB</td>
-                            <td>O(N)</td>
-                            <td>Linear in sequence length</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Total Memory</strong></td>
-                            <td class="${totalMemory < 4000 ? 'winner' : totalMemory < 8000 ? 'moderate' : 'poor'}">${totalMemory.toFixed(0)}MB</td>
-                            <td>O(N²)</td>
-                            <td>${totalMemory < 4000 ? 'Single GPU friendly' : totalMemory < 8000 ? 'High-end GPU needed' : 'Multi-GPU required'}</td>
-                        </tr>
-                    </table>
-                    
-                    <div class="warning">
-                        <strong>⚠️ Memory Bottleneck:</strong> At ${resolution}×${resolution} resolution with ${patchSize}×${patchSize} patches, 
-                        attention memory dominates for batch sizes > 1. Consider gradient checkpointing or smaller batch sizes.
-                    </div>
-                `;
-            } else if (analysisType === 'flops') {
-                const patchEmbedFlops = numPatches * (patchSize * patchSize * 3) * model.dim;
-                const attentionFlops = model.layers * (
-                    3 * seqLen * model.dim * model.dim + // Q,K,V projections
-                    model.heads * seqLen * seqLen * model.dim / model.heads + // Attention computation
-                    seqLen * model.dim * model.dim // Output projection
-                );
-                const mlpFlops = model.layers * 2 * seqLen * model.dim * (model.dim * model.mlpRatio);
-                const totalFlops = patchEmbedFlops + attentionFlops + mlpFlops;
-                
-                html += `
-                    <table>
-                        <tr><th>Operation</th><th>FLOPs</th><th>Percentage</th><th>Complexity</th></tr>
-                        <tr>
-                            <td><strong>Patch Embedding</strong></td>
-                            <td>${(patchEmbedFlops / 1e9).toFixed(2)}G</td>
-                            <td>${(patchEmbedFlops / totalFlops * 100).toFixed(1)}%</td>
-                            <td>O(N×D²)</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Attention Layers</strong></td>
-                            <td class="moderate">${(attentionFlops / 1e9).toFixed(2)}G</td>
-                            <td>${(attentionFlops / totalFlops * 100).toFixed(1)}%</td>
-                            <td>O(N²×D)</td>
-                        </tr>
-                        <tr>
-                            <td><strong>MLP Layers</strong></td>
-                            <td class="poor">${(mlpFlops / 1e9).toFixed(2)}G</td>
-                            <td>${(mlpFlops / totalFlops * 100).toFixed(1)}%</td>
-                            <td>O(N×D²)</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Total FLOPs</strong></td>
-                            <td class="winner">${(totalFlops / 1e9).toFixed(2)}G</td>
-                            <td>100%</td>
-                            <td>O(N²×D + N×D²)</td>
-                        </tr>
-                    </table>
-                    
-                    <div class="info">
-                        <strong>💡 Computational Insights:</strong><br>
-                        • MLP layers dominate compute for typical model sizes<br>
-                        • Attention becomes bottleneck at very high resolutions<br>
-                        • Total FLOPs: ${(totalFlops / 1e12).toFixed(3)} TFLOPs for single forward pass
-                    </div>
-                `;
-            } else { // scaling
-                const baselineParams = vitModels.base.params;
-                const baselinePerf = 77.9; // ViT-Base ImageNet accuracy
-                const estimatedPerf = baselinePerf + Math.log(model.params / baselineParams) * 8; // Rough scaling law
-                
-                html += `
-                    <div class="scaling-chart">
-                        <div class="scale-point">
-                            <div class="scale-label">Model Size</div>
-                            <div class="scale-value">${(model.params / 1e6).toFixed(0)}M</div>
-                            <div class="scale-metric">Parameters</div>
-                        </div>
-                        <div class="scale-point">
-                            <div class="scale-label">Est. Performance</div>
-                            <div class="scale-value">${estimatedPerf.toFixed(1)}%</div>
-                            <div class="scale-metric">ImageNet Top-1</div>
-                        </div>
-                        <div class="scale-point">
-                            <div class="scale-label">Training Cost</div>
-                            <div class="scale-value">${Math.round(model.params / 1e8)}×</div>
-                            <div class="scale-metric">vs ViT-Base</div>
-                        </div>
-                        <div class="scale-point">
-                            <div class="scale-label">Inference Speed</div>
-                            <div class="scale-value">${(baselineParams / model.params).toFixed(2)}×</div>
-                            <div class="scale-metric">Relative to Base</div>
-                        </div>
-                    </div>
-                    
-                    <div class="success">
-                        <strong>📈 Scaling Analysis:</strong><br>
-                        • Performance scales logarithmically with parameters<br>
-                        • Training cost scales super-linearly (data + compute needs)<br>
-                        • Inference speed scales roughly linearly with parameters<br>
-                        • Diminishing returns beyond ViT-Large for most applications
-                    </div>
-                `;
-            }
-            
-            html += '</div>';
-            document.getElementById('vitAnalysisResults').innerHTML = html;
-        }
-
-        function calculateMemoryUsage() {
-            const resolution = parseInt(document.getElementById('memImageRes').value);
-            const batchSize = parseInt(document.getElementById('memBatchSize').value);
-            const precision = document.getElementById('memPrecision').value;
-            
-            const bytesPerParam = precision === 'fp32' ? 4 : 2; // FP16/BF16 = 2 bytes
-            const patchSize = 16; // Standard ViT patch size
-            const numPatches = (resolution / patchSize) ** 2;
-            const seqLen = numPatches + 1;
-            const embedDim = 768; // ViT-Base
-            const numLayers = 12;
-            const numHeads = 12;
-            
-            // Memory components (per sample)
-            const modelParams = 86e6 * bytesPerParam; // ViT-Base parameters
-            const inputMemory = batchSize * resolution * resolution * 3 * bytesPerParam;
-            const embeddingMemory = batchSize * seqLen * embedDim * bytesPerParam;
-            const attentionMemory = batchSize * numLayers * numHeads * seqLen * seqLen * bytesPerParam;
-            const activationMemory = batchSize * numLayers * seqLen * embedDim * 4 * bytesPerParam; // Intermediate activations
-            
-            const totalMemory = modelParams + inputMemory + embeddingMemory + attentionMemory + activationMemory;
-            
-            let html = `
-                <div class="step">
-                    <h4>💾 Memory Analysis: ${resolution}×${resolution}, Batch=${batchSize}, ${precision.toUpperCase()}</h4>
-                    
-                    <div class="memory-calculator">
-                        <div class="memory-row">
-                            <span>Model Parameters:</span>
-                            <span>${(modelParams / 1024 / 1024).toFixed(0)} MB</span>
-                        </div>
-                        <div class="memory-row">
-                            <span>Input Images:</span>
-                            <span>${(inputMemory / 1024 / 1024).toFixed(0)} MB</span>
-                        </div>
-                        <div class="memory-row">
-                            <span>Patch Embeddings:</span>
-                            <span>${(embeddingMemory / 1024 / 1024).toFixed(0)} MB</span>
-                        </div>
-                        <div class="memory-row">
-                            <span>Attention Maps:</span>
-                            <span>${(attentionMemory / 1024 / 1024).toFixed(0)} MB</span>
-                        </div>
-                        <div class="memory-row">
-                            <span>Activations:</span>
-                            <span>${(activationMemory / 1024 / 1024).toFixed(0)} MB</span>
-                        </div>
-                        <div class="memory-row">
-                            <span>Total GPU Memory:</span>
-                            <span>${(totalMemory / 1024 / 1024 / 1024).toFixed(1)} GB</span>
-                        </div>
-                    </div>
-                    
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${Math.min(100, totalMemory / 1024 / 1024 / 1024 / 80 * 100)}%">
-                            ${(totalMemory / 1024 / 1024 / 1024).toFixed(1)} GB / 80GB (A100)
-                        </div>
-                    </div>
-                    
-                    <div class="${totalMemory / 1024 / 1024 / 1024 < 24 ? 'success' : totalMemory / 1024 / 1024 / 1024 < 40 ? 'warning' : 'danger'}">
-                        <strong>Hardware Recommendation:</strong><br>
-                        ${totalMemory / 1024 / 1024 / 1024 < 12 ? 'RTX 3080/4080 (12GB) sufficient' :
-                          totalMemory / 1024 / 1024 / 1024 < 24 ? 'RTX 3090/4090 (24GB) recommended' :
-                          totalMemory / 1024 / 1024 / 1024 < 40 ? 'A100 (40GB) required' :
-                          totalMemory / 1024 / 1024 / 1024 < 80 ? 'A100 (80GB) required' :
-                          'Multi-GPU setup required'
-                        }<br><br>
-                        <strong>Optimization Strategies:</strong><br>
-                        ${totalMemory / 1024 / 1024 / 1024 > 24 ? 
-                          '• Reduce batch size or use gradient accumulation<br>• Enable gradient checkpointing<br>• Consider mixed precision training<br>• Use attention approximation methods' :
-                          '• Current configuration should work well<br>• Consider larger batch sizes for better GPU utilization'
-                        }
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('memoryResults').innerHTML = html;
-        }
-
-        function simulateAttentionPatterns() {
-            const layer = parseInt(document.getElementById('attentionLayer').value);
-            const head = parseInt(document.getElementById('attentionHead').value);
-            const pattern = document.getElementById('attentionPattern').value;
-            
-            const gridSize = 8; // 8x8 for visualization
-            const totalTokens = gridSize * gridSize + 1; // +1 for CLS
-            
-            let vizHtml = `<div class="attention-visualization">`;
-            
-            // Generate attention pattern based on type and layer/head
-            for (let i = 0; i < gridSize * gridSize; i++) {
-                const row = Math.floor(i / gridSize);
-                const col = i % gridSize;
-                
-                let intensity;
-                if (pattern === 'local') {
-                    // Early layers tend to focus locally
-                    const centerRow = 3.5, centerCol = 3.5;
-                    const distance = Math.sqrt((row - centerRow)**2 + (col - centerCol)**2);
-                    intensity = Math.max(0, 1 - distance / 4) * (1 - layer / 12 * 0.7);
-                } else if (pattern === 'global') {
-                    // Later layers focus globally
-                    intensity = (layer / 12) * Math.random() * 0.8 + 0.2;
-                } else if (pattern === 'object') {
-                    // Object-focused attention (simulated)
-                    const objCenters = [[2, 2], [5, 5]];
-                    intensity = 0.1;
-                    objCenters.forEach(([oRow, oCol]) => {
-                        const dist = Math.sqrt((row - oRow)**2 + (col - oCol)**2);
-                        if (dist < 2) intensity = Math.max(intensity, 0.9 - dist * 0.3);
-                    });
-                } else { // spatial
-                    // Spatial relationship patterns
-                    intensity = Math.sin(row * Math.PI / 4) * Math.cos(col * Math.PI / 4) * 0.5 + 0.5;
-                }
-                
-                const opacity = Math.max(0.1, Math.min(1, intensity));
-                const backgroundColor = `rgba(40, 167, 69, ${opacity})`;
-                
-                vizHtml += `<div class="attention-cell" style="background-color: ${backgroundColor};">${Math.round(intensity * 9)}</div>`;
-            }
-            
-            vizHtml += '</div>';
-            
-            const insightsHtml = `
-                <div class="step">
-                    <h4>🔍 Attention Pattern Analysis</h4>
-                    
-                    <div class="parameter-box">
-                        <strong>Configuration:</strong><br>
-                        • <span class="parameter-highlight">Layer:</span> ${layer}/12 (${layer < 4 ? 'Early' : layer < 8 ? 'Middle' : 'Late'})<br>
-                        • <span class="parameter-highlight">Head:</span> ${head}/12<br>
-                        • <span class="parameter-highlight">Pattern Type:</span> ${pattern.charAt(0).toUpperCase() + pattern.slice(1)}<br>
-                        • <span class="parameter-highlight">Visualization:</span> Attention weights from CLS token
-                    </div>
-                    
-                    <div class="info">
-                        <strong>💡 Attention Insights:</strong><br>
-                        ${pattern === 'local' ? 
-                            '• Early layers often learn local spatial relationships<br>• Similar to CNN receptive fields but learned, not fixed<br>• Important for detecting edges, textures, and basic shapes' :
-                            pattern === 'global' ?
-                            '• Later layers develop global attention patterns<br>• Can relate distant image regions<br>• Enables complex reasoning about entire image content' :
-                            pattern === 'object' ?
-                            '• Some heads specialize in object detection<br>• Attention clusters around salient regions<br>• Emerges naturally without explicit supervision' :
-                            '• Spatial attention captures geometric relationships<br>• Important for scene understanding<br>• Helps with tasks requiring spatial reasoning'
-                        }<br><br>
-                        <strong>🎯 Layer ${layer} Characteristics:</strong><br>
-                        ${layer < 4 ?
-                            '• Typically learns local patterns and textures<br>• Attention radius gradually increases<br>• Foundation for higher-level features' :
-                            layer < 8 ?
-                            '• Balances local and global information<br>• Object parts and relationships emerge<br>• Critical transition layer range' :
-                            '• Global context and object-level reasoning<br>• Task-specific attention patterns<br>• Most interpretable attention visualizations'
-                        }
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('attentionVisualization').innerHTML = vizHtml;
-            document.getElementById('attentionInsights').innerHTML = insightsHtml;
-        }
-
-        function selectPatch(patchId) {
-            // Visual feedback for patch selection
-            document.querySelectorAll('.patch-cell').forEach(cell => {
-                cell.classList.remove('selected');
-            });
-            
-            const cells = document.querySelectorAll('.patch-cell');
-            if (cells[patchId]) {
-                cells[patchId].classList.add('selected');
-            }
-        }
-
-        // Event listeners and initialization
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize slider updates
-            const sliderIds = [
-                'embedImageRes', 'embedPatchSize', 'posGridSize', 
-                'memImageRes', 'memBatchSize', 'attentionLayer', 'attentionHead'
-            ];
-            
-            sliderIds.forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.addEventListener('input', updateSliders);
-                }
-            });
-            
-            // Initialize with default calculations
+            // Initial render
             updateSliders();
             generatePatchGrid();
             calculatePatchEmbedding();
@@ -2405,8 +1235,6 @@
             analyzeViTVariant();
             calculateMemoryUsage();
             simulateAttentionPatterns();
-            
-            // Initialize with attention layer selected
             selectLayer('attention');
         });
     </script>
