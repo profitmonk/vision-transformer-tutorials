@@ -1622,8 +1622,7 @@
                           totalMemory / 1024 / 1024 / 1024 < 24 ? 'RTX 3090/4090 (24GB) recommended' :
                           totalMemory / 1024 / 1024 / 1024 < 40 ? 'A100 (40GB) required' :
                           totalMemory / 1024 / 1024 / 1024 < 80 ? 'A100 (80GB) required' :
-                          'Multi-GPU setup required'
-                        }<br><br>
+                          'Multi-GPU setup required'}<br><br>
                         <strong>Optimization Strategies:</strong><br>
                         ${totalMemory / 1024 / 1024 / 1024 > 24 ? 
                           '• Reduce batch size or use gradient accumulation<br>• Enable gradient checkpointing<br>• Consider mixed precision training<br>• Use attention approximation methods' :
