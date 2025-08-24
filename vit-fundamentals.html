@@ -1,43 +1,4 @@
-<div class="step">
-            <h3>🔍 ViT vs Text Transformer: Key Architectural Differences</h3>
-            
-            <p>Understanding how ViT adapts transformer concepts from text to vision reveals important design decisions.</p>
-            
-            <table>
-                <tr>
-                    <th>Component</th>
-                    <th>Text Transformer</th>
-                    <th>Vision Transformer</th>
-                    <th>Key Difference</th>
-                </tr>
-                <tr>
-                    <td><strong>Input Space</strong></td>
-                    <td>Discrete tokens (50K vocabulary)</td>
-                    <td class="winner">Continuous pixel values</td>
-                    <td>No fixed vocabulary in vision</td>
-                </tr>
-                <tr>
-                    <td><strong>"Tokenization"</strong></td>
-                    <td>Lookup in embedding table</td>
-                    <td class="winner">Linear projection layer</td>
-                    <td>Learns vocabulary during training</td>
-                </tr>
-                <tr>
-                    <td><strong>Position Encoding</strong></td>
-                    <td>1D sequence (RoPE, sinusoidal)</td>
-                    <td class="winner">2D spatial (learnable)</td>
-                    <td>Must encode spatial relationships</td>
-                </tr>
-                <tr>
-                    <td><strong>Sequence Length</strong></td>
-                    <td>Variable (up to context limit)</td>
-                    <td class="moderate">Fixed by image/patch size</td>
-                    <td>Determined by resolution</td>
-                </tr>
-            </table>
-            
-            <div class="info">
-                <strong>💡 Critical Insight:</strong> Text transformers have a pre-defined, discrete vocabulary. Vision transformers create their vocabulary on-the-fly through the linear projection layer, which learns to map continuous visual<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
