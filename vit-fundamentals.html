@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -557,6 +558,42 @@
             font-size: 12px;
             color: #adb5bd;
         }
+        .code-container {
+            background-color: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .comment {
+            color: #6a737d;
+            font-style: italic;
+        }
+        .step-header {
+            color: #0366d6;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .code-line {
+            margin: 5px 0;
+            padding-left: 0;
+        }
+        .indent-1 { padding-left: 20px; }
+        .indent-2 { padding-left: 40px; }
+        .indent-3 { padding-left: 60px; }
+        .indent-4 { padding-left: 80px; }
+        .variable {
+            color: #e36209;
+            font-weight: bold;
+        }
+        .dimensions {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .function {
+            color: #6f42c1;
+        }
     </style>
 </head>
 <body>
@@ -724,44 +761,110 @@
                 <h4>Implementation Pseudocode</h4>
                 <p>Here's how the complete ViT forward pass actually works in code:</p>
                 
-                <div class="example-box">
-# B (batch size) ignored for brevity; add as leading dim in practice
-# 1) Patchify + embed
-patches = extract_patches(x, P=16)          # (196, 768) = (N, 16*16*3)
-tokens  = patches @ W_p + b_p               # (196, 768)
-
-# 2) Add CLS + positions  
-cls     = cls_param                         # (768,)
-X       = concat(cls[None, :], tokens, dim=0) # (197, 768)
-X       = X + E_pos                         # (197, 768)
-
-# 3) L encoder layers (L=12 for ViT-Base)
-for l in range(L):
-    # Pre-norm + Multi-Head Self-Attention
-    U = layernorm1(X)                       # (197, 768)
-    Q = U @ W_q; K = U @ W_k; V = U @ W_v   # each (197, 768)
-    
-    # Reshape for multi-head processing
-    Q = reshape(Q, (197, 12, 64))           # 12 heads, 64 dims each
-    K = reshape(K, (197, 12, 64))           
-    V = reshape(V, (197, 12, 64))
-    
-    # Attention computation per head
-    A = softmax(Q @ K.transpose(-1,-2) / sqrt(64))  # (12, 197, 197)
-    O = A @ V                               # (12, 197, 64)
-    
-    # Concatenate heads and project
-    O = concat_heads(O) @ W_o               # → (197, 768)
-    X = X + O                               # residual connection
-    
-    # Pre-norm + MLP
-    U = layernorm2(X)                       # (197, 768)
-    M = gelu(U @ W1 + b1) @ W2 + b2         # 768→3072→768
-    X = X + M                               # residual connection
-
-# 4) Classification readout
-y = X[0] @ W_head + b_head                  # Extract [CLS] → (1000,)
-                </div>
+                    <div class="code-container">
+        
+        <div class="code-line comment"># B (batch size) ignored for brevity; add as leading dim in practice</div>
+        <br>
+        
+        <div class="step-header"># 1) Patchify + embed</div>
+        <div class="code-line">
+            <span class="variable">patches</span> = <span class="function">extract_patches</span>(x, P=16)
+            <span class="comment indent-3"># <span class="dimensions">(196, 768)</span> = <span class="dimensions">(N, 16*16*3)</span></span>
+        </div>
+        <div class="code-line">
+            <span class="variable">tokens</span> = patches @ <span class="variable">W_p</span> + <span class="variable">b_p</span>
+            <span class="comment indent-3"># <span class="dimensions">(196, 768)</span></span>
+        </div>
+        <br>
+        
+        <div class="step-header"># 2) Add CLS + positions</div>
+        <div class="code-line">
+            <span class="variable">cls</span> = <span class="variable">cls_param</span>
+            <span class="comment indent-4"># <span class="dimensions">(768,)</span></span>
+        </div>
+        <div class="code-line">
+            <span class="variable">X</span> = <span class="function">concat</span>(<span class="variable">cls</span>[None, :], <span class="variable">tokens</span>, dim=0)
+            <span class="comment"># <span class="dimensions">(197, 768)</span></span>
+        </div>
+        <div class="code-line">
+            <span class="variable">X</span> = <span class="variable">X</span> + <span class="variable">E_pos</span>
+            <span class="comment indent-4"># <span class="dimensions">(197, 768)</span></span>
+        </div>
+        <br>
+        
+        <div class="step-header"># 3) L encoder layers (L=12 for ViT-Base)</div>
+        <div class="code-line">
+            for l in range(<span class="variable">L</span>):
+        </div>
+        <div class="code-line indent-1 comment"># Pre-norm + Multi-Head Self-Attention</div>
+        <div class="code-line indent-1">
+            <span class="variable">U</span> = <span class="function">layernorm1</span>(<span class="variable">X</span>)
+            <span class="comment indent-4"># <span class="dimensions">(197, 768)</span></span>
+        </div>
+        <div class="code-line indent-1">
+            <span class="variable">Q</span> = <span class="variable">U</span> @ <span class="variable">W_q</span>; 
+            <span class="variable">K</span> = <span class="variable">U</span> @ <span class="variable">W_k</span>; 
+            <span class="variable">V</span> = <span class="variable">U</span> @ <span class="variable">W_v</span>
+            <span class="comment"># each <span class="dimensions">(197, 768)</span></span>
+        </div>
+        <br>
+        
+        <div class="code-line indent-2 comment"># Reshape for multi-head processing</div>
+        <div class="code-line indent-1">
+            <span class="variable">Q</span> = <span class="function">reshape</span>(<span class="variable">Q</span>, (<span class="dimensions">197, 12, 64</span>))
+            <span class="comment"># 12 heads, 64 dims each</span>
+        </div>
+        <div class="code-line indent-1">
+            <span class="variable">K</span> = <span class="function">reshape</span>(<span class="variable">K</span>, (<span class="dimensions">197, 12, 64</span>))
+        </div>
+        <div class="code-line indent-1">
+            <span class="variable">V</span> = <span class="function">reshape</span>(<span class="variable">V</span>, (<span class="dimensions">197, 12, 64</span>))
+        </div>
+        <br>
+        
+        <div class="code-line indent-2 comment"># Attention computation per head</div>
+        <div class="code-line indent-1">
+            <span class="variable">A</span> = <span class="function">softmax</span>(<span class="variable">Q</span> @ <span class="variable">K</span>.<span class="function">transpose</span>(-1,-2) / <span class="function">sqrt</span>(64))
+            <span class="comment"># <span class="dimensions">(12, 197, 197)</span></span>
+        </div>
+        <div class="code-line indent-1">
+            <span class="variable">O</span> = <span class="variable">A</span> @ <span class="variable">V</span>
+            <span class="comment indent-4"># <span class="dimensions">(12, 197, 64)</span></span>
+        </div>
+        <br>
+        
+        <div class="code-line indent-2 comment"># Concatenate heads and project</div>
+        <div class="code-line indent-1">
+            <span class="variable">O</span> = <span class="function">concat_heads</span>(<span class="variable">O</span>) @ <span class="variable">W_o</span>
+            <span class="comment"># → <span class="dimensions">(197, 768)</span></span>
+        </div>
+        <div class="code-line indent-1">
+            <span class="variable">X</span> = <span class="variable">X</span> + <span class="variable">O</span>
+            <span class="comment indent-4"># residual connection</span>
+        </div>
+        <br>
+        
+        <div class="code-line indent-2 comment"># Pre-norm + MLP</div>
+        <div class="code-line indent-1">
+            <span class="variable">U</span> = <span class="function">layernorm2</span>(<span class="variable">X</span>)
+            <span class="comment indent-4"># <span class="dimensions">(197, 768)</span></span>
+        </div>
+        <div class="code-line indent-1">
+            <span class="variable">M</span> = <span class="function">gelu</span>(<span class="variable">U</span> @ <span class="variable">W1</span> + <span class="variable">b1</span>) @ <span class="variable">W2</span> + <span class="variable">b2</span>
+            <span class="comment"># 768→3072→768</span>
+        </div>
+        <div class="code-line indent-1">
+            <span class="variable">X</span> = <span class="variable">X</span> + <span class="variable">M</span>
+            <span class="comment indent-4"># residual connection</span>
+        </div>
+        <br>
+        
+        <div class="step-header"># 4) Classification readout</div>
+        <div class="code-line">
+            <span class="variable">y</span> = <span class="variable">X</span>[0] @ <span class="variable">W_head</span> + <span class="variable">b_head</span>
+            <span class="comment"># Extract [CLS] → <span class="dimensions">(1000,)</span></span>
+        </div>
+    </div>
             
         <div class="step">
             <h3>Step 7: Feed-Forward Networks (MLP)</h3>
