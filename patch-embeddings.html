@@ -995,85 +995,226 @@ def initialize_patch_projection(patch_size, channels, embed_dim):
                 </table>
             </div>
             
-                <div class="code-container">
+    <div class="code-container">
         <h1>Positional Encoding Implementations</h1>
         
         <div class="step-header"># Pseudocode: Positional Encoding Implementations</div>
         
         <div class="example-box">
-<span class="function">def</span> <span class="variable">learnable_positional_encoding</span>(<span class="variable">num_patches</span>, <span class="variable">embed_dim</span>):
+<div class="code-line">
+    <span class="function">def</span> <span class="variable">learnable_positional_encoding</span>(<span class="variable">num_patches</span>, <span class="variable">embed_dim</span>):
+</div>
+<div class="code-line indent-1">
     <span class="comment">"""Standard ViT learnable positions"""</span>
+</div>
+<div class="code-line indent-1">
     <span class="comment"># +1 for CLS token</span>
+</div>
+<div class="code-line indent-1">
     <span class="variable">pos_embed</span> = <span class="variable">nn</span>.<span class="function">Parameter</span>(<span class="variable">torch</span>.<span class="function">zeros</span>(1, <span class="variable">num_patches</span> + 1, <span class="variable">embed_dim</span>))
+</div>
+<div class="code-line">
     
+</div>
+<div class="code-line indent-1">
     <span class="comment"># Initialize with truncated normal</span>
+</div>
+<div class="code-line indent-1">
     <span class="variable">nn</span>.<span class="variable">init</span>.<span class="function">trunc_normal_</span>(<span class="variable">pos_embed</span>, std=0.02)
+</div>
+<div class="code-line">
     
+</div>
+<div class="code-line indent-1">
     <span class="function">return</span> <span class="variable">pos_embed</span>
-
-
-<span class="function">def</span> <span class="variable">sinusoidal_positional_encoding</span>(<span class="variable">num_patches</span>, <span class="variable">embed_dim</span>):
+</div>
+<div class="code-line">
+    
+</div>
+<div class="code-line">
+    
+</div>
+<div class="code-line">
+    <span class="function">def</span> <span class="variable">sinusoidal_positional_encoding</span>(<span class="variable">num_patches</span>, <span class="variable">embed_dim</span>):
+</div>
+<div class="code-line indent-1">
     <span class="comment">"""1D sinusoidal encoding applied to flattened 2D positions"""</span>
+</div>
+<div class="code-line indent-1">
     <span class="variable">position</span> = <span class="variable">torch</span>.<span class="function">arange</span>(<span class="variable">num_patches</span> + 1).<span class="function">unsqueeze</span>(1)
+</div>
+<div class="code-line indent-1">
     <span class="variable">div_term</span> = <span class="variable">torch</span>.<span class="function">exp</span>(<span class="variable">torch</span>.<span class="function">arange</span>(0, <span class="variable">embed_dim</span>, 2) * 
-                      -(<span class="variable">math</span>.<span class="function">log</span>(10000.0) / <span class="variable">embed_dim</span>))
+</div>
+<div class="code-line indent-2">
+    -(<span class="variable">math</span>.<span class="function">log</span>(10000.0) / <span class="variable">embed_dim</span>))
+</div>
+<div class="code-line">
     
+</div>
+<div class="code-line indent-1">
     <span class="variable">pos_embed</span> = <span class="variable">torch</span>.<span class="function">zeros</span>(<span class="variable">num_patches</span> + 1, <span class="variable">embed_dim</span>)
+</div>
+<div class="code-line indent-1">
     <span class="variable">pos_embed</span>[:, 0::2] = <span class="variable">torch</span>.<span class="function">sin</span>(<span class="variable">position</span> * <span class="variable">div_term</span>)
+</div>
+<div class="code-line indent-1">
     <span class="variable">pos_embed</span>[:, 1::2] = <span class="variable">torch</span>.<span class="function">cos</span>(<span class="variable">position</span> * <span class="variable">div_term</span>)
+</div>
+<div class="code-line">
     
+</div>
+<div class="code-line indent-1">
     <span class="function">return</span> <span class="variable">pos_embed</span>.<span class="function">unsqueeze</span>(0)
-
-
-<span class="function">def</span> <span class="variable">sinusoidal_2d_positional_encoding</span>(<span class="variable">height</span>, <span class="variable">width</span>, <span class="variable">embed_dim</span>):
+</div>
+<div class="code-line">
+    
+</div>
+<div class="code-line">
+    
+</div>
+<div class="code-line">
+    <span class="function">def</span> <span class="variable">sinusoidal_2d_positional_encoding</span>(<span class="variable">height</span>, <span class="variable">width</span>, <span class="variable">embed_dim</span>):
+</div>
+<div class="code-line indent-1">
     <span class="comment">"""True 2D sinusoidal encoding"""</span>
+</div>
+<div class="code-line indent-1">
     <span class="comment"># Separate embeddings for height and width</span>
+</div>
+<div class="code-line indent-1">
     <span class="variable">h_embed_dim</span> = <span class="variable">embed_dim</span> // 2
+</div>
+<div class="code-line indent-1">
     <span class="variable">w_embed_dim</span> = <span class="variable">embed_dim</span> - <span class="variable">h_embed_dim</span>
+</div>
+<div class="code-line">
     
+</div>
+<div class="code-line indent-1">
     <span class="comment"># Height positions</span>
+</div>
+<div class="code-line indent-1">
     <span class="variable">h_pos</span> = <span class="variable">torch</span>.<span class="function">arange</span>(<span class="variable">height</span>).<span class="function">unsqueeze</span>(1)
+</div>
+<div class="code-line indent-1">
     <span class="variable">h_div_term</span> = <span class="variable">torch</span>.<span class="function">exp</span>(<span class="variable">torch</span>.<span class="function">arange</span>(0, <span class="variable">h_embed_dim</span>, 2) * 
-                        -(<span class="variable">math</span>.<span class="function">log</span>(10000.0) / <span class="variable">h_embed_dim</span>))
+</div>
+<div class="code-line indent-2">
+    -(<span class="variable">math</span>.<span class="function">log</span>(10000.0) / <span class="variable">h_embed_dim</span>))
+</div>
+<div class="code-line indent-1">
     <span class="variable">h_embed</span> = <span class="variable">torch</span>.<span class="function">zeros</span>(<span class="variable">height</span>, <span class="variable">h_embed_dim</span>)
+</div>
+<div class="code-line indent-1">
     <span class="variable">h_embed</span>[:, 0::2] = <span class="variable">torch</span>.<span class="function">sin</span>(<span class="variable">h_pos</span> * <span class="variable">h_div_term</span>)
+</div>
+<div class="code-line indent-1">
     <span class="variable">h_embed</span>[:, 1::2] = <span class="variable">torch</span>.<span class="function">cos</span>(<span class="variable">h_pos</span> * <span class="variable">h_div_term</span>)
+</div>
+<div class="code-line">
     
+</div>
+<div class="code-line indent-1">
     <span class="comment"># Width positions</span>
+</div>
+<div class="code-line indent-1">
     <span class="variable">w_pos</span> = <span class="variable">torch</span>.<span class="function">arange</span>(<span class="variable">width</span>).<span class="function">unsqueeze</span>(1)
+</div>
+<div class="code-line indent-1">
     <span class="variable">w_div_term</span> = <span class="variable">torch</span>.<span class="function">exp</span>(<span class="variable">torch</span>.<span class="function">arange</span>(0, <span class="variable">w_embed_dim</span>, 2) * 
-                        -(<span class="variable">math</span>.<span class="function">log</span>(10000.0) / <span class="variable">w_embed_dim</span>))
+</div>
+<div class="code-line indent-2">
+    -(<span class="variable">math</span>.<span class="function">log</span>(10000.0) / <span class="variable">w_embed_dim</span>))
+</div>
+<div class="code-line indent-1">
     <span class="variable">w_embed</span> = <span class="variable">torch</span>.<span class="function">zeros</span>(<span class="variable">width</span>, <span class="variable">w_embed_dim</span>)
+</div>
+<div class="code-line indent-1">
     <span class="variable">w_embed</span>[:, 0::2] = <span class="variable">torch</span>.<span class="function">sin</span>(<span class="variable">w_pos</span> * <span class="variable">w_div_term</span>)
+</div>
+<div class="code-line indent-1">
     <span class="variable">w_embed</span>[:, 1::2] = <span class="variable">torch</span>.<span class="function">cos</span>(<span class="variable">w_pos</span> * <span class="variable">w_div_term</span>)
+</div>
+<div class="code-line">
     
+</div>
+<div class="code-line indent-1">
     <span class="comment"># Combine height and width embeddings for each patch</span>
+</div>
+<div class="code-line indent-1">
     <span class="variable">pos_embed</span> = <span class="variable">torch</span>.<span class="function">zeros</span>(<span class="variable">height</span> * <span class="variable">width</span> + 1, <span class="variable">embed_dim</span>)
+</div>
+<div class="code-line indent-1">
     <span class="variable">pos_embed</span>[0, :] = 0  <span class="comment"># CLS token</span>
+</div>
+<div class="code-line">
     
+</div>
+<div class="code-line indent-1">
     <span class="function">for</span> <span class="variable">i</span> in <span class="function">range</span>(<span class="variable">height</span>):
-        <span class="function">for</span> <span class="variable">j</span> in <span class="function">range</span>(<span class="variable">width</span>):
-            <span class="variable">patch_idx</span> = <span class="variable">i</span> * <span class="variable">width</span> + <span class="variable">j</span> + 1
-            <span class="variable">pos_embed</span>[<span class="variable">patch_idx</span>, :<span class="variable">h_embed_dim</span>] = <span class="variable">h_embed</span>[<span class="variable">i</span>, :]
-            <span class="variable">pos_embed</span>[<span class="variable">patch_idx</span>, <span class="variable">h_embed_dim</span>:] = <span class="variable">w_embed</span>[<span class="variable">j</span>, :]
+</div>
+<div class="code-line indent-2">
+    <span class="function">for</span> <span class="variable">j</span> in <span class="function">range</span>(<span class="variable">width</span>):
+</div>
+<div class="code-line indent-3">
+    <span class="variable">patch_idx</span> = <span class="variable">i</span> * <span class="variable">width</span> + <span class="variable">j</span> + 1
+</div>
+<div class="code-line indent-3">
+    <span class="variable">pos_embed</span>[<span class="variable">patch_idx</span>, :<span class="variable">h_embed_dim</span>] = <span class="variable">h_embed</span>[<span class="variable">i</span>, :]
+</div>
+<div class="code-line indent-3">
+    <span class="variable">pos_embed</span>[<span class="variable">patch_idx</span>, <span class="variable">h_embed_dim</span>:] = <span class="variable">w_embed</span>[<span class="variable">j</span>, :]
+</div>
+<div class="code-line">
     
+</div>
+<div class="code-line indent-1">
     <span class="function">return</span> <span class="variable">pos_embed</span>.<span class="function">unsqueeze</span>(0)
-
-
-<span class="function">def</span> <span class="variable">relative_positional_encoding</span>(<span class="variable">height</span>, <span class="variable">width</span>, <span class="variable">embed_dim</span>, <span class="variable">max_distance</span>=7):
+</div>
+<div class="code-line">
+    
+</div>
+<div class="code-line">
+    
+</div>
+<div class="code-line">
+    <span class="function">def</span> <span class="variable">relative_positional_encoding</span>(<span class="variable">height</span>, <span class="variable">width</span>, <span class="variable">embed_dim</span>, <span class="variable">max_distance</span>=7):
+</div>
+<div class="code-line indent-1">
     <span class="comment">"""Relative 2D position encoding (simplified)"""</span>
+</div>
+<div class="code-line indent-1">
     <span class="comment"># This is complex - showing concept only</span>
+</div>
+<div class="code-line indent-1">
     <span class="variable">num_relative_positions</span> = (2 * <span class="variable">max_distance</span> + 1) ** 2
+</div>
+<div class="code-line indent-1">
     <span class="variable">relative_position_bias</span> = <span class="variable">nn</span>.<span class="function">Parameter</span>(
-        <span class="variable">torch</span>.<span class="function">zeros</span>(<span class="variable">num_relative_positions</span>, <span class="variable">embed_dim</span>)
+</div>
+<div class="code-line indent-2">
+    <span class="variable">torch</span>.<span class="function">zeros</span>(<span class="variable">num_relative_positions</span>, <span class="variable">embed_dim</span>)
+</div>
+<div class="code-line indent-1">
     )
+</div>
+<div class="code-line">
     
+</div>
+<div class="code-line indent-1">
     <span class="comment"># Build relative position index for each patch pair</span>
+</div>
+<div class="code-line indent-1">
     <span class="comment"># Implementation details omitted for brevity</span>
+</div>
+<div class="code-line">
     
+</div>
+<div class="code-line indent-1">
     <span class="function">return</span> <span class="variable">relative_position_bias</span>
+</div>
         </div>
-    </div>
     </div>
 
     <div class="container">
@@ -1321,117 +1462,322 @@ def initialize_patch_projection(patch_size, channels, embed_dim):
         <div class="step">
             <h3>🧠 Advanced Embedding Techniques</h3>
             
-               <div class="code-container">
+    <div class="code-container">
         <h1>Advanced Patch Embedding Strategies</h1>
         
         <div class="step-header"># Pseudocode: Advanced Patch Embedding Strategies</div>
         
         <div class="example-box">
-<span class="function">class</span> <span class="variable">ConvolutionalPatchEmbedding</span>:
+<div class="code-line">
+    <span class="function">class</span> <span class="variable">ConvolutionalPatchEmbedding</span>:
+</div>
+<div class="code-line indent-1">
     <span class="comment">"""Use convolutional layers instead of linear projection"""</span>
+</div>
+<div class="code-line">
     
+</div>
+<div class="code-line indent-1">
     <span class="function">def</span> <span class="variable">__init__</span>(<span class="variable">self</span>, <span class="variable">patch_size</span>, <span class="variable">embed_dim</span>, <span class="variable">in_channels</span>=3):
-        <span class="comment"># Convolution with kernel=patch_size, stride=patch_size</span>
-        <span class="variable">self</span>.<span class="variable">projection</span> = <span class="function">Conv2D</span>(
-            <span class="variable">in_channels</span>=<span class="variable">in_channels</span>,
-            <span class="variable">out_channels</span>=<span class="variable">embed_dim</span>,
-            <span class="variable">kernel_size</span>=<span class="variable">patch_size</span>,
-            <span class="variable">stride</span>=<span class="variable">patch_size</span>
-        )
+</div>
+<div class="code-line indent-2">
+    <span class="comment"># Convolution with kernel=patch_size, stride=patch_size</span>
+</div>
+<div class="code-line indent-2">
+    <span class="variable">self</span>.<span class="variable">projection</span> = <span class="function">Conv2D</span>(
+</div>
+<div class="code-line indent-3">
+    <span class="variable">in_channels</span>=<span class="variable">in_channels</span>,
+</div>
+<div class="code-line indent-3">
+    <span class="variable">out_channels</span>=<span class="variable">embed_dim</span>,
+</div>
+<div class="code-line indent-3">
+    <span class="variable">kernel_size</span>=<span class="variable">patch_size</span>,
+</div>
+<div class="code-line indent-3">
+    <span class="variable">stride</span>=<span class="variable">patch_size</span>
+</div>
+<div class="code-line indent-2">
+    )
+</div>
+<div class="code-line">
     
+</div>
+<div class="code-line indent-1">
     <span class="function">def</span> <span class="variable">forward</span>(<span class="variable">self</span>, <span class="variable">x</span>):
-        <span class="comment"># x: <span class="dimensions">[B, H, W, C]</span></span>
-        <span class="variable">x</span> = <span class="variable">self</span>.<span class="variable">projection</span>(<span class="variable">x</span>)  <span class="comment"># <span class="dimensions">[B, H/P, W/P, D]</span></span>
-        <span class="variable">x</span> = <span class="variable">x</span>.<span class="function">flatten</span>(1, 2)    <span class="comment"># <span class="dimensions">[B, N, D]</span></span>
-        <span class="function">return</span> <span class="variable">x</span>
-
-
-<span class="function">class</span> <span class="variable">OverlappingPatchEmbedding</span>:
+</div>
+<div class="code-line indent-2">
+    <span class="comment"># x: <span class="dimensions">[B, H, W, C]</span></span>
+</div>
+<div class="code-line indent-2">
+    <span class="variable">x</span> = <span class="variable">self</span>.<span class="variable">projection</span>(<span class="variable">x</span>)  <span class="comment"># <span class="dimensions">[B, H/P, W/P, D]</span></span>
+</div>
+<div class="code-line indent-2">
+    <span class="variable">x</span> = <span class="variable">x</span>.<span class="function">flatten</span>(1, 2)    <span class="comment"># <span class="dimensions">[B, N, D]</span></span>
+</div>
+<div class="code-line indent-2">
+    <span class="function">return</span> <span class="variable">x</span>
+</div>
+<div class="code-line">
+    
+</div>
+<div class="code-line">
+    
+</div>
+<div class="code-line">
+    <span class="function">class</span> <span class="variable">OverlappingPatchEmbedding</span>:
+</div>
+<div class="code-line indent-1">
     <span class="comment">"""Overlapping patches for better locality"""</span>
+</div>
+<div class="code-line">
     
+</div>
+<div class="code-line indent-1">
     <span class="function">def</span> <span class="variable">__init__</span>(<span class="variable">self</span>, <span class="variable">patch_size</span>, <span class="variable">stride</span>, <span class="variable">embed_dim</span>, <span class="variable">in_channels</span>=3):
-        <span class="variable">self</span>.<span class="variable">projection</span> = <span class="function">Conv2D</span>(
-            <span class="variable">in_channels</span>=<span class="variable">in_channels</span>,
-            <span class="variable">out_channels</span>=<span class="variable">embed_dim</span>,
-            <span class="variable">kernel_size</span>=<span class="variable">patch_size</span>,
-            <span class="variable">stride</span>=<span class="variable">stride</span>,  <span class="comment"># stride < patch_size for overlap</span>
-            <span class="variable">padding</span>=(<span class="variable">patch_size</span> - <span class="variable">stride</span>) // 2
-        )
+</div>
+<div class="code-line indent-2">
+    <span class="variable">self</span>.<span class="variable">projection</span> = <span class="function">Conv2D</span>(
+</div>
+<div class="code-line indent-3">
+    <span class="variable">in_channels</span>=<span class="variable">in_channels</span>,
+</div>
+<div class="code-line indent-3">
+    <span class="variable">out_channels</span>=<span class="variable">embed_dim</span>,
+</div>
+<div class="code-line indent-3">
+    <span class="variable">kernel_size</span>=<span class="variable">patch_size</span>,
+</div>
+<div class="code-line indent-3">
+    <span class="variable">stride</span>=<span class="variable">stride</span>,  <span class="comment"># stride < patch_size for overlap</span>
+</div>
+<div class="code-line indent-3">
+    <span class="variable">padding</span>=(<span class="variable">patch_size</span> - <span class="variable">stride</span>) // 2
+</div>
+<div class="code-line indent-2">
+    )
+</div>
+<div class="code-line">
     
+</div>
+<div class="code-line indent-1">
     <span class="function">def</span> <span class="variable">forward</span>(<span class="variable">self</span>, <span class="variable">x</span>):
-        <span class="variable">x</span> = <span class="variable">self</span>.<span class="variable">projection</span>(<span class="variable">x</span>)
-        <span class="variable">x</span> = <span class="variable">x</span>.<span class="function">flatten</span>(1, 2)
-        <span class="function">return</span> <span class="variable">x</span>
-
-
-<span class="function">class</span> <span class="variable">HierarchicalPatchEmbedding</span>:
+</div>
+<div class="code-line indent-2">
+    <span class="variable">x</span> = <span class="variable">self</span>.<span class="variable">projection</span>(<span class="variable">x</span>)
+</div>
+<div class="code-line indent-2">
+    <span class="variable">x</span> = <span class="variable">x</span>.<span class="function">flatten</span>(1, 2)
+</div>
+<div class="code-line indent-2">
+    <span class="function">return</span> <span class="variable">x</span>
+</div>
+<div class="code-line">
+    
+</div>
+<div class="code-line">
+    
+</div>
+<div class="code-line">
+    <span class="function">class</span> <span class="variable">HierarchicalPatchEmbedding</span>:
+</div>
+<div class="code-line indent-1">
     <span class="comment">"""Multi-scale patch embedding like PiT"""</span>
+</div>
+<div class="code-line">
     
+</div>
+<div class="code-line indent-1">
     <span class="function">def</span> <span class="variable">__init__</span>(<span class="variable">self</span>, <span class="variable">patch_sizes</span>, <span class="variable">embed_dims</span>, <span class="variable">in_channels</span>=3):
-        <span class="variable">self</span>.<span class="variable">stages</span> = []
-        <span class="variable">prev_dim</span> = <span class="variable">in_channels</span>
-        
-        <span class="function">for</span> <span class="variable">patch_size</span>, <span class="variable">embed_dim</span> in <span class="function">zip</span>(<span class="variable">patch_sizes</span>, <span class="variable">embed_dims</span>):
-            <span class="variable">stage</span> = <span class="function">Conv2D</span>(
-                <span class="variable">in_channels</span>=<span class="variable">prev_dim</span>,
-                <span class="variable">out_channels</span>=<span class="variable">embed_dim</span>,
-                <span class="variable">kernel_size</span>=<span class="variable">patch_size</span>,
-                <span class="variable">stride</span>=<span class="variable">patch_size</span>
-            )
-            <span class="variable">self</span>.<span class="variable">stages</span>.<span class="function">append</span>(<span class="variable">stage</span>)
-            <span class="variable">prev_dim</span> = <span class="variable">embed_dim</span>
+</div>
+<div class="code-line indent-2">
+    <span class="variable">self</span>.<span class="variable">stages</span> = []
+</div>
+<div class="code-line indent-2">
+    <span class="variable">prev_dim</span> = <span class="variable">in_channels</span>
+</div>
+<div class="code-line">
     
+</div>
+<div class="code-line indent-2">
+    <span class="function">for</span> <span class="variable">patch_size</span>, <span class="variable">embed_dim</span> in <span class="function">zip</span>(<span class="variable">patch_sizes</span>, <span class="variable">embed_dims</span>):
+</div>
+<div class="code-line indent-3">
+    <span class="variable">stage</span> = <span class="function">Conv2D</span>(
+</div>
+<div class="code-line indent-4">
+    <span class="variable">in_channels</span>=<span class="variable">prev_dim</span>,
+</div>
+<div class="code-line indent-4">
+    <span class="variable">out_channels</span>=<span class="variable">embed_dim</span>,
+</div>
+<div class="code-line indent-4">
+    <span class="variable">kernel_size</span>=<span class="variable">patch_size</span>,
+</div>
+<div class="code-line indent-4">
+    <span class="variable">stride</span>=<span class="variable">patch_size</span>
+</div>
+<div class="code-line indent-3">
+    )
+</div>
+<div class="code-line indent-3">
+    <span class="variable">self</span>.<span class="variable">stages</span>.<span class="function">append</span>(<span class="variable">stage</span>)
+</div>
+<div class="code-line indent-3">
+    <span class="variable">prev_dim</span> = <span class="variable">embed_dim</span>
+</div>
+<div class="code-line">
+    
+</div>
+<div class="code-line indent-1">
     <span class="function">def</span> <span class="variable">forward</span>(<span class="variable">self</span>, <span class="variable">x</span>):
-        <span class="variable">features</span> = []
-        <span class="function">for</span> <span class="variable">stage</span> in <span class="variable">self</span>.<span class="variable">stages</span>:
-            <span class="variable">x</span> = <span class="variable">stage</span>(<span class="variable">x</span>)
-            <span class="variable">features</span>.<span class="function">append</span>(<span class="variable">x</span>.<span class="function">flatten</span>(1, 2))
-            <span class="comment"># Could add downsampling here</span>
-        <span class="function">return</span> <span class="variable">features</span>
-
-
-<span class="function">class</span> <span class="variable">AdaptivePatchEmbedding</span>:
+</div>
+<div class="code-line indent-2">
+    <span class="variable">features</span> = []
+</div>
+<div class="code-line indent-2">
+    <span class="function">for</span> <span class="variable">stage</span> in <span class="variable">self</span>.<span class="variable">stages</span>:
+</div>
+<div class="code-line indent-3">
+    <span class="variable">x</span> = <span class="variable">stage</span>(<span class="variable">x</span>)
+</div>
+<div class="code-line indent-3">
+    <span class="variable">features</span>.<span class="function">append</span>(<span class="variable">x</span>.<span class="function">flatten</span>(1, 2))
+</div>
+<div class="code-line indent-3">
+    <span class="comment"># Could add downsampling here</span>
+</div>
+<div class="code-line indent-2">
+    <span class="function">return</span> <span class="variable">features</span>
+</div>
+<div class="code-line">
+    
+</div>
+<div class="code-line">
+    
+</div>
+<div class="code-line">
+    <span class="function">class</span> <span class="variable">AdaptivePatchEmbedding</span>:
+</div>
+<div class="code-line indent-1">
     <span class="comment">"""Adaptive patch sizes based on content"""</span>
+</div>
+<div class="code-line">
     
+</div>
+<div class="code-line indent-1">
     <span class="function">def</span> <span class="variable">__init__</span>(<span class="variable">self</span>, <span class="variable">base_patch_size</span>, <span class="variable">embed_dim</span>, <span class="variable">in_channels</span>=3):
-        <span class="variable">self</span>.<span class="variable">base_patch_size</span> = <span class="variable">base_patch_size</span>
-        <span class="variable">self</span>.<span class="variable">embed_dim</span> = <span class="variable">embed_dim</span>
-        
-        <span class="comment"># Multiple projection layers for different patch sizes</span>
-        <span class="variable">self</span>.<span class="variable">projections</span> = {
-            'small': <span class="function">Conv2D</span>(<span class="variable">in_channels</span>, <span class="variable">embed_dim</span>, 8, 8),
-            'medium': <span class="function">Conv2D</span>(<span class="variable">in_channels</span>, <span class="variable">embed_dim</span>, 16, 16),
-            'large': <span class="function">Conv2D</span>(<span class="variable">in_channels</span>, <span class="variable">embed_dim</span>, 32, 32)
-        }
-        
-        <span class="comment"># Content-aware selection network</span>
-        <span class="variable">self</span>.<span class="variable">selector</span> = <span class="function">ContentSelector</span>(<span class="variable">in_channels</span>)
+</div>
+<div class="code-line indent-2">
+    <span class="variable">self</span>.<span class="variable">base_patch_size</span> = <span class="variable">base_patch_size</span>
+</div>
+<div class="code-line indent-2">
+    <span class="variable">self</span>.<span class="variable">embed_dim</span> = <span class="variable">embed_dim</span>
+</div>
+<div class="code-line">
     
+</div>
+<div class="code-line indent-2">
+    <span class="comment"># Multiple projection layers for different patch sizes</span>
+</div>
+<div class="code-line indent-2">
+    <span class="variable">self</span>.<span class="variable">projections</span> = {
+</div>
+<div class="code-line indent-3">
+    'small': <span class="function">Conv2D</span>(<span class="variable">in_channels</span>, <span class="variable">embed_dim</span>, 8, 8),
+</div>
+<div class="code-line indent-3">
+    'medium': <span class="function">Conv2D</span>(<span class="variable">in_channels</span>, <span class="variable">embed_dim</span>, 16, 16),
+</div>
+<div class="code-line indent-3">
+    'large': <span class="function">Conv2D</span>(<span class="variable">in_channels</span>, <span class="variable">embed_dim</span>, 32, 32)
+</div>
+<div class="code-line indent-2">
+    }
+</div>
+<div class="code-line">
+    
+</div>
+<div class="code-line indent-2">
+    <span class="comment"># Content-aware selection network</span>
+</div>
+<div class="code-line indent-2">
+    <span class="variable">self</span>.<span class="variable">selector</span> = <span class="function">ContentSelector</span>(<span class="variable">in_channels</span>)
+</div>
+<div class="code-line">
+    
+</div>
+<div class="code-line indent-1">
     <span class="function">def</span> <span class="variable">forward</span>(<span class="variable">self</span>, <span class="variable">x</span>):
-        <span class="comment"># Analyze content to choose patch sizes</span>
-        <span class="variable">patch_size_map</span> = <span class="variable">self</span>.<span class="variable">selector</span>(<span class="variable">x</span>)
-        
-        <span class="comment"># Apply different patch sizes to different regions</span>
-        <span class="comment"># Implementation details omitted for brevity</span>
-        <span class="function">return</span> <span class="variable">adaptive_patches</span>
-
-
-<span class="function">def</span> <span class="variable">patch_embedding_initialization</span>(<span class="variable">patch_size</span>, <span class="variable">channels</span>, <span class="variable">embed_dim</span>):
+</div>
+<div class="code-line indent-2">
+    <span class="comment"># Analyze content to choose patch sizes</span>
+</div>
+<div class="code-line indent-2">
+    <span class="variable">patch_size_map</span> = <span class="variable">self</span>.<span class="variable">selector</span>(<span class="variable">x</span>)
+</div>
+<div class="code-line">
+    
+</div>
+<div class="code-line indent-2">
+    <span class="comment"># Apply different patch sizes to different regions</span>
+</div>
+<div class="code-line indent-2">
+    <span class="comment"># Implementation details omitted for brevity</span>
+</div>
+<div class="code-line indent-2">
+    <span class="function">return</span> <span class="variable">adaptive_patches</span>
+</div>
+<div class="code-line">
+    
+</div>
+<div class="code-line">
+    
+</div>
+<div class="code-line">
+    <span class="function">def</span> <span class="variable">patch_embedding_initialization</span>(<span class="variable">patch_size</span>, <span class="variable">channels</span>, <span class="variable">embed_dim</span>):
+</div>
+<div class="code-line indent-1">
     <span class="comment">"""Proper initialization for patch embedding"""</span>
+</div>
+<div class="code-line indent-1">
     <span class="comment"># For convolutional patch embedding</span>
+</div>
+<div class="code-line indent-1">
     <span class="variable">fan_out</span> = <span class="variable">embed_dim</span> * <span class="variable">patch_size</span> * <span class="variable">patch_size</span>
+</div>
+<div class="code-line indent-1">
     <span class="variable">fan_in</span> = <span class="variable">channels</span> * <span class="variable">patch_size</span> * <span class="variable">patch_size</span>
+</div>
+<div class="code-line">
     
+</div>
+<div class="code-line indent-1">
     <span class="comment"># He initialization for ReLU-like activations</span>
+</div>
+<div class="code-line indent-1">
     <span class="comment"># Xavier for linear activations</span>
+</div>
+<div class="code-line indent-1">
     <span class="function">if</span> <span class="variable">activation</span> == 'relu':
-        <span class="variable">std</span> = <span class="variable">math</span>.<span class="function">sqrt</span>(2.0 / <span class="variable">fan_in</span>)
+</div>
+<div class="code-line indent-2">
+    <span class="variable">std</span> = <span class="variable">math</span>.<span class="function">sqrt</span>(2.0 / <span class="variable">fan_in</span>)
+</div>
+<div class="code-line indent-1">
     <span class="function">else</span>:  <span class="comment"># linear/gelu</span>
-        <span class="variable">std</span> = <span class="variable">math</span>.<span class="function">sqrt</span>(2.0 / (<span class="variable">fan_in</span> + <span class="variable">fan_out</span>))
+</div>
+<div class="code-line indent-2">
+    <span class="variable">std</span> = <span class="variable">math</span>.<span class="function">sqrt</span>(2.0 / (<span class="variable">fan_in</span> + <span class="variable">fan_out</span>))
+</div>
+<div class="code-line">
     
+</div>
+<div class="code-line indent-1">
     <span class="function">return</span> <span class="variable">torch</span>.<span class="function">normal</span>(0, <span class="variable">std</span>, size=(<span class="variable">embed_dim</span>, <span class="variable">channels</span>, <span class="variable">patch_size</span>, <span class="variable">patch_size</span>))
+</div>
         </div>
-    </div>
     </div>
 
     <div class="container">
