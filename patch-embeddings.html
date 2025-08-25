@@ -398,25 +398,31 @@
         
         .position-encoding-viz {
             display: grid;
-            gap: 3px;
+            gap: 2px;
             margin: 20px auto;
-            max-width: 400px;
+            max-width: 300px;
             background: #2d2d2d;
-            padding: 15px;
-            border-radius: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            box-sizing: border-box;
         }
         
         .pos-cell {
             aspect-ratio: 1;
-            border-radius: 3px;
+            border-radius: 2px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 9px;
+            font-size: 8px;
             color: white;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s ease;
+            min-height: 20px;
+            max-height: 30px;
+            min-width: 20px;
+            max-width: 30px;
+            box-sizing: border-box;
         }
         
         .pos-cell:hover {
@@ -1777,40 +1783,42 @@ projection = nn.Conv2d(
             
             let vizHtml = `<div class="position-encoding-viz" style="grid-template-columns: repeat(${gridSize}, 1fr);">`;
             
-            // CLS token (always first)
-            vizHtml += `<div class="pos-cell" style="background: #dc3545; grid-column: 1 / ${Math.ceil(gridSize/2)}; grid-row: 1;">CLS</div>`;
-            
-            // Generate positional encodings
-            for (let i = 0; i < gridSize * gridSize; i++) {
-                const row = Math.floor(i / gridSize);
-                const col = i % gridSize;
-                const posId = i + 1; // +1 because CLS is position 0
-                
+            // Generate all positions including CLS
+            for (let pos = 0; pos < totalPositions; pos++) {
                 let value, color, content;
                 
-                if (visualization === 'position_id') {
-                    value = posId;
-                    content = posId;
-                    color = `hsl(${(posId / totalPositions) * 240}, 70%, 50%)`;
-                } else if (visualization === 'similarity') {
-                    // Simulate similarity to center position
-                    const centerRow = (gridSize - 1) / 2;
-                    const centerCol = (gridSize - 1) / 2;
-                    const distance = Math.sqrt((row - centerRow)**2 + (col - centerCol)**2);
-                    value = 1 - (distance / (gridSize * 0.7));
-                    content = Math.round(value * 9);
-                    color = `rgba(40, 167, 69, ${Math.max(0.1, value)})`;
-                } else { // distance
-                    // Distance-based encoding
-                    const distance = Math.sqrt(row**2 + col**2);
-                    value = distance / Math.sqrt(2 * (gridSize-1)**2);
-                    content = Math.round(value * 9);
-                    color = `hsl(${value * 60}, 70%, 50%)`;
+                if (pos === 0) {
+                    // CLS token
+                    content = 'CLS';
+                    color = '#dc3545';
+                } else {
+                    // Regular patch positions
+                    const patchIndex = pos - 1;
+                    const row = Math.floor(patchIndex / gridSize);
+                    const col = patchIndex % gridSize;
+                    
+                    if (visualization === 'position_id') {
+                        value = pos;
+                        content = pos;
+                        color = `hsl(${(pos / totalPositions) * 240}, 70%, 50%)`;
+                    } else if (visualization === 'similarity') {
+                        // Simulate similarity to center position
+                        const centerRow = (gridSize - 1) / 2;
+                        const centerCol = (gridSize - 1) / 2;
+                        const distance = Math.sqrt((row - centerRow)**2 + (col - centerCol)**2);
+                        value = Math.max(0, 1 - (distance / (gridSize * 0.7)));
+                        content = Math.round(value * 9);
+                        color = `rgba(40, 167, 69, ${Math.max(0.2, value)})`;
+                    } else { // distance
+                        // Distance-based encoding
+                        const distance = Math.sqrt(row**2 + col**2);
+                        value = distance / Math.sqrt(2 * (gridSize-1)**2);
+                        content = Math.round(value * 9);
+                        color = `hsl(${value * 60}, 70%, 50%)`;
+                    }
                 }
                 
-                if (i >= Math.floor(gridSize/2)) { // Skip first few cells covered by CLS
-                    vizHtml += `<div class="pos-cell" style="background: ${color};">${content}</div>`;
-                }
+                vizHtml += `<div class="pos-cell" style="background: ${color};">${content}</div>`;
             }
             
             vizHtml += '</div>';
