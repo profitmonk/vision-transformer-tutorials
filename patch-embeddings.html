@@ -562,6 +562,43 @@
             font-weight: bold;
             text-align: left;
         }
+
+                .code-container {
+            background-color: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .comment {
+            color: #6a737d;
+            font-style: italic;
+        }
+        .step-header {
+            color: #0366d6;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .code-line {
+            margin: 5px 0;
+            padding-left: 0;
+        }
+        .indent-1 { padding-left: 20px; }
+        .indent-2 { padding-left: 40px; }
+        .indent-3 { padding-left: 60px; }
+        .indent-4 { padding-left: 80px; }
+        .variable {
+            color: #e36209;
+            font-weight: bold;
+        }
+        .dimensions {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .function {
+            color: #6f42c1;
+        }
         
         @media (max-width: 768px) {
             .controls {
@@ -958,77 +995,85 @@ def initialize_patch_projection(patch_size, channels, embed_dim):
                 </table>
             </div>
             
-            <div class="code-block">
-<strong>Pseudocode: Positional Encoding Implementations</strong>
+                <div class="code-container">
+        <h1>Positional Encoding Implementations</h1>
+        
+        <div class="step-header"># Pseudocode: Positional Encoding Implementations</div>
+        
+        <div class="example-box">
+<span class="function">def</span> <span class="variable">learnable_positional_encoding</span>(<span class="variable">num_patches</span>, <span class="variable">embed_dim</span>):
+    <span class="comment">"""Standard ViT learnable positions"""</span>
+    <span class="comment"># +1 for CLS token</span>
+    <span class="variable">pos_embed</span> = <span class="variable">nn</span>.<span class="function">Parameter</span>(<span class="variable">torch</span>.<span class="function">zeros</span>(1, <span class="variable">num_patches</span> + 1, <span class="variable">embed_dim</span>))
+    
+    <span class="comment"># Initialize with truncated normal</span>
+    <span class="variable">nn</span>.<span class="variable">init</span>.<span class="function">trunc_normal_</span>(<span class="variable">pos_embed</span>, std=0.02)
+    
+    <span class="function">return</span> <span class="variable">pos_embed</span>
 
-def learnable_positional_encoding(num_patches, embed_dim):
-    """Standard ViT learnable positions"""
-    # +1 for CLS token
-    pos_embed = nn.Parameter(torch.zeros(1, num_patches + 1, embed_dim))
-    # Initialize with truncated normal
-    nn.init.trunc_normal_(pos_embed, std=0.02)
-    return pos_embed
 
-def sinusoidal_positional_encoding(num_patches, embed_dim):
-    """1D sinusoidal encoding applied to flattened 2D positions"""
-    position = torch.arange(num_patches + 1).unsqueeze(1)
+<span class="function">def</span> <span class="variable">sinusoidal_positional_encoding</span>(<span class="variable">num_patches</span>, <span class="variable">embed_dim</span>):
+    <span class="comment">"""1D sinusoidal encoding applied to flattened 2D positions"""</span>
+    <span class="variable">position</span> = <span class="variable">torch</span>.<span class="function">arange</span>(<span class="variable">num_patches</span> + 1).<span class="function">unsqueeze</span>(1)
+    <span class="variable">div_term</span> = <span class="variable">torch</span>.<span class="function">exp</span>(<span class="variable">torch</span>.<span class="function">arange</span>(0, <span class="variable">embed_dim</span>, 2) * 
+                      -(<span class="variable">math</span>.<span class="function">log</span>(10000.0) / <span class="variable">embed_dim</span>))
     
-    div_term = torch.exp(torch.arange(0, embed_dim, 2) * 
-                        -(math.log(10000.0) / embed_dim))
+    <span class="variable">pos_embed</span> = <span class="variable">torch</span>.<span class="function">zeros</span>(<span class="variable">num_patches</span> + 1, <span class="variable">embed_dim</span>)
+    <span class="variable">pos_embed</span>[:, 0::2] = <span class="variable">torch</span>.<span class="function">sin</span>(<span class="variable">position</span> * <span class="variable">div_term</span>)
+    <span class="variable">pos_embed</span>[:, 1::2] = <span class="variable">torch</span>.<span class="function">cos</span>(<span class="variable">position</span> * <span class="variable">div_term</span>)
     
-    pos_embed = torch.zeros(num_patches + 1, embed_dim)
-    pos_embed[:, 0::2] = torch.sin(position * div_term)
-    pos_embed[:, 1::2] = torch.cos(position * div_term)
-    
-    return pos_embed.unsqueeze(0)
+    <span class="function">return</span> <span class="variable">pos_embed</span>.<span class="function">unsqueeze</span>(0)
 
-def sinusoidal_2d_positional_encoding(height, width, embed_dim):
-    """True 2D sinusoidal encoding"""
-    # Separate embeddings for height and width
-    h_embed_dim = embed_dim // 2
-    w_embed_dim = embed_dim - h_embed_dim
-    
-    # Height positions
-    h_pos = torch.arange(height).unsqueeze(1)
-    h_div_term = torch.exp(torch.arange(0, h_embed_dim, 2) * 
-                          -(math.log(10000.0) / h_embed_dim))
-    h_embed = torch.zeros(height, h_embed_dim)
-    h_embed[:, 0::2] = torch.sin(h_pos * h_div_term)
-    h_embed[:, 1::2] = torch.cos(h_pos * h_div_term)
-    
-    # Width positions
-    w_pos = torch.arange(width).unsqueeze(1)
-    w_div_term = torch.exp(torch.arange(0, w_embed_dim, 2) * 
-                          -(math.log(10000.0) / w_embed_dim))
-    w_embed = torch.zeros(width, w_embed_dim)
-    w_embed[:, 0::2] = torch.sin(w_pos * w_div_term)
-    w_embed[:, 1::2] = torch.cos(w_pos * w_div_term)
-    
-    # Combine height and width embeddings for each patch
-    pos_embed = torch.zeros(height * width + 1, embed_dim)
-    pos_embed[0, :] = 0  # CLS token
-    
-    for i in range(height):
-        for j in range(width):
-            patch_idx = i * width + j + 1
-            pos_embed[patch_idx, :h_embed_dim] = h_embed[i, :]
-            pos_embed[patch_idx, h_embed_dim:] = w_embed[j, :]
-    
-    return pos_embed.unsqueeze(0)
 
-def relative_positional_encoding(height, width, embed_dim, max_distance=7):
-    """Relative 2D position encoding (simplified)"""
-    # This is complex - showing concept only
-    num_relative_positions = (2 * max_distance + 1) ** 2
-    relative_position_bias = nn.Parameter(
-        torch.zeros(num_relative_positions, embed_dim)
+<span class="function">def</span> <span class="variable">sinusoidal_2d_positional_encoding</span>(<span class="variable">height</span>, <span class="variable">width</span>, <span class="variable">embed_dim</span>):
+    <span class="comment">"""True 2D sinusoidal encoding"""</span>
+    <span class="comment"># Separate embeddings for height and width</span>
+    <span class="variable">h_embed_dim</span> = <span class="variable">embed_dim</span> // 2
+    <span class="variable">w_embed_dim</span> = <span class="variable">embed_dim</span> - <span class="variable">h_embed_dim</span>
+    
+    <span class="comment"># Height positions</span>
+    <span class="variable">h_pos</span> = <span class="variable">torch</span>.<span class="function">arange</span>(<span class="variable">height</span>).<span class="function">unsqueeze</span>(1)
+    <span class="variable">h_div_term</span> = <span class="variable">torch</span>.<span class="function">exp</span>(<span class="variable">torch</span>.<span class="function">arange</span>(0, <span class="variable">h_embed_dim</span>, 2) * 
+                        -(<span class="variable">math</span>.<span class="function">log</span>(10000.0) / <span class="variable">h_embed_dim</span>))
+    <span class="variable">h_embed</span> = <span class="variable">torch</span>.<span class="function">zeros</span>(<span class="variable">height</span>, <span class="variable">h_embed_dim</span>)
+    <span class="variable">h_embed</span>[:, 0::2] = <span class="variable">torch</span>.<span class="function">sin</span>(<span class="variable">h_pos</span> * <span class="variable">h_div_term</span>)
+    <span class="variable">h_embed</span>[:, 1::2] = <span class="variable">torch</span>.<span class="function">cos</span>(<span class="variable">h_pos</span> * <span class="variable">h_div_term</span>)
+    
+    <span class="comment"># Width positions</span>
+    <span class="variable">w_pos</span> = <span class="variable">torch</span>.<span class="function">arange</span>(<span class="variable">width</span>).<span class="function">unsqueeze</span>(1)
+    <span class="variable">w_div_term</span> = <span class="variable">torch</span>.<span class="function">exp</span>(<span class="variable">torch</span>.<span class="function">arange</span>(0, <span class="variable">w_embed_dim</span>, 2) * 
+                        -(<span class="variable">math</span>.<span class="function">log</span>(10000.0) / <span class="variable">w_embed_dim</span>))
+    <span class="variable">w_embed</span> = <span class="variable">torch</span>.<span class="function">zeros</span>(<span class="variable">width</span>, <span class="variable">w_embed_dim</span>)
+    <span class="variable">w_embed</span>[:, 0::2] = <span class="variable">torch</span>.<span class="function">sin</span>(<span class="variable">w_pos</span> * <span class="variable">w_div_term</span>)
+    <span class="variable">w_embed</span>[:, 1::2] = <span class="variable">torch</span>.<span class="function">cos</span>(<span class="variable">w_pos</span> * <span class="variable">w_div_term</span>)
+    
+    <span class="comment"># Combine height and width embeddings for each patch</span>
+    <span class="variable">pos_embed</span> = <span class="variable">torch</span>.<span class="function">zeros</span>(<span class="variable">height</span> * <span class="variable">width</span> + 1, <span class="variable">embed_dim</span>)
+    <span class="variable">pos_embed</span>[0, :] = 0  <span class="comment"># CLS token</span>
+    
+    <span class="function">for</span> <span class="variable">i</span> in <span class="function">range</span>(<span class="variable">height</span>):
+        <span class="function">for</span> <span class="variable">j</span> in <span class="function">range</span>(<span class="variable">width</span>):
+            <span class="variable">patch_idx</span> = <span class="variable">i</span> * <span class="variable">width</span> + <span class="variable">j</span> + 1
+            <span class="variable">pos_embed</span>[<span class="variable">patch_idx</span>, :<span class="variable">h_embed_dim</span>] = <span class="variable">h_embed</span>[<span class="variable">i</span>, :]
+            <span class="variable">pos_embed</span>[<span class="variable">patch_idx</span>, <span class="variable">h_embed_dim</span>:] = <span class="variable">w_embed</span>[<span class="variable">j</span>, :]
+    
+    <span class="function">return</span> <span class="variable">pos_embed</span>.<span class="function">unsqueeze</span>(0)
+
+
+<span class="function">def</span> <span class="variable">relative_positional_encoding</span>(<span class="variable">height</span>, <span class="variable">width</span>, <span class="variable">embed_dim</span>, <span class="variable">max_distance</span>=7):
+    <span class="comment">"""Relative 2D position encoding (simplified)"""</span>
+    <span class="comment"># This is complex - showing concept only</span>
+    <span class="variable">num_relative_positions</span> = (2 * <span class="variable">max_distance</span> + 1) ** 2
+    <span class="variable">relative_position_bias</span> = <span class="variable">nn</span>.<span class="function">Parameter</span>(
+        <span class="variable">torch</span>.<span class="function">zeros</span>(<span class="variable">num_relative_positions</span>, <span class="variable">embed_dim</span>)
     )
     
-    # Build relative position index for each patch pair
-    # Implementation details omitted for brevity
-    return relative_position_bias
-            </code-block>
+    <span class="comment"># Build relative position index for each patch pair</span>
+    <span class="comment"># Implementation details omitted for brevity</span>
+    
+    <span class="function">return</span> <span class="variable">relative_position_bias</span>
         </div>
+    </div>
     </div>
 
     <div class="container">
@@ -1276,106 +1321,117 @@ def relative_positional_encoding(height, width, embed_dim, max_distance=7):
         <div class="step">
             <h3>🧠 Advanced Embedding Techniques</h3>
             
-            <div class="code-block">
-<strong>Pseudocode: Advanced Patch Embedding Strategies</strong>
-
-class ConvolutionalPatchEmbedding:
-    """Use convolutional layers instead of linear projection"""
-    def __init__(self, patch_size, embed_dim, in_channels=3):
-        # Convolution with kernel=patch_size, stride=patch_size
-        self.projection = Conv2D(
-            in_channels=in_channels,
-            out_channels=embed_dim,
-            kernel_size=patch_size,
-            stride=patch_size
-        )
-    
-    def forward(self, x):
-        # x: [B, H, W, C]
-        x = self.projection(x)  # [B, H/P, W/P, D]
-        x = x.flatten(1, 2)     # [B, N, D]
-        return x
-
-class OverlappingPatchEmbedding:
-    """Overlapping patches for better locality"""
-    def __init__(self, patch_size, stride, embed_dim, in_channels=3):
-        self.projection = Conv2D(
-            in_channels=in_channels,
-            out_channels=embed_dim,
-            kernel_size=patch_size,
-            stride=stride,  # stride < patch_size for overlap
-            padding=(patch_size - stride) // 2
-        )
-    
-    def forward(self, x):
-        x = self.projection(x)
-        x = x.flatten(1, 2)
-        return x
-
-class HierarchicalPatchEmbedding:
-    """Multi-scale patch embedding like PiT"""
-    def __init__(self, patch_sizes, embed_dims, in_channels=3):
-        self.stages = []
-        prev_dim = in_channels
+               <div class="code-container">
+        <h1>Advanced Patch Embedding Strategies</h1>
         
-        for patch_size, embed_dim in zip(patch_sizes, embed_dims):
-            stage = Conv2D(
-                in_channels=prev_dim,
-                out_channels=embed_dim,
-                kernel_size=patch_size,
-                stride=patch_size
+        <div class="step-header"># Pseudocode: Advanced Patch Embedding Strategies</div>
+        
+        <div class="example-box">
+<span class="function">class</span> <span class="variable">ConvolutionalPatchEmbedding</span>:
+    <span class="comment">"""Use convolutional layers instead of linear projection"""</span>
+    
+    <span class="function">def</span> <span class="variable">__init__</span>(<span class="variable">self</span>, <span class="variable">patch_size</span>, <span class="variable">embed_dim</span>, <span class="variable">in_channels</span>=3):
+        <span class="comment"># Convolution with kernel=patch_size, stride=patch_size</span>
+        <span class="variable">self</span>.<span class="variable">projection</span> = <span class="function">Conv2D</span>(
+            <span class="variable">in_channels</span>=<span class="variable">in_channels</span>,
+            <span class="variable">out_channels</span>=<span class="variable">embed_dim</span>,
+            <span class="variable">kernel_size</span>=<span class="variable">patch_size</span>,
+            <span class="variable">stride</span>=<span class="variable">patch_size</span>
+        )
+    
+    <span class="function">def</span> <span class="variable">forward</span>(<span class="variable">self</span>, <span class="variable">x</span>):
+        <span class="comment"># x: <span class="dimensions">[B, H, W, C]</span></span>
+        <span class="variable">x</span> = <span class="variable">self</span>.<span class="variable">projection</span>(<span class="variable">x</span>)  <span class="comment"># <span class="dimensions">[B, H/P, W/P, D]</span></span>
+        <span class="variable">x</span> = <span class="variable">x</span>.<span class="function">flatten</span>(1, 2)    <span class="comment"># <span class="dimensions">[B, N, D]</span></span>
+        <span class="function">return</span> <span class="variable">x</span>
+
+
+<span class="function">class</span> <span class="variable">OverlappingPatchEmbedding</span>:
+    <span class="comment">"""Overlapping patches for better locality"""</span>
+    
+    <span class="function">def</span> <span class="variable">__init__</span>(<span class="variable">self</span>, <span class="variable">patch_size</span>, <span class="variable">stride</span>, <span class="variable">embed_dim</span>, <span class="variable">in_channels</span>=3):
+        <span class="variable">self</span>.<span class="variable">projection</span> = <span class="function">Conv2D</span>(
+            <span class="variable">in_channels</span>=<span class="variable">in_channels</span>,
+            <span class="variable">out_channels</span>=<span class="variable">embed_dim</span>,
+            <span class="variable">kernel_size</span>=<span class="variable">patch_size</span>,
+            <span class="variable">stride</span>=<span class="variable">stride</span>,  <span class="comment"># stride < patch_size for overlap</span>
+            <span class="variable">padding</span>=(<span class="variable">patch_size</span> - <span class="variable">stride</span>) // 2
+        )
+    
+    <span class="function">def</span> <span class="variable">forward</span>(<span class="variable">self</span>, <span class="variable">x</span>):
+        <span class="variable">x</span> = <span class="variable">self</span>.<span class="variable">projection</span>(<span class="variable">x</span>)
+        <span class="variable">x</span> = <span class="variable">x</span>.<span class="function">flatten</span>(1, 2)
+        <span class="function">return</span> <span class="variable">x</span>
+
+
+<span class="function">class</span> <span class="variable">HierarchicalPatchEmbedding</span>:
+    <span class="comment">"""Multi-scale patch embedding like PiT"""</span>
+    
+    <span class="function">def</span> <span class="variable">__init__</span>(<span class="variable">self</span>, <span class="variable">patch_sizes</span>, <span class="variable">embed_dims</span>, <span class="variable">in_channels</span>=3):
+        <span class="variable">self</span>.<span class="variable">stages</span> = []
+        <span class="variable">prev_dim</span> = <span class="variable">in_channels</span>
+        
+        <span class="function">for</span> <span class="variable">patch_size</span>, <span class="variable">embed_dim</span> in <span class="function">zip</span>(<span class="variable">patch_sizes</span>, <span class="variable">embed_dims</span>):
+            <span class="variable">stage</span> = <span class="function">Conv2D</span>(
+                <span class="variable">in_channels</span>=<span class="variable">prev_dim</span>,
+                <span class="variable">out_channels</span>=<span class="variable">embed_dim</span>,
+                <span class="variable">kernel_size</span>=<span class="variable">patch_size</span>,
+                <span class="variable">stride</span>=<span class="variable">patch_size</span>
             )
-            self.stages.append(stage)
-            prev_dim = embed_dim
+            <span class="variable">self</span>.<span class="variable">stages</span>.<span class="function">append</span>(<span class="variable">stage</span>)
+            <span class="variable">prev_dim</span> = <span class="variable">embed_dim</span>
     
-    def forward(self, x):
-        features = []
-        for stage in self.stages:
-            x = stage(x)
-            features.append(x.flatten(1, 2))
-            # Could add downsampling here
-        return features
+    <span class="function">def</span> <span class="variable">forward</span>(<span class="variable">self</span>, <span class="variable">x</span>):
+        <span class="variable">features</span> = []
+        <span class="function">for</span> <span class="variable">stage</span> in <span class="variable">self</span>.<span class="variable">stages</span>:
+            <span class="variable">x</span> = <span class="variable">stage</span>(<span class="variable">x</span>)
+            <span class="variable">features</span>.<span class="function">append</span>(<span class="variable">x</span>.<span class="function">flatten</span>(1, 2))
+            <span class="comment"># Could add downsampling here</span>
+        <span class="function">return</span> <span class="variable">features</span>
 
-class AdaptivePatchEmbedding:
-    """Adaptive patch sizes based on content"""
-    def __init__(self, base_patch_size, embed_dim, in_channels=3):
-        self.base_patch_size = base_patch_size
-        self.embed_dim = embed_dim
+
+<span class="function">class</span> <span class="variable">AdaptivePatchEmbedding</span>:
+    <span class="comment">"""Adaptive patch sizes based on content"""</span>
+    
+    <span class="function">def</span> <span class="variable">__init__</span>(<span class="variable">self</span>, <span class="variable">base_patch_size</span>, <span class="variable">embed_dim</span>, <span class="variable">in_channels</span>=3):
+        <span class="variable">self</span>.<span class="variable">base_patch_size</span> = <span class="variable">base_patch_size</span>
+        <span class="variable">self</span>.<span class="variable">embed_dim</span> = <span class="variable">embed_dim</span>
         
-        # Multiple projection layers for different patch sizes
-        self.projections = {
-            'small': Conv2D(in_channels, embed_dim, 8, 8),
-            'medium': Conv2D(in_channels, embed_dim, 16, 16),
-            'large': Conv2D(in_channels, embed_dim, 32, 32)
+        <span class="comment"># Multiple projection layers for different patch sizes</span>
+        <span class="variable">self</span>.<span class="variable">projections</span> = {
+            'small': <span class="function">Conv2D</span>(<span class="variable">in_channels</span>, <span class="variable">embed_dim</span>, 8, 8),
+            'medium': <span class="function">Conv2D</span>(<span class="variable">in_channels</span>, <span class="variable">embed_dim</span>, 16, 16),
+            'large': <span class="function">Conv2D</span>(<span class="variable">in_channels</span>, <span class="variable">embed_dim</span>, 32, 32)
         }
         
-        # Content-aware selection network
-        self.selector = ContentSelector(in_channels)
+        <span class="comment"># Content-aware selection network</span>
+        <span class="variable">self</span>.<span class="variable">selector</span> = <span class="function">ContentSelector</span>(<span class="variable">in_channels</span>)
     
-    def forward(self, x):
-        # Analyze content to choose patch sizes
-        patch_size_map = self.selector(x)
+    <span class="function">def</span> <span class="variable">forward</span>(<span class="variable">self</span>, <span class="variable">x</span>):
+        <span class="comment"># Analyze content to choose patch sizes</span>
+        <span class="variable">patch_size_map</span> = <span class="variable">self</span>.<span class="variable">selector</span>(<span class="variable">x</span>)
         
-        # Apply different patch sizes to different regions
-        # Implementation details omitted for brevity
-        return adaptive_patches
+        <span class="comment"># Apply different patch sizes to different regions</span>
+        <span class="comment"># Implementation details omitted for brevity</span>
+        <span class="function">return</span> <span class="variable">adaptive_patches</span>
 
-def patch_embedding_initialization(patch_size, channels, embed_dim):
-    """Proper initialization for patch embedding"""
-    # For convolutional patch embedding
-    fan_out = embed_dim * patch_size * patch_size
-    fan_in = channels * patch_size * patch_size
+
+<span class="function">def</span> <span class="variable">patch_embedding_initialization</span>(<span class="variable">patch_size</span>, <span class="variable">channels</span>, <span class="variable">embed_dim</span>):
+    <span class="comment">"""Proper initialization for patch embedding"""</span>
+    <span class="comment"># For convolutional patch embedding</span>
+    <span class="variable">fan_out</span> = <span class="variable">embed_dim</span> * <span class="variable">patch_size</span> * <span class="variable">patch_size</span>
+    <span class="variable">fan_in</span> = <span class="variable">channels</span> * <span class="variable">patch_size</span> * <span class="variable">patch_size</span>
     
-    # He initialization for ReLU-like activations
-    # Xavier for linear activations
-    if activation == 'relu':
-        std = math.sqrt(2.0 / fan_in)
-    else:  # linear/gelu
-        std = math.sqrt(2.0 / (fan_in + fan_out))
+    <span class="comment"># He initialization for ReLU-like activations</span>
+    <span class="comment"># Xavier for linear activations</span>
+    <span class="function">if</span> <span class="variable">activation</span> == 'relu':
+        <span class="variable">std</span> = <span class="variable">math</span>.<span class="function">sqrt</span>(2.0 / <span class="variable">fan_in</span>)
+    <span class="function">else</span>:  <span class="comment"># linear/gelu</span>
+        <span class="variable">std</span> = <span class="variable">math</span>.<span class="function">sqrt</span>(2.0 / (<span class="variable">fan_in</span> + <span class="variable">fan_out</span>))
     
-    return torch.normal(0, std, size=(embed_dim, channels, patch_size, patch_size))
-            </code-block>
+    <span class="function">return</span> <span class="variable">torch</span>.<span class="function">normal</span>(0, <span class="variable">std</span>, size=(<span class="variable">embed_dim</span>, <span class="variable">channels</span>, <span class="variable">patch_size</span>, <span class="variable">patch_size</span>))
         </div>
+    </div>
     </div>
 
     <div class="container">
