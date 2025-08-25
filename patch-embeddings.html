@@ -1,0 +1,2259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patch Embeddings & Positional Encoding - Mathematical Deep Dive</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+        
+        .container {
+            background: #ffffff;
+            color: #2d2d2d;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-bar {
+            background: #2d2d2d;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .nav-home {
+            background: #ffffff;
+            color: #2d2d2d;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-home:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .nav-prev, .nav-next {
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-prev {
+            background: #6c757d;
+        }
+        
+        .nav-prev:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .nav-next:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .step {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 15px;
+            border-left: 4px solid #2d2d2d;
+        }
+        
+        .math-formula {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            text-align: left;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #e0e0e0;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            border: 1px solid #4a4a4a;
+        }
+        
+        .interactive-demo {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .demo-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #2d2d2d;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 150px;
+        }
+        
+        label {
+            font-weight: bold;
+            color: #2d2d2d;
+            font-size: 14px;
+        }
+        
+        input, select {
+            padding: 8px 12px;
+            border: 1px solid #dadce0;
+            border-radius: 6px;
+            background: #ffffff;
+            color: #2d2d2d;
+            font-size: 14px;
+        }
+        
+        button {
+            background: #2d2d2d;
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            background: #1a1a1a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .parameter-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .danger {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: #2d2d2d;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 14px;
+        }
+        
+        .optimal {
+            background: #d4edda;
+            font-weight: bold;
+        }
+        
+        .moderate {
+            background: #fff3cd;
+        }
+        
+        .poor {
+            background: #f8d7da;
+        }
+        
+        .patch-grid {
+            display: grid;
+            gap: 2px;
+            margin: 20px auto;
+            max-width: 500px;
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 12px;
+        }
+        
+        .patch-cell {
+            background: #28a745;
+            aspect-ratio: 1;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .patch-cell:hover {
+            background: #ffc107;
+            transform: scale(1.1);
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .patch-cell.selected {
+            background: #dc3545;
+            transform: scale(1.05);
+        }
+        
+        .embedding-viz {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 25px 0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .embedding-stage {
+            background: #2d2d2d;
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            min-width: 150px;
+            flex: 1;
+        }
+        
+        .stage-title {
+            font-size: 12px;
+            color: #28a745;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .stage-content {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 8px 0;
+        }
+        
+        .stage-description {
+            font-size: 11px;
+            color: #adb5bd;
+            margin-top: 8px;
+        }
+        
+        .flow-arrow {
+            font-size: 24px;
+            color: #dc3545;
+            font-weight: bold;
+            margin: 0 10px;
+        }
+        
+        .complexity-analysis {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+        }
+        
+        .scaling-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .scaling-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .scaling-card:hover {
+            border-color: #2d2d2d;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .scaling-metric {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d2d2d;
+            margin: 10px 0;
+        }
+        
+        .scaling-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: bold;
+        }
+        
+        .scaling-description {
+            font-size: 12px;
+            color: #888;
+            margin-top: 8px;
+        }
+        
+        .position-encoding-viz {
+            display: grid;
+            gap: 3px;
+            margin: 20px auto;
+            max-width: 400px;
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 12px;
+        }
+        
+        .pos-cell {
+            aspect-ratio: 1;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .pos-cell:hover {
+            transform: scale(1.2);
+            z-index: 10;
+            border: 2px solid white;
+        }
+        
+        .memory-breakdown {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .memory-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .memory-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .comparison-table {
+            margin: 25px 0;
+        }
+        
+        .highlight {
+            background: #ffeb3b;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .architecture-diagram {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        
+        .layer-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .layer-box {
+            background: #2d2d2d;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            min-width: 120px;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .layer-title {
+            font-size: 11px;
+            color: #28a745;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .layer-content {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .layer-detail {
+            font-size: 10px;
+            color: #adb5bd;
+            margin-top: 5px;
+        }
+        
+        .decision-matrix {
+            display: grid;
+            grid-template-columns: 1fr 2fr 2fr 2fr;
+            gap: 1px;
+            background: #e9ecef;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 25px 0;
+        }
+        
+        .matrix-cell {
+            background: white;
+            padding: 12px;
+            text-align: center;
+            font-size: 13px;
+        }
+        
+        .matrix-header {
+            background: #2d2d2d;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .matrix-row-header {
+            background: #f8f9fa;
+            font-weight: bold;
+            text-align: left;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .control-group {
+                min-width: auto;
+            }
+            
+            .embedding-viz {
+                flex-direction: column;
+            }
+            
+            .flow-arrow {
+                transform: rotate(90deg);
+                margin: 10px 0;
+            }
+            
+            .scaling-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <div class="nav-title">📐 Patch Embeddings & Positional Encoding - Mathematical Deep Dive</div>
+        <a href="vit-fundamentals.html" class="nav-prev">← Previous: ViT Fundamentals</a>
+        <a href="index.html" class="nav-home">🏠 Home</a>
+        <a href="visual-attention.html" class="nav-next">Next: Visual Attention →</a>
+    </div>
+
+    <div class="container">
+        <h1>📐 Patch Embeddings & Positional Encoding Deep Dive</h1>
+        <p>Master the mathematical foundations and architectural trade-offs of the most critical ViT design decisions. From patch size optimization to learned positional encodings, understand how these choices determine model performance, computational requirements, and architectural constraints.</p>
+        
+        <div class="info">
+            <strong>🎯 What You'll Master:</strong> Patch size trade-off analysis, linear projection mathematics, 2D positional encoding variants, resolution transfer strategies, memory scaling laws, and production optimization techniques for patch embedding architectures.
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🔬 The Patch Size Decision: Mathematical Foundation</h2>
+        
+        <div class="step">
+            <h3>📊 The Fundamental Scaling Laws</h3>
+            
+            <p>Patch size is the most critical architectural decision in ViTs because it determines the computational complexity of every subsequent operation. Let's analyze the mathematical relationships:</p>
+            
+            <div class="math-formula">
+                <strong>Core Scaling Relationships:</strong><br><br>
+                
+                Given image dimensions H × W and patch size P × P:<br><br>
+                
+                <strong>Sequence Length:</strong><br>
+                N = (H/P) × (W/P) = (H × W) / P²<br><br>
+                
+                <strong>Attention Complexity:</strong><br>
+                • Memory: O(N²) = O((H × W)² / P⁴)<br>
+                • Compute: O(N² × D) = O((H × W)² × D / P⁴)<br><br>
+                
+                <strong>Critical Insight:</strong><br>
+                Halving patch size → 4× more tokens → 16× more attention computation<br>
+                Doubling patch size → 4× fewer tokens → 16× less attention computation
+            </div>
+            
+            <div class="interactive-demo">
+                <div class="demo-title">⚖️ Patch Size Impact Calculator</div>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Image Resolution:</label>
+                        <input type="range" id="imageRes" min="224" max="1024" value="384" step="32">
+                        <span id="imageResValue">384×384</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Patch Size:</label>
+                        <input type="range" id="patchSize" min="4" max="64" value="16" step="4">
+                        <span id="patchSizeValue">16×16</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Model Variant:</label>
+                        <select id="modelVariant">
+                            <option value="768">ViT-Base (768D)</option>
+                            <option value="1024">ViT-Large (1024D)</option>
+                            <option value="1280">ViT-Huge (1280D)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Analysis Type:</label>
+                        <select id="analysisType">
+                            <option value="tokens">Token Count</option>
+                            <option value="memory">Memory Analysis</option>
+                            <option value="flops">FLOP Analysis</option>
+                            <option value="comparison">Size Comparison</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button onclick="analyzePatchImpact()">📊 Analyze Patch Impact</button>
+                <div id="patchAnalysisResults"></div>
+            </div>
+        </div>
+        
+        <div class="step">
+            <h3>🎯 The Information Density Trade-off</h3>
+            
+            <p>Each patch size represents a fundamental trade-off between spatial resolution and computational efficiency. Understanding this mathematically:</p>
+            
+            <div class="math-formula">
+                <strong>Information Density Analysis:</strong><br><br>
+                
+                <strong>Spatial Information per Token:</strong><br>
+                I_spatial = P² pixels per token<br><br>
+                
+                <strong>Effective Resolution:</strong><br>
+                R_effective = √N = √((H × W) / P²) = √(H × W) / P<br><br>
+                
+                <strong>Information Loss Factor:</strong><br>
+                Loss = (Total_pixels - Preserved_spatial_relationships) / Total_pixels<br>
+                ≈ 1 - (1/P²) for fine-grained patterns<br><br>
+                
+                <strong>Computational Cost per Bit of Information:</strong><br>
+                Cost = O(N² × D) / (H × W) = O(D / P²)
+            </math-formula>
+            
+            <div class="complexity-analysis">
+                <strong>⚡ The Quadratic Scaling Challenge:</strong><br><br>
+                
+                The attention mechanism's O(N²) complexity creates exponential memory growth:<br><br>
+                
+                <strong>For 512×512 image:</strong><br>
+                • 8×8 patches: 4,096 tokens → 16.8M attention elements per head<br>
+                • 16×16 patches: 1,024 tokens → 1.05M attention elements per head<br>
+                • 32×32 patches: 256 tokens → 65K attention elements per head<br><br>
+                
+                <strong>Memory scaling factor from 32×32 to 8×8: 258×</strong><br><br>
+                
+                This isn't just academic - it's the difference between running on consumer hardware vs requiring data center infrastructure.
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🧮 Linear Projection Mathematics</h2>
+        
+        <div class="step">
+            <h3>🔄 From Pixels to Embeddings: The Transformation</h3>
+            
+            <p>The patch embedding layer is fundamentally different from text embeddings. Instead of discrete lookup tables, vision transformers must learn continuous projections from pixel space to embedding space.</p>
+            
+            <div class="math-formula">
+                <strong>Patch Embedding Transformation:</strong><br><br>
+                
+                <strong>Step 1: Patch Extraction</strong><br>
+                x_patch ∈ ℝ^(N × (P² × C))<br>
+                where N = number of patches, P² = patch area, C = channels<br><br>
+                
+                <strong>Step 2: Linear Projection</strong><br>
+                E = x_patch × W_proj + b_proj<br><br>
+                
+                <strong>Weight Matrix Dimensions:</strong><br>
+                W_proj ∈ ℝ^((P² × C) × D)<br>
+                b_proj ∈ ℝ^D<br><br>
+                
+                <strong>Parameter Count:</strong><br>
+                Params = (P² × C × D) + D = D × (P² × C + 1)<br><br>
+                
+                <strong>Output:</strong><br>
+                E ∈ ℝ^(N × D) - embedded patch representations
+            </math-formula>
+            
+            <div class="interactive-demo">
+                <div class="demo-title">🔄 Linear Projection Analyzer</div>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Patch Size:</label>
+                        <input type="range" id="projPatchSize" min="4" max="32" value="16" step="4">
+                        <span id="projPatchSizeValue">16×16</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Embedding Dimension:</label>
+                        <select id="projEmbedDim">
+                            <option value="384">384 (ViT-Small)</option>
+                            <option value="512">512</option>
+                            <option value="768">768 (ViT-Base)</option>
+                            <option value="1024">1024 (ViT-Large)</option>
+                            <option value="1280">1280 (ViT-Huge)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Channels:</label>
+                        <select id="projChannels">
+                            <option value="3">3 (RGB)</option>
+                            <option value="4">4 (RGBA)</option>
+                            <option value="1">1 (Grayscale)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button onclick="analyzeLinearProjection()">🧮 Analyze Projection</button>
+                <div id="projectionResults"></div>
+            </div>
+        </div>
+        
+        <div class="step">
+            <h3>💡 The Learned Visual Vocabulary Concept</h3>
+            
+            <p>Unlike text transformers with fixed vocabularies, ViTs must <em>learn</em> their visual vocabulary through the projection matrix. This is a fundamental difference that affects initialization, training dynamics, and performance.</p>
+            
+            <div class="parameter-box">
+                <strong>🔍 Text vs Vision Embedding Comparison:</strong><br><br>
+                
+                <strong>Text Transformers:</strong><br>
+                • Fixed vocabulary: 50,000 discrete tokens<br>
+                • Lookup operation: O(1) complexity<br>
+                • Each token has learned embedding vector<br>
+                • No spatial relationships in vocabulary<br><br>
+                
+                <strong>Vision Transformers:</strong><br>
+                • Infinite continuous space: any pixel combination possible<br>
+                • Linear transformation: O(P² × C × D) complexity<br>
+                • Must learn to cluster similar patches<br>
+                • Spatial relationships must be learned<br>
+                • Patch projection matrix acts as "vocabulary discovery"
+            </div>
+            
+            <div class="code-block">
+<strong>Pseudocode: Patch Embedding Implementation</strong>
+
+def patch_embedding_forward(image, patch_size, embed_dim):
+    """
+    Convert image to patch embeddings
+    
+    Args:
+        image: [H, W, C] input image
+        patch_size: P (square patches)
+        embed_dim: D embedding dimension
+    
+    Returns:
+        embeddings: [N, D] where N = (H*W)/(P*P)
+    """
+    H, W, C = image.shape
+    P = patch_size
+    
+    # Step 1: Extract patches
+    # Reshape to [N, P*P*C] where N = number of patches
+    N = (H // P) * (W // P)
+    patches = extract_patches(image, patch_size)  # [N, P*P*C]
+    
+    # Step 2: Linear projection
+    # W_proj: [P*P*C, D], b_proj: [D]
+    embeddings = patches @ W_proj + b_proj  # [N, D]
+    
+    return embeddings
+
+def extract_patches(image, patch_size):
+    """Extract non-overlapping patches from image"""
+    H, W, C = image.shape
+    P = patch_size
+    
+    # Ensure image dimensions are divisible by patch size
+    assert H % P == 0 and W % P == 0
+    
+    patches = []
+    for i in range(0, H, P):
+        for j in range(0, W, P):
+            # Extract P×P×C patch and flatten
+            patch = image[i:i+P, j:j+P, :].flatten()
+            patches.append(patch)
+    
+    return np.stack(patches)  # [N, P*P*C]
+
+# Parameter initialization (critical for vision)
+def initialize_patch_projection(patch_size, channels, embed_dim):
+    """Initialize patch embedding weights"""
+    input_dim = patch_size * patch_size * channels
+    
+    # Xavier/Glorot initialization for linear layer
+    limit = np.sqrt(6.0 / (input_dim + embed_dim))
+    W_proj = np.random.uniform(-limit, limit, (input_dim, embed_dim))
+    b_proj = np.zeros(embed_dim)
+    
+    return W_proj, b_proj
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>📍 2D Positional Encoding: Spatial Relationships</h2>
+        
+        <div class="step">
+            <h3>🌐 The 2D Spatial Challenge</h3>
+            
+            <p>Text has natural 1D order, but images have 2D spatial structure. ViTs must encode both row and column positions, as well as global patch relationships.</p>
+            
+            <div class="math-formula">
+                <strong>2D Positional Encoding Mathematics:</strong><br><br>
+                
+                <strong>Learnable Absolute Positions (Standard ViT):</strong><br>
+                E_pos ∈ ℝ^((N+1) × D)<br>
+                where N+1 includes CLS token position<br><br>
+                
+                <strong>Position Assignment:</strong><br>
+                • Position 0: CLS token<br>
+                • Position (i×cols + j + 1): patch at row i, column j<br><br>
+                
+                <strong>Final Token Representation:</strong><br>
+                z₀ = [x_cls; x₁E; x₂E; ...; x_NE] + E_pos<br><br>
+                
+                <strong>Alternative: 2D Sinusoidal Encoding</strong><br>
+                PE(pos, 2i) = sin(pos / 10000^(2i/d))<br>
+                PE(pos, 2i+1) = cos(pos / 10000^(2i/d))<br>
+                Applied separately to row and column positions
+            </math-formula>
+            
+            <div class="interactive-demo">
+                <div class="demo-title">📍 Positional Encoding Visualizer</div>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Grid Size:</label>
+                        <input type="range" id="posGridSize" min="4" max="16" value="8" step="1">
+                        <span id="posGridSizeValue">8×8</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Encoding Type:</label>
+                        <select id="posEncodingType">
+                            <option value="learnable">Learnable (Standard)</option>
+                            <option value="sinusoidal">Sinusoidal</option>
+                            <option value="2d_sinusoidal">2D Sinusoidal</option>
+                            <option value="relative">Relative</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Visualization:</label>
+                        <select id="posVisualization">
+                            <option value="position_id">Position IDs</option>
+                            <option value="similarity">Position Similarity</option>
+                            <option value="distance">Spatial Distance</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button onclick="visualizePositionalEncoding()">🎨 Generate Visualization</button>
+                <div id="positionalEncodingViz"></div>
+                <div id="positionalEncodingAnalysis"></div>
+            </div>
+        </div>
+        
+        <div class="step">
+            <h3>⚖️ Positional Encoding Variants: Trade-off Analysis</h3>
+            
+            <div class="comparison-table">
+                <table>
+                    <tr>
+                        <th>Encoding Type</th>
+                        <th>Parameters</th>
+                        <th>Advantages</th>
+                        <th>Disadvantages</th>
+                        <th>Best Use Case</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Learnable Absolute</strong></td>
+                        <td class="moderate">(N+1)×D</td>
+                        <td>Flexible, adapts to data<br>Works well for fixed resolution</td>
+                        <td>Fixed sequence length<br>Poor generalization to new sizes</td>
+                        <td class="optimal">Standard ViT applications</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sinusoidal</strong></td>
+                        <td class="optimal">0 (fixed)</td>
+                        <td>No parameters<br>Extrapolates to longer sequences</td>
+                        <td>1D order assumption<br>Suboptimal for 2D spatial data</td>
+                        <td>Resource-constrained settings</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2D Sinusoidal</strong></td>
+                        <td class="optimal">0 (fixed)</td>
+                        <td>True 2D awareness<br>Resolution independent</td>
+                        <td>Complex implementation<br>May underperform learnable</td>
+                        <td>Variable resolution applications</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Relative</strong></td>
+                        <td class="poor">2N×D approx</td>
+                        <td>Translation invariant<br>Better generalization</td>
+                        <td>Higher complexity<br>More parameters</td>
+                        <td class="moderate">Research & specialized tasks</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="code-block">
+<strong>Pseudocode: Positional Encoding Implementations</strong>
+
+def learnable_positional_encoding(num_patches, embed_dim):
+    """Standard ViT learnable positions"""
+    # +1 for CLS token
+    pos_embed = nn.Parameter(torch.zeros(1, num_patches + 1, embed_dim))
+    # Initialize with truncated normal
+    nn.init.trunc_normal_(pos_embed, std=0.02)
+    return pos_embed
+
+def sinusoidal_positional_encoding(num_patches, embed_dim):
+    """1D sinusoidal encoding applied to flattened 2D positions"""
+    position = torch.arange(num_patches + 1).unsqueeze(1)
+    
+    div_term = torch.exp(torch.arange(0, embed_dim, 2) * 
+                        -(math.log(10000.0) / embed_dim))
+    
+    pos_embed = torch.zeros(num_patches + 1, embed_dim)
+    pos_embed[:, 0::2] = torch.sin(position * div_term)
+    pos_embed[:, 1::2] = torch.cos(position * div_term)
+    
+    return pos_embed.unsqueeze(0)
+
+def sinusoidal_2d_positional_encoding(height, width, embed_dim):
+    """True 2D sinusoidal encoding"""
+    # Separate embeddings for height and width
+    h_embed_dim = embed_dim // 2
+    w_embed_dim = embed_dim - h_embed_dim
+    
+    # Height positions
+    h_pos = torch.arange(height).unsqueeze(1)
+    h_div_term = torch.exp(torch.arange(0, h_embed_dim, 2) * 
+                          -(math.log(10000.0) / h_embed_dim))
+    h_embed = torch.zeros(height, h_embed_dim)
+    h_embed[:, 0::2] = torch.sin(h_pos * h_div_term)
+    h_embed[:, 1::2] = torch.cos(h_pos * h_div_term)
+    
+    # Width positions
+    w_pos = torch.arange(width).unsqueeze(1)
+    w_div_term = torch.exp(torch.arange(0, w_embed_dim, 2) * 
+                          -(math.log(10000.0) / w_embed_dim))
+    w_embed = torch.zeros(width, w_embed_dim)
+    w_embed[:, 0::2] = torch.sin(w_pos * w_div_term)
+    w_embed[:, 1::2] = torch.cos(w_pos * w_div_term)
+    
+    # Combine height and width embeddings for each patch
+    pos_embed = torch.zeros(height * width + 1, embed_dim)
+    pos_embed[0, :] = 0  # CLS token
+    
+    for i in range(height):
+        for j in range(width):
+            patch_idx = i * width + j + 1
+            pos_embed[patch_idx, :h_embed_dim] = h_embed[i, :]
+            pos_embed[patch_idx, h_embed_dim:] = w_embed[j, :]
+    
+    return pos_embed.unsqueeze(0)
+
+def relative_positional_encoding(height, width, embed_dim, max_distance=7):
+    """Relative 2D position encoding (simplified)"""
+    # This is complex - showing concept only
+    num_relative_positions = (2 * max_distance + 1) ** 2
+    relative_position_bias = nn.Parameter(
+        torch.zeros(num_relative_positions, embed_dim)
+    )
+    
+    # Build relative position index for each patch pair
+    # Implementation details omitted for brevity
+    return relative_position_bias
+            </code-block>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🔄 Resolution Transfer & Adaptability</h2>
+        
+        <div class="step">
+            <h3>📏 The Resolution Transfer Problem</h3>
+            
+            <p>A critical limitation of standard ViTs is their fixed resolution dependency. When you train on 224×224 images, the learned positional embeddings don't directly apply to 384×384 images. Understanding this mathematically:</p>
+            
+            <div class="math-formula">
+                <strong>Resolution Transfer Mathematics:</strong><br><br>
+                
+                <strong>Training Resolution:</strong><br>
+                N_train = (H_train / P)² patches<br>
+                E_pos_train ∈ ℝ^((N_train + 1) × D)<br><br>
+                
+                <strong>New Resolution:</strong><br>
+                N_new = (H_new / P)² patches<br>
+                Need: E_pos_new ∈ ℝ^((N_new + 1) × D)<br><br>
+                
+                <strong>Interpolation Strategy:</strong><br>
+                1. Reshape E_pos_train to 2D grid: [√N_train, √N_train, D]<br>
+                2. Interpolate to new grid: [√N_new, √N_new, D]<br>
+                3. Reshape back to sequence: [N_new, D]<br><br>
+                
+                <strong>Interpolation Quality:</strong><br>
+                Quality ∝ overlap between train and test position distributions<br>
+                Best when N_new ≈ N_train (similar resolution)
+            </math-formula>
+            
+            <div class="interactive-demo">
+                <div class="demo-title">🔄 Resolution Transfer Simulator</div>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Training Resolution:</label>
+                        <select id="trainRes">
+                            <option value="224">224×224</option>
+                            <option value="384" selected>384×384</option>
+                            <option value="512">512×512</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Target Resolution:</label>
+                        <select id="targetRes">
+                            <option value="224">224×224</option>
+                            <option value="384">384×384</option>
+                            <option value="512">512×512</option>
+                            <option value="768" selected>768×768</option>
+                            <option value="1024">1024×1024</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Interpolation Method:</label>
+                        <select id="interpMethod">
+                            <option value="bilinear">Bilinear</option>
+                            <option value="bicubic">Bicubic</option>
+                            <option value="nearest">Nearest Neighbor</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button onclick="simulateResolutionTransfer()">🔄 Simulate Transfer</button>
+                <div id="resolutionTransferResults"></div>
+            </div>
+        </div>
+        
+        <div class="step">
+            <h3>🛠️ Advanced Resolution Adaptation Strategies</h3>
+            
+            <div class="parameter-box">
+                <strong>Production Resolution Transfer Techniques:</strong><br><br>
+                
+                <strong>1. Bicubic Interpolation (Most Common):</strong><br>
+                • Smooth interpolation between known positions<br>
+                • Works well for moderate resolution changes (2× or less)<br>
+                • Used in most production ViT implementations<br><br>
+                
+                <strong>2. Multi-Scale Training:</strong><br>
+                • Train on multiple resolutions simultaneously<br>
+                • Model learns resolution-invariant features<br>
+                • Best for applications with variable input sizes<br><br>
+                
+                <strong>3. Adaptive Positional Encoding:</strong><br>
+                • Use relative positions instead of absolute<br>
+                • Better generalization but more complex<br>
+                • Research direction for flexible architectures<br><br>
+                
+                <strong>4. Fine-tuning at Target Resolution:</strong><br>
+                • Transfer weights, then fine-tune on target resolution<br>
+                • Most accurate but requires additional training<br>
+                • Used for high-stakes applications
+            </parameter-box>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>⚡ Memory Scaling & Production Constraints</h2>
+        
+        <div class="step">
+            <h3>💾 Complete Memory Analysis</h3>
+            
+            <p>Understanding exact memory requirements is critical for production deployment. Let's break down every component mathematically:</p>
+            
+            <div class="interactive-demo">
+                <div class="demo-title">💾 Production Memory Calculator</div>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Image Resolution:</label>
+                        <input type="range" id="memImageRes" min="224" max="1024" value="384" step="32">
+                        <span id="memImageResValue">384×384</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Patch Size:</label>
+                        <input type="range" id="memPatchSize" min="4" max="32" value="16" step="4">
+                        <span id="memPatchSizeValue">16×16</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Batch Size:</label>
+                        <input type="range" id="memBatchSize" min="1" max="32" value="8" step="1">
+                        <span id="memBatchSizeValue">8</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Model Size:</label>
+                        <select id="memModelSize">
+                            <option value="base">ViT-Base (768D, 12L)</option>
+                            <option value="large">ViT-Large (1024D, 24L)</option>
+                            <option value="huge">ViT-Huge (1280D, 32L)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Precision:</label>
+                        <select id="memPrecision">
+                            <option value="fp32">FP32</option>
+                            <option value="fp16">FP16</option>
+                            <option value="bf16">BF16</option>
+                            <option value="int8">INT8 (Inference)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button onclick="calculateProductionMemory()">💻 Calculate Memory Requirements</button>
+                <div id="memoryCalculationResults"></div>
+            </div>
+        </div>
+        
+        <div class="step">
+            <h3>🎯 Hardware-Specific Optimization Strategies</h3>
+            
+            <div class="scaling-grid">
+                <div class="scaling-card">
+                    <div class="scaling-label">Consumer GPUs</div>
+                    <div class="scaling-metric">≤ 24GB</div>
+                    <div class="scaling-description">
+                        RTX 3090/4090<br>
+                        Max: 384×384, patch 16×16<br>
+                        Batch size: 4-8
+                    </div>
+                </div>
+                
+                <div class="scaling-card">
+                    <div class="scaling-label">Professional GPUs</div>
+                    <div class="scaling-metric">40-80GB</div>
+                    <div class="scaling-description">
+                        A100/H100<br>
+                        Max: 512×512, patch 14×14<br>
+                        Batch size: 16-32
+                    </div>
+                </div>
+                
+                <div class="scaling-card">
+                    <div class="scaling-label">Multi-GPU Setups</div>
+                    <div class="scaling-metric">>80GB</div>
+                    <div class="scaling-description">
+                        8×A100<br>
+                        Max: 1024×1024, any patch<br>
+                        Batch size: 64+
+                    </div>
+                </div>
+            </div>
+            
+            <div class="danger">
+                <strong>⚠️ Critical Memory Bottlenecks:</strong><br><br>
+                
+                • <strong>Attention Maps:</strong> O(N²) scaling - dominates at high resolution<br>
+                • <strong>Gradient Storage:</strong> 2× model parameters during training<br>
+                • <strong>Optimizer States:</strong> 2-3× model parameters for Adam<br>
+                • <strong>Activation Checkpointing:</strong> Trade compute for memory (2-3× slower)<br><br>
+                
+                <strong>Emergency Optimization:</strong><br>
+                • Reduce batch size before reducing model quality<br>
+                • Use gradient accumulation to maintain effective batch size<br>
+                • Consider patch size increase as last resort
+            </danger>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🚀 Advanced Patch Embedding Strategies</h2>
+        
+        <div class="step">
+            <h3>🔧 Beyond Standard Patches: Modern Innovations</h3>
+            
+            <div class="architecture-diagram">
+                <h4>🏗️ Hierarchical Patch Embedding Architecture</h4>
+                
+                <div class="layer-flow">
+                    <div class="layer-box">
+                        <div class="layer-title">Stage 1</div>
+                        <div class="layer-content">4×4 patches</div>
+                        <div class="layer-detail">Fine details<br>High resolution</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="layer-box">
+                        <div class="layer-title">Stage 2</div>
+                        <div class="layer-content">8×8 patches</div>
+                        <div class="layer-detail">Medium features<br>Pooled resolution</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="layer-box">
+                        <div class="layer-title">Stage 3</div>
+                        <div class="layer-content">16×16 patches</div>
+                        <div class="layer-detail">Object parts<br>Lower resolution</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="layer-box">
+                        <div class="layer-title">Stage 4</div>
+                        <div class="layer-content">32×32 patches</div>
+                        <div class="layer-detail">Global context<br>Lowest resolution</div>
+                    </div>
+                </div>
+                
+                <div class="info">
+                    <strong>💡 Hierarchical Benefits:</strong><br>
+                    • Captures multi-scale information like CNNs<br>
+                    • Reduces computational cost through progressive downsampling<br>
+                    • Better performance on tasks requiring multi-scale understanding<br>
+                    • Used in PiT, Swin Transformer, and other advanced architectures
+                </div>
+            </div>
+        </div>
+        
+        <div class="step">
+            <h3>🧠 Advanced Embedding Techniques</h3>
+            
+            <div class="code-block">
+<strong>Pseudocode: Advanced Patch Embedding Strategies</strong>
+
+class ConvolutionalPatchEmbedding:
+    """Use convolutional layers instead of linear projection"""
+    def __init__(self, patch_size, embed_dim, in_channels=3):
+        # Convolution with kernel=patch_size, stride=patch_size
+        self.projection = Conv2D(
+            in_channels=in_channels,
+            out_channels=embed_dim,
+            kernel_size=patch_size,
+            stride=patch_size
+        )
+    
+    def forward(self, x):
+        # x: [B, H, W, C]
+        x = self.projection(x)  # [B, H/P, W/P, D]
+        x = x.flatten(1, 2)     # [B, N, D]
+        return x
+
+class OverlappingPatchEmbedding:
+    """Overlapping patches for better locality"""
+    def __init__(self, patch_size, stride, embed_dim, in_channels=3):
+        self.projection = Conv2D(
+            in_channels=in_channels,
+            out_channels=embed_dim,
+            kernel_size=patch_size,
+            stride=stride,  # stride < patch_size for overlap
+            padding=(patch_size - stride) // 2
+        )
+    
+    def forward(self, x):
+        x = self.projection(x)
+        x = x.flatten(1, 2)
+        return x
+
+class HierarchicalPatchEmbedding:
+    """Multi-scale patch embedding like PiT"""
+    def __init__(self, patch_sizes, embed_dims, in_channels=3):
+        self.stages = []
+        prev_dim = in_channels
+        
+        for patch_size, embed_dim in zip(patch_sizes, embed_dims):
+            stage = Conv2D(
+                in_channels=prev_dim,
+                out_channels=embed_dim,
+                kernel_size=patch_size,
+                stride=patch_size
+            )
+            self.stages.append(stage)
+            prev_dim = embed_dim
+    
+    def forward(self, x):
+        features = []
+        for stage in self.stages:
+            x = stage(x)
+            features.append(x.flatten(1, 2))
+            # Could add downsampling here
+        return features
+
+class AdaptivePatchEmbedding:
+    """Adaptive patch sizes based on content"""
+    def __init__(self, base_patch_size, embed_dim, in_channels=3):
+        self.base_patch_size = base_patch_size
+        self.embed_dim = embed_dim
+        
+        # Multiple projection layers for different patch sizes
+        self.projections = {
+            'small': Conv2D(in_channels, embed_dim, 8, 8),
+            'medium': Conv2D(in_channels, embed_dim, 16, 16),
+            'large': Conv2D(in_channels, embed_dim, 32, 32)
+        }
+        
+        # Content-aware selection network
+        self.selector = ContentSelector(in_channels)
+    
+    def forward(self, x):
+        # Analyze content to choose patch sizes
+        patch_size_map = self.selector(x)
+        
+        # Apply different patch sizes to different regions
+        # Implementation details omitted for brevity
+        return adaptive_patches
+
+def patch_embedding_initialization(patch_size, channels, embed_dim):
+    """Proper initialization for patch embedding"""
+    # For convolutional patch embedding
+    fan_out = embed_dim * patch_size * patch_size
+    fan_in = channels * patch_size * patch_size
+    
+    # He initialization for ReLU-like activations
+    # Xavier for linear activations
+    if activation == 'relu':
+        std = math.sqrt(2.0 / fan_in)
+    else:  # linear/gelu
+        std = math.sqrt(2.0 / (fan_in + fan_out))
+    
+    return torch.normal(0, std, size=(embed_dim, channels, patch_size, patch_size))
+            </code-block>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🎯 Decision Framework: Choosing Optimal Parameters</h2>
+        
+        <div class="step">
+            <h3>🧭 Production Decision Matrix</h3>
+            
+            <p>Use this systematic framework to choose patch size and embedding parameters for your specific application:</p>
+            
+            <div class="decision-matrix">
+                <div class="matrix-cell matrix-header">Application Type</div>
+                <div class="matrix-cell matrix-header">Recommended Patch Size</div>
+                <div class="matrix-cell matrix-header">Reasoning</div>
+                <div class="matrix-cell matrix-header">Alternative Approaches</div>
+                
+                <div class="matrix-cell matrix-row-header">ImageNet Classification</div>
+                <div class="matrix-cell optimal">16×16</div>
+                <div class="matrix-cell">Balanced efficiency/detail<br>Objects typically >32px</div>
+                <div class="matrix-cell">14×14 for ViT-Huge<br>8×8 if fine details matter</div>
+                
+                <div class="matrix-cell matrix-row-header">Medical Imaging</div>
+                <div class="matrix-cell moderate">8×8 or 4×4</div>
+                <div class="matrix-cell">Critical fine details<br>Small pathological features</div>
+                <div class="matrix-cell">Hierarchical patches<br>Multi-scale training</div>
+                
+                <div class="matrix-cell matrix-row-header">Satellite/Aerial</div>
+                <div class="matrix-cell optimal">32×32</div>
+                <div class="matrix-cell">Large-scale patterns<br>High resolution images</div>
+                <div class="matrix-cell">Adaptive patching<br>Multi-resolution input</div>
+                
+                <div class="matrix-cell matrix-row-header">Face Recognition</div>
+                <div class="matrix-cell moderate">16×16 or 8×8</div>
+                <div class="matrix-cell">Facial features scale<br>Need eye/nose detail</div>
+                <div class="matrix-cell">Overlapping patches<br>Attention to key regions</div>
+                
+                <div class="matrix-cell matrix-row-header">Object Detection</div>
+                <div class="matrix-cell moderate">Variable/Hierarchical</div>
+                <div class="matrix-cell">Multi-scale objects<br>Need all detail levels</div>
+                <div class="matrix-cell">DETR-style approach<br>FPN-like hierarchies</div>
+                
+                <div class="matrix-cell matrix-row-header">Mobile/Edge</div>
+                <div class="matrix-cell poor">32×32 or larger</div>
+                <div class="matrix-cell">Memory/compute constraints<br>Real-time requirements</div>
+                <div class="matrix-cell">Model distillation<br>Quantization techniques</div>
+            </div>
+        </div>
+        
+        <div class="step">
+            <h3>📊 Interactive Decision Helper</h3>
+            
+            <div class="interactive-demo">
+                <div class="demo-title">🎯 Patch Size Decision Helper</div>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Application Domain:</label>
+                        <select id="appDomain">
+                            <option value="general">General Classification</option>
+                            <option value="medical">Medical Imaging</option>
+                            <option value="satellite">Satellite/Aerial</option>
+                            <option value="face">Face Recognition</option>
+                            <option value="detection">Object Detection</option>
+                            <option value="mobile">Mobile/Edge</option>
+                            <option value="custom">Custom Application</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Typical Object Size:</label>
+                        <select id="objectSize">
+                            <option value="tiny">Tiny (<16px)</option>
+                            <option value="small">Small (16-32px)</option>
+                            <option value="medium">Medium (32-64px)</option>
+                            <option value="large">Large (64-128px)</option>
+                            <option value="huge">Huge (>128px)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Hardware Constraint:</label>
+                        <select id="hardwareConstraint">
+                            <option value="none">No Constraint</option>
+                            <option value="consumer">Consumer GPU (≤24GB)</option>
+                            <option value="mobile">Mobile/Edge Device</option>
+                            <option value="cloud">Cloud/Data Center</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Performance Priority:</label>
+                        <select id="performancePriority">
+                            <option value="accuracy">Maximum Accuracy</option>
+                            <option value="balanced">Balanced</option>
+                            <option value="speed">Maximum Speed</option>
+                            <option value="memory">Memory Efficiency</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button onclick="generateRecommendation()">🎯 Get Recommendation</button>
+                <div id="recommendationResults"></div>
+            </div>
+        </div>
+        
+        <div class="success">
+            <strong>🎓 Key Takeaways:</strong><br>
+            • Patch size is the most critical architectural decision in ViTs<br>
+            • Memory scales as O(1/P⁴) - quadratic in inverse patch area<br>
+            • Smaller patches preserve detail but require massive compute/data<br>
+            • Positional encoding choice affects generalization to new resolutions<br>
+            • Production deployment requires careful memory budgeting<br>
+            • Advanced techniques (hierarchical, overlapping) can overcome limitations<br>
+            • Always validate your choice with computational and memory constraints
+        </div>
+    </div>
+
+    <script>
+        // Global variables for calculations
+        const modelSpecs = {
+            base: { dim: 768, layers: 12, heads: 12 },
+            large: { dim: 1024, layers: 24, heads: 16 },
+            huge: { dim: 1280, layers: 32, heads: 16 }
+        };
+
+        const precisionBytes = {
+            fp32: 4, fp16: 2, bf16: 2, int8: 1
+        };
+
+        function updateSliderValues() {
+            document.getElementById('imageResValue').textContent = 
+                document.getElementById('imageRes').value + '×' + document.getElementById('imageRes').value;
+            document.getElementById('patchSizeValue').textContent = 
+                document.getElementById('patchSize').value + '×' + document.getElementById('patchSize').value;
+            document.getElementById('projPatchSizeValue').textContent = 
+                document.getElementById('projPatchSize').value + '×' + document.getElementById('projPatchSize').value;
+            document.getElementById('posGridSizeValue').textContent = 
+                document.getElementById('posGridSize').value + '×' + document.getElementById('posGridSize').value;
+            document.getElementById('memImageResValue').textContent = 
+                document.getElementById('memImageRes').value + '×' + document.getElementById('memImageRes').value;
+            document.getElementById('memPatchSizeValue').textContent = 
+                document.getElementById('memPatchSize').value + '×' + document.getElementById('memPatchSize').value;
+            document.getElementById('memBatchSizeValue').textContent = 
+                document.getElementById('memBatchSize').value;
+        }
+
+        function analyzePatchImpact() {
+            const imageRes = parseInt(document.getElementById('imageRes').value);
+            const patchSize = parseInt(document.getElementById('patchSize').value);
+            const embedDim = parseInt(document.getElementById('modelVariant').value);
+            const analysisType = document.getElementById('analysisType').value;
+            
+            const patchesPerSide = imageRes / patchSize;
+            const numPatches = patchesPerSide * patchesPerSide;
+            const seqLen = numPatches + 1; // +1 for CLS token
+            
+            let html = `<div class="step"><h4>📊 Patch Impact Analysis: ${patchSize}×${patchSize} patches</h4>`;
+            
+            if (analysisType === 'tokens') {
+                html += `
+                    <div class="embedding-viz">
+                        <div class="embedding-stage">
+                            <div class="stage-title">Image</div>
+                            <div class="stage-content">${imageRes}×${imageRes}</div>
+                            <div class="stage-description">${(imageRes * imageRes * 3 / 1024).toFixed(0)}K pixels</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="embedding-stage">
+                            <div class="stage-title">Patches</div>
+                            <div class="stage-content">${numPatches}</div>
+                            <div class="stage-description">${patchesPerSide}×${patchesPerSide} grid</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="embedding-stage">
+                            <div class="stage-title">Sequence</div>
+                            <div class="stage-content">${seqLen}</div>
+                            <div class="stage-description">+1 CLS token</div>
+                        </div>
+                    </div>
+                    
+                    <div class="parameter-box">
+                        <strong>Tokenization Analysis:</strong><br>
+                        • <strong>Pixels per patch:</strong> ${patchSize * patchSize * 3} (${patchSize}²×3 channels)<br>
+                        • <strong>Information compression:</strong> ${(patchSize * patchSize * 3 / embedDim).toFixed(1)}:1 ratio<br>
+                        • <strong>Spatial resolution:</strong> ${patchesPerSide}×${patchesPerSide} effective grid<br>
+                        • <strong>Total parameters:</strong> ${((patchSize * patchSize * 3 * embedDim + embedDim) / 1e6).toFixed(2)}M for patch embedding
+                    </div>
+                `;
+            } else if (analysisType === 'memory') {
+                const bytesPerElement = 2; // FP16
+                const patchEmbedMemory = numPatches * embedDim * bytesPerElement;
+                const attentionMemory = seqLen * seqLen * 12 * bytesPerElement; // 12 heads
+                const activationMemory = seqLen * embedDim * 12 * bytesPerElement; // 12 layers
+                const totalMemory = patchEmbedMemory + attentionMemory + activationMemory;
+                
+                html += `
+                    <div class="memory-breakdown">
+                        <div class="memory-row">
+                            <span><strong>Patch Embeddings:</strong></span>
+                            <span>${(patchEmbedMemory / 1024 / 1024).toFixed(1)} MB</span>
+                        </div>
+                        <div class="memory-row">
+                            <span><strong>Attention Maps:</strong></span>
+                            <span>${(attentionMemory / 1024 / 1024).toFixed(1)} MB</span>
+                        </div>
+                        <div class="memory-row">
+                            <span><strong>Layer Activations:</strong></span>
+                            <span>${(activationMemory / 1024 / 1024).toFixed(1)} MB</span>
+                        </div>
+                        <div class="memory-row">
+                            <span><strong>Total Memory (per sample):</strong></span>
+                            <span>${(totalMemory / 1024 / 1024).toFixed(1)} MB</span>
+                        </div>
+                    </div>
+                    
+                    <div class="complexity-analysis">
+                        <strong>⚡ Attention Complexity Breakdown:</strong><br><br>
+                        • <strong>Sequence Length:</strong> N = ${seqLen}<br>
+                        • <strong>Attention Matrix Size:</strong> N² = ${(seqLen * seqLen).toLocaleString()}<br>
+                        • <strong>Memory per Head:</strong> ${(seqLen * seqLen * 2 / 1024).toFixed(0)} KB<br>
+                        • <strong>Total Attention Memory:</strong> ${(seqLen * seqLen * 12 * 2 / 1024 / 1024).toFixed(1)} MB<br><br>
+                        <strong>Scaling Factor vs 32×32 patches:</strong> ${((seqLen / ((imageRes/32)**2 + 1))**2).toFixed(1)}×
+                    </div>
+                `;
+            } else if (analysisType === 'flops') {
+                const patchEmbedFlops = numPatches * (patchSize * patchSize * 3) * embedDim;
+                const attentionFlops = 12 * (3 * seqLen * embedDim * embedDim + seqLen * seqLen * embedDim);
+                const mlpFlops = 12 * 2 * seqLen * embedDim * (embedDim * 4);
+                const totalFlops = patchEmbedFlops + attentionFlops + mlpFlops;
+                
+                html += `
+                    <table>
+                        <tr><th>Component</th><th>FLOPs</th><th>Percentage</th><th>Per Token</th></tr>
+                        <tr>
+                            <td><strong>Patch Embedding</strong></td>
+                            <td>${(patchEmbedFlops / 1e9).toFixed(2)}G</td>
+                            <td>${(patchEmbedFlops / totalFlops * 100).toFixed(1)}%</td>
+                            <td>${(patchEmbedFlops / numPatches / 1e6).toFixed(1)}M</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Attention Layers</strong></td>
+                            <td class="moderate">${(attentionFlops / 1e9).toFixed(2)}G</td>
+                            <td>${(attentionFlops / totalFlops * 100).toFixed(1)}%</td>
+                            <td>${(attentionFlops / seqLen / 1e6).toFixed(1)}M</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MLP Layers</strong></td>
+                            <td class="poor">${(mlpFlops / 1e9).toFixed(2)}G</td>
+                            <td>${(mlpFlops / totalFlops * 100).toFixed(1)}%</td>
+                            <td>${(mlpFlops / seqLen / 1e6).toFixed(1)}M</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total FLOPs</strong></td>
+                            <td class="optimal">${(totalFlops / 1e9).toFixed(2)}G</td>
+                            <td>100%</td>
+                            <td>${(totalFlops / seqLen / 1e6).toFixed(1)}M</td>
+                        </tr>
+                    </table>
+                    
+                    <div class="info">
+                        <strong>💡 FLOP Insights:</strong><br>
+                        • Total compute: ${(totalFlops / 1e12).toFixed(3)} TFLOPs per forward pass<br>
+                        • Attention dominance: ${attentionFlops > mlpFlops ? 'No' : 'Yes'} (MLP typically dominates until very high resolution)<br>
+                        • Scaling vs 16×16: ${(totalFlops / (numPatches * 0.8e9)).toFixed(1)}× (approximate)<br>
+                        • GPU utilization: ${totalFlops < 1e11 ? 'Light' : totalFlops < 5e11 ? 'Moderate' : 'Heavy'} computational load
+                    </div>
+                `;
+            } else { // comparison
+                const sizes = [8, 16, 24, 32];
+                html += `
+                    <div class="scaling-grid">
+                        ${sizes.map(size => {
+                            const patches = (imageRes / size) ** 2;
+                            const tokens = patches + 1;
+                            const attentionOps = tokens * tokens * 12;
+                            const relativeSpeed = (seqLen * seqLen) / (tokens * tokens);
+                            
+                            return `
+                                <div class="scaling-card ${size === patchSize ? 'optimal' : ''}">
+                                    <div class="scaling-label">${size}×${size} Patches</div>
+                                    <div class="scaling-metric">${tokens}</div>
+                                    <div class="scaling-description">
+                                        ${Math.round(patches)} patches<br>
+                                        ${relativeSpeed.toFixed(1)}× speed vs current<br>
+                                        ${(attentionOps / 1e6).toFixed(1)}M attention ops
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    
+                    <div class="warning">
+                        <strong>⚠️ Patch Size Trade-offs:</strong><br>
+                        • <strong>8×8:</strong> Maximum detail, but ${((imageRes/8)**2 / (imageRes/16)**2).toFixed(0)}× more attention memory<br>
+                        • <strong>16×16:</strong> Sweet spot for most applications<br>
+                        • <strong>24×24:</strong> Good balance for high-resolution images<br>
+                        • <strong>32×32:</strong> Most efficient, but may lose important spatial details
+                    </div>
+                `;
+            }
+            
+            html += '</div>';
+            document.getElementById('patchAnalysisResults').innerHTML = html;
+        }
+
+        function analyzeLinearProjection() {
+            const patchSize = parseInt(document.getElementById('projPatchSize').value);
+            const embedDim = parseInt(document.getElementById('projEmbedDim').value);
+            const channels = parseInt(document.getElementById('projChannels').value);
+            
+            const inputDim = patchSize * patchSize * channels;
+            const projectionParams = inputDim * embedDim + embedDim; // weights + bias
+            const projectionMemory = projectionParams * 2; // FP16 bytes
+            
+            const html = `
+                <div class="step">
+                    <h4>🔄 Linear Projection Analysis</h4>
+                    
+                    <div class="embedding-viz">
+                        <div class="embedding-stage">
+                            <div class="stage-title">Flattened Patch</div>
+                            <div class="stage-content">${inputDim}D</div>
+                            <div class="stage-description">${patchSize}²×${channels} channels</div>
+                        </div>
+                        <div class="flow-arrow">×</div>
+                        <div class="embedding-stage">
+                            <div class="stage-title">Weight Matrix</div>
+                            <div class="stage-content">${inputDim}×${embedDim}</div>
+                            <div class="stage-description">${(projectionParams/1e6).toFixed(2)}M parameters</div>
+                        </div>
+                        <div class="flow-arrow">=</div>
+                        <div class="embedding-stage">
+                            <div class="stage-title">Embedding</div>
+                            <div class="stage-content">${embedDim}D</div>
+                            <div class="stage-description">Learned representation</div>
+                        </div>
+                    </div>
+                    
+                    <table>
+                        <tr><th>Component</th><th>Dimensions</th><th>Parameters</th><th>Memory (FP16)</th></tr>
+                        <tr>
+                            <td><strong>Weight Matrix</strong></td>
+                            <td>${inputDim} → ${embedDim}</td>
+                            <td class="moderate">${(inputDim * embedDim / 1e6).toFixed(2)}M</td>
+                            <td>${(inputDim * embedDim * 2 / 1024 / 1024).toFixed(1)} MB</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Bias Vector</strong></td>
+                            <td>${embedDim}</td>
+                            <td>${(embedDim / 1e3).toFixed(1)}K</td>
+                            <td>${(embedDim * 2 / 1024).toFixed(1)} KB</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total Projection</strong></td>
+                            <td>-</td>
+                            <td class="optimal">${(projectionParams / 1e6).toFixed(2)}M</td>
+                            <td>${(projectionMemory / 1024 / 1024).toFixed(1)} MB</td>
+                        </tr>
+                    </table>
+                    
+                    <div class="parameter-box">
+                        <strong>Mathematical Properties:</strong><br>
+                        • <strong>Compression Ratio:</strong> ${(inputDim / embedDim).toFixed(1)}:1 ${inputDim > embedDim ? '(Dimensionality reduction)' : '(Dimensionality expansion)'}<br>
+                        • <strong>Information Bottleneck:</strong> ${inputDim > embedDim ? 'Yes - must learn to compress spatial information' : 'No - expansion allows richer representations'}<br>
+                        • <strong>Parameter Efficiency:</strong> ${(projectionParams / inputDim).toFixed(1)} params per input dimension<br>
+                        • <strong>Initialization Scale:</strong> σ = √(2/(${inputDim} + ${embedDim})) = ${Math.sqrt(2/(inputDim + embedDim)).toFixed(4)}
+                    </div>
+                    
+                    <div class="code-block">
+<strong>Implementation Note:</strong>
+
+# Standard linear projection
+projection = nn.Linear(${inputDim}, ${embedDim})
+
+# Equivalent convolutional implementation
+projection = nn.Conv2d(
+    in_channels=${channels}, 
+    out_channels=${embedDim},
+    kernel_size=${patchSize}, 
+    stride=${patchSize}
+)
+
+# Both approaches are mathematically equivalent
+# Conv2d is often faster due to optimized CUDA kernels
+                    </div>
+                    
+                    <div class="${inputDim > embedDim * 2 ? 'warning' : inputDim < embedDim / 2 ? 'info' : 'success'}">
+                        <strong>${inputDim > embedDim * 2 ? '⚠️ High Compression' : inputDim < embedDim / 2 ? '💡 Expansion Mode' : '✅ Balanced Projection'}:</strong><br>
+                        ${inputDim > embedDim * 2 ? 
+                          `Severe information bottleneck - may lose spatial details. Consider larger embedding dimension or smaller patches.` :
+                          inputDim < embedDim / 2 ?
+                          `Embedding dimension much larger than input - allows rich representations but may be parameter inefficient.` :
+                          `Good balance between input and embedding dimensions - preserves information while enabling efficient processing.`
+                        }
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('projectionResults').innerHTML = html;
+        }
+
+        function visualizePositionalEncoding() {
+            const gridSize = parseInt(document.getElementById('posGridSize').value);
+            const encodingType = document.getElementById('posEncodingType').value;
+            const visualization = document.getElementById('posVisualization').value;
+            
+            const totalPositions = gridSize * gridSize + 1; // +1 for CLS
+            
+            let vizHtml = `<div class="position-encoding-viz" style="grid-template-columns: repeat(${gridSize}, 1fr);">`;
+            
+            // CLS token (always first)
+            vizHtml += `<div class="pos-cell" style="background: #dc3545; grid-column: 1 / ${Math.ceil(gridSize/2)}; grid-row: 1;">CLS</div>`;
+            
+            // Generate positional encodings
+            for (let i = 0; i < gridSize * gridSize; i++) {
+                const row = Math.floor(i / gridSize);
+                const col = i % gridSize;
+                const posId = i + 1; // +1 because CLS is position 0
+                
+                let value, color, content;
+                
+                if (visualization === 'position_id') {
+                    value = posId;
+                    content = posId;
+                    color = `hsl(${(posId / totalPositions) * 240}, 70%, 50%)`;
+                } else if (visualization === 'similarity') {
+                    // Simulate similarity to center position
+                    const centerRow = (gridSize - 1) / 2;
+                    const centerCol = (gridSize - 1) / 2;
+                    const distance = Math.sqrt((row - centerRow)**2 + (col - centerCol)**2);
+                    value = 1 - (distance / (gridSize * 0.7));
+                    content = Math.round(value * 9);
+                    color = `rgba(40, 167, 69, ${Math.max(0.1, value)})`;
+                } else { // distance
+                    // Distance-based encoding
+                    const distance = Math.sqrt(row**2 + col**2);
+                    value = distance / Math.sqrt(2 * (gridSize-1)**2);
+                    content = Math.round(value * 9);
+                    color = `hsl(${value * 60}, 70%, 50%)`;
+                }
+                
+                if (i >= Math.floor(gridSize/2)) { // Skip first few cells covered by CLS
+                    vizHtml += `<div class="pos-cell" style="background: ${color};">${content}</div>`;
+                }
+            }
+            
+            vizHtml += '</div>';
+            
+            const analysisHtml = `
+                <div class="step">
+                    <h4>📍 Positional Encoding Analysis</h4>
+                    
+                    <div class="parameter-box">
+                        <strong>Configuration:</strong><br>
+                        • <strong>Encoding Type:</strong> ${encodingType.charAt(0).toUpperCase() + encodingType.slice(1)}<br>
+                        • <strong>Grid Size:</strong> ${gridSize}×${gridSize}<br>
+                        • <strong>Total Positions:</strong> ${totalPositions} (including CLS)<br>
+                        • <strong>Parameters:</strong> ${encodingType === 'learnable' ? `${totalPositions}×D learnable` : encodingType.includes('sinusoidal') ? '0 (fixed)' : 'Variable'}
+                    </div>
+                    
+                    <div class="comparison-table">
+                        <table>
+                            <tr>
+                                <th>Property</th>
+                                <th>Learnable</th>
+                                <th>Sinusoidal</th>
+                                <th>2D Sinusoidal</th>
+                                <th>Relative</th>
+                            </tr>
+                            <tr>
+                                <td><strong>Parameters</strong></td>
+                                <td class="moderate">${totalPositions}×D</td>
+                                <td class="optimal">0</td>
+                                <td class="optimal">0</td>
+                                <td class="poor">2N×D</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Flexibility</strong></td>
+                                <td class="optimal">High</td>
+                                <td class="poor">Low</td>
+                                <td class="moderate">Medium</td>
+                                <td class="optimal">High</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Resolution Transfer</strong></td>
+                                <td class="poor">Poor</td>
+                                <td class="moderate">Good</td>
+                                <td class="optimal">Excellent</td>
+                                <td class="optimal">Excellent</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2D Awareness</strong></td>
+                                <td class="moderate">Learned</td>
+                                <td class="poor">None</td>
+                                <td class="optimal">Native</td>
+                                <td class="optimal">Native</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="${encodingType === 'learnable' ? 'success' : encodingType.includes('sinusoidal') ? 'info' : 'warning'}">
+                        <strong>${encodingType === 'learnable' ? '✅ Standard Choice' : encodingType.includes('sinusoidal') ? '💡 Research Alternative' : '🔬 Advanced Technique'}:</strong><br>
+                        ${encodingType === 'learnable' ? 
+                            `Most common in production ViTs. Each position learns a unique ${Math.round(768)} (or D) dimensional embedding. Works well for fixed resolution training but requires interpolation for different input sizes.` :
+                            encodingType === 'sinusoidal' ?
+                            `Fixed mathematical encoding using sine/cosine functions. No parameters but treats image as 1D sequence, losing 2D spatial structure.` :
+                            encodingType === '2d_sinusoidal' ?
+                            `Separate sine/cosine encoding for row and column positions. Preserves 2D structure and works for any resolution, but may underperform learnable on fixed-size tasks.` :
+                            `Relative position encoding focuses on relationships between positions rather than absolute locations. Better for variable sizes but significantly more complex to implement.`
+                        }
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('positionalEncodingViz').innerHTML = vizHtml;
+            document.getElementById('positionalEncodingAnalysis').innerHTML = analysisHtml;
+        }
+
+        function simulateResolutionTransfer() {
+            const trainRes = parseInt(document.getElementById('trainRes').value);
+            const targetRes = parseInt(document.getElementById('targetRes').value);
+            const interpMethod = document.getElementById('interpMethod').value;
+            
+            const patchSize = 16; // Standard
+            const trainPatches = (trainRes / patchSize) ** 2;
+            const targetPatches = (targetRes / patchSize) ** 2;
+            const trainSeqLen = trainPatches + 1;
+            const targetSeqLen = targetPatches + 1;
+            
+            const scalingFactor = targetRes / trainRes;
+            const interpolationQuality = Math.exp(-Math.abs(Math.log(scalingFactor)));
+            
+            const html = `
+                <div class="step">
+                    <h4>🔄 Resolution Transfer Analysis</h4>
+                    
+                    <div class="embedding-viz">
+                        <div class="embedding-stage">
+                            <div class="stage-title">Training</div>
+                            <div class="stage-content">${trainRes}×${trainRes}</div>
+                            <div class="stage-description">${trainSeqLen} positions</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="embedding-stage">
+                            <div class="stage-title">Interpolation</div>
+                            <div class="stage-content">${interpMethod}</div>
+                            <div class="stage-description">${scalingFactor.toFixed(1)}× scaling</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="embedding-stage">
+                            <div class="stage-title">Target</div>
+                            <div class="stage-content">${targetRes}×${targetRes}</div>
+                            <div class="stage-description">${targetSeqLen} positions</div>
+                        </div>
+                    </div>
+                    
+                    <table>
+                        <tr><th>Aspect</th><th>Training</th><th>Target</th><th>Change Factor</th></tr>
+                        <tr>
+                            <td><strong>Image Resolution</strong></td>
+                            <td>${trainRes}×${trainRes}</td>
+                            <td>${targetRes}×${targetRes}</td>
+                            <td>${scalingFactor.toFixed(1)}× linear scale</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Number of Patches</strong></td>
+                            <td>${trainPatches}</td>
+                            <td>${targetPatches}</td>
+                            <td>${(targetPatches/trainPatches).toFixed(1)}× patches</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sequence Length</strong></td>
+                            <td>${trainSeqLen}</td>
+                            <td class="${targetSeqLen > trainSeqLen * 2 ? 'poor' : targetSeqLen > trainSeqLen * 1.5 ? 'moderate' : 'optimal'}">${targetSeqLen}</td>
+                            <td>${(targetSeqLen/trainSeqLen).toFixed(1)}× sequence length</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Attention Memory</strong></td>
+                            <td>${(trainSeqLen**2 * 12 * 2 / 1024 / 1024).toFixed(1)} MB</td>
+                            <td class="${targetSeqLen**2 > trainSeqLen**2 * 4 ? 'poor' : targetSeqLen**2 > trainSeqLen**2 * 2 ? 'moderate' : 'optimal'}">${(targetSeqLen**2 * 12 * 2 / 1024 / 1024).toFixed(1)} MB</td>
+                            <td>${(targetSeqLen**2/trainSeqLen**2).toFixed(1)}× attention memory</td>
+                        </tr>
+                    </table>
+                    
+                    <div class="parameter-box">
+                        <strong>Interpolation Process (${interpMethod}):</strong><br><br>
+                        
+                        <strong>Step 1:</strong> Reshape training positions to 2D grid<br>
+                        E_pos_train: [${trainSeqLen}, D] → [√${trainPatches}, √${trainPatches}, D]<br><br>
+                        
+                        <strong>Step 2:</strong> ${interpMethod} interpolation to target size<br>
+                        [√${trainPatches}, √${trainPatches}, D] → [√${targetPatches}, √${targetPatches}, D]<br><br>
+                        
+                        <strong>Step 3:</strong> Reshape back to sequence<br>
+                        [√${targetPatches}, √${targetPatches}, D] → [${targetSeqLen}, D]<br><br>
+                        
+                        <strong>Quality Score:</strong> ${(interpolationQuality * 100).toFixed(1)}% (${interpolationQuality > 0.8 ? 'Excellent' : interpolationQuality > 0.6 ? 'Good' : interpolationQuality > 0.4 ? 'Fair' : 'Poor'})
+                    </div>
+                    
+                    <div class="${scalingFactor < 1.5 && scalingFactor > 0.7 ? 'success' : scalingFactor < 2.5 && scalingFactor > 0.4 ? 'warning' : 'danger'}">
+                        <strong>${scalingFactor < 1.5 && scalingFactor > 0.7 ? '✅ Good Transfer' : scalingFactor < 2.5 && scalingFactor > 0.4 ? '⚠️ Moderate Transfer' : '🚨 Challenging Transfer'}:</strong><br>
+                        ${scalingFactor < 1.5 && scalingFactor > 0.7 ? 
+                          `Resolution change is moderate - interpolation should work well with minimal performance degradation.` :
+                          scalingFactor < 2.5 && scalingFactor > 0.4 ?
+                          `Significant resolution change - expect some performance drop. Consider fine-tuning at target resolution for best results.` :
+                          `Extreme resolution change - interpolation quality will be poor. Strongly recommend retraining or using multi-scale training approach.`
+                        }<br><br>
+                        
+                        <strong>Recommendations:</strong><br>
+                        ${scalingFactor < 1.5 && scalingFactor > 0.7 ? 
+                          `• Direct interpolation should work well<br>• Monitor for small performance drops<br>• Consider brief fine-tuning if critical` :
+                          scalingFactor < 2.5 && scalingFactor > 0.4 ?
+                          `• Use bicubic interpolation for best quality<br>• Fine-tune for 1-5% of original training<br>• Consider gradual resolution adaptation` :
+                          `• Retrain with multi-scale data if possible<br>• Use hierarchical patch embedding<br>• Consider different patch sizes for target resolution`
+                        }
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('resolutionTransferResults').innerHTML = html;
+        }
+
+        function calculateProductionMemory() {
+            const imageRes = parseInt(document.getElementById('memImageRes').value);
+            const patchSize = parseInt(document.getElementById('memPatchSize').value);
+            const batchSize = parseInt(document.getElementById('memBatchSize').value);
+            const modelSize = document.getElementById('memModelSize').value;
+            const precision = document.getElementById('memPrecision').value;
+            
+            const model = modelSpecs[modelSize];
+            const bytesPerElement = precisionBytes[precision];
+            
+            const numPatches = (imageRes / patchSize) ** 2;
+            const seqLen = numPatches + 1;
+            
+            // Memory components (in bytes)
+            const inputImages = batchSize * imageRes * imageRes * 3 * bytesPerElement;
+            const patchEmbeddings = batchSize * seqLen * model.dim * bytesPerElement;
+            const attentionMaps = batchSize * model.layers * model.heads * seqLen * seqLen * bytesPerElement;
+            const layerActivations = batchSize * model.layers * seqLen * model.dim * 4 * bytesPerElement; // 4x for intermediate states
+            const modelParameters = (model.dim * model.dim * 4 * model.layers + // attention weights
+                                   model.dim * model.dim * 8 * model.layers + // MLP weights  
+                                   patchSize * patchSize * 3 * model.dim) * bytesPerElement; // patch embedding
+            
+            const totalMemory = inputImages + patchEmbeddings + attentionMaps + layerActivations + modelParameters;
+            
+            const html = `
+                <div class="step">
+                    <h4>💾 Production Memory Analysis</h4>
+                    
+                    <div class="parameter-box">
+                        <strong>Configuration:</strong><br>
+                        • <strong>Model:</strong> ${modelSize.toUpperCase()} (${model.dim}D, ${model.layers}L, ${model.heads}H)<br>
+                        • <strong>Input:</strong> ${batchSize} × ${imageRes}×${imageRes}, ${patchSize}×${patchSize} patches<br>
+                        • <strong>Sequence Length:</strong> ${seqLen} tokens<br>
+                        • <strong>Precision:</strong> ${precision.toUpperCase()} (${bytesPerElement} bytes/element)
+                    </div>
+                    
+                    <div class="memory-breakdown">
+                        <div class="memory-row">
+                            <span><strong>Input Images:</strong></span>
+                            <span>${(inputImages / 1024 / 1024).toFixed(0)} MB</span>
+                        </div>
+                        <div class="memory-row">
+                            <span><strong>Model Parameters:</strong></span>
+                            <span>${(modelParameters / 1024 / 1024).toFixed(0)} MB</span>
+                        </div>
+                        <div class="memory-row">
+                            <span><strong>Patch Embeddings:</strong></span>
+                            <span>${(patchEmbeddings / 1024 / 1024).toFixed(0)} MB</span>
+                        </div>
+                        <div class="memory-row">
+                            <span><strong>Attention Maps:</strong></span>
+                            <span class="${attentionMaps > totalMemory * 0.3 ? 'poor' : 'moderate'}">${(attentionMaps / 1024 / 1024).toFixed(0)} MB</span>
+                        </div>
+                        <div class="memory-row">
+                            <span><strong>Layer Activations:</strong></span>
+                            <span>${(layerActivations / 1024 / 1024).toFixed(0)} MB</span>
+                        </div>
+                        <div class="memory-row">
+                            <span><strong>Total GPU Memory:</strong></span>
+                            <span>${(totalMemory / 1024 / 1024 / 1024).toFixed(1)} GB</span>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${Math.min(100, totalMemory / 1024 / 1024 / 1024 / 80 * 100)}%">
+                            ${(totalMemory / 1024 / 1024 / 1024).toFixed(1)} GB / 80GB (A100)
+                        </div>
+                    </div>
+                    
+                    <div class="${totalMemory / 1024 / 1024 / 1024 < 12 ? 'success' : totalMemory / 1024 / 1024 / 1024 < 24 ? 'warning' : totalMemory / 1024 / 1024 / 1024 < 80 ? 'danger' : 'poor'}">
+                        <strong>Hardware Assessment:</strong><br><br>
+                        
+                        <strong>Recommended GPU:</strong><br>
+                        ${totalMemory / 1024 / 1024 / 1024 < 8 ? '• RTX 3080/4070 (8-12GB) - Entry level' :
+                          totalMemory / 1024 / 1024 / 1024 < 16 ? '• RTX 3090/4080 (16GB) - Consumer high-end' :
+                          totalMemory / 1024 / 1024 / 1024 < 24 ? '• RTX 3090/4090 (24GB) - Prosumer' :
+                          totalMemory / 1024 / 1024 / 1024 < 40 ? '• A100 (40GB) - Data center' :
+                          totalMemory / 1024 / 1024 / 1024 < 80 ? '• A100 (80GB) - High-end data center' :
+                          '• Multi-GPU setup required'
+                        }<br><br>
+                        
+                        <strong>Optimization Strategies:</strong><br>
+                        ${totalMemory / 1024 / 1024 / 1024 > 24 ? 
+                          `• <strong>Reduce batch size:</strong> Try batch size ${Math.max(1, Math.floor(batchSize * 24 / (totalMemory / 1024 / 1024 / 1024)))}<br>
+                           • <strong>Gradient checkpointing:</strong> Trade 30% speed for 50% memory<br>
+                           • <strong>Mixed precision:</strong> Use AMP for automatic FP16/FP32<br>
+                           • <strong>Patch size increase:</strong> ${patchSize}×${patchSize} → ${patchSize + 4}×${patchSize + 4} saves ${(1 - (patchSize/(patchSize+4))**4).toFixed(0)}% memory` :
+                          `• <strong>Current config feasible</strong> on recommended hardware<br>
+                           • <strong>Consider larger batch:</strong> Try batch size ${batchSize + 4} for better utilization<br>
+                           • <strong>Enable memory optimization:</strong> Gradient checkpointing for safety margin`
+                        }
+                    </div>
+                    
+                    <div class="complexity-analysis">
+                        <strong>⚡ Memory Scaling Analysis:</strong><br><br>
+                        
+                        <strong>Attention Dominance:</strong> ${(attentionMaps / totalMemory * 100).toFixed(0)}% of total memory<br>
+                        ${attentionMaps > totalMemory * 0.4 ? 
+                          `Attention maps dominate - consider smaller patches or sequence length reduction techniques.` :
+                          `Attention memory manageable - model parameters and activations are primary concerns.`
+                        }<br><br>
+                        
+                        <strong>Batch Scaling:</strong> Memory scales linearly with batch size<br>
+                        <strong>Resolution Scaling:</strong> Attention memory scales as O(resolution²/patch²)²<br>
+                        <strong>Model Scaling:</strong> Parameters scale as O(layers × dim²)
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('memoryCalculationResults').innerHTML = html;
+        }
+
+        function generateRecommendation() {
+            const domain = document.getElementById('appDomain').value;
+            const objectSize = document.getElementById('objectSize').value;
+            const hardware = document.getElementById('hardwareConstraint').value;
+            const priority = document.getElementById('performancePriority').value;
+            
+            // Decision logic
+            let recommendedPatch, reasoning, alternatives, warnings;
+            
+            if (domain === 'medical') {
+                recommendedPatch = objectSize === 'tiny' ? 4 : objectSize === 'small' ? 8 : 8;
+                reasoning = "Medical imaging requires fine detail preservation for accurate diagnosis";
+                alternatives = ["Hierarchical patches", "Multi-scale training", "Overlapping patches"];
+                warnings = ["Very high memory requirements", "Need large datasets", "Consider domain-specific architectures"];
+            } else if (domain === 'satellite') {
+                recommendedPatch = objectSize === 'huge' ? 32 : objectSize === 'large' ? 24 : 16;
+                reasoning = "Large-scale patterns in satellite imagery benefit from bigger patches";
+                alternatives = ["Adaptive patch sizing", "Multi-resolution input", "Pyramid attention"];
+                warnings = ["May miss small features", "Consider object detection needs"];
+            } else if (domain === 'mobile') {
+                recommendedPatch = hardware === 'mobile' ? 32 : 24;
+                reasoning = "Mobile deployment requires computational efficiency over fine details";
+                alternatives = ["Model distillation", "Quantization", "Efficient architectures (MobileViT)"];
+                warnings = ["Significant accuracy trade-offs", "May not work for detail-critical tasks"];
+            } else {
+                // General recommendations based on object size and constraints
+                if (objectSize === 'tiny') recommendedPatch = hardware === 'consumer' ? 8 : 4;
+                else if (objectSize === 'small') recommendedPatch = hardware === 'consumer' ? 12 : 8;
+                else if (objectSize === 'medium') recommendedPatch = 16;
+                else if (objectSize === 'large') recommendedPatch = priority === 'speed' ? 24 : 20;
+                else recommendedPatch = priority === 'accuracy' ? 24 : 32;
+                
+                reasoning = `Balanced choice considering ${objectSize} object size and ${hardware || 'general'} hardware constraints`;
+                alternatives = ["Standard ViT with interpolation", "Multi-scale training", "Progressive resizing"];
+                warnings = hardware === 'consumer' ? ["Memory constraints may limit batch size", "Consider gradient checkpointing"] : ["Monitor training stability", "Validate on target hardware"];
+            }
+            
+            // Adjust for hardware constraints
+            if (hardware === 'mobile' && recommendedPatch < 24) {
+                recommendedPatch = Math.max(24, recommendedPatch);
+                warnings.push("Increased patch size for mobile deployment");
+            } else if (hardware === 'consumer' && recommendedPatch < 12) {
+                warnings.push("Small patch size will require high-end consumer GPU");
+            }
+            
+            const html = `
+                <div class="step">
+                    <h4>🎯 Personalized Recommendation</h4>
+                    
+                    <div class="embedding-viz">
+                        <div class="embedding-stage">
+                            <div class="stage-title">Your Application</div>
+                            <div class="stage-content">${domain.charAt(0).toUpperCase() + domain.slice(1)}</div>
+                            <div class="stage-description">${objectSize} objects<br>${hardware || 'flexible'} hardware</div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="embedding-stage optimal">
+                            <div class="stage-title">Recommended</div>
+                            <div class="stage-content">${recommendedPatch}×${recommendedPatch}</div>
+                            <div class="stage-description">Optimal patch size</div>
+                        </div>
+                    </div>
+                    
+                    <div class="parameter-box">
+                        <strong>Recommendation Rationale:</strong><br>
+                        ${reasoning}<br><br>
+                        
+                        <strong>Expected Performance:</strong><br>
+                        • <strong>Memory Usage:</strong> ${recommendedPatch <= 8 ? 'High' : recommendedPatch <= 16 ? 'Moderate' : 'Low'}<br>
+                        • <strong>Detail Preservation:</strong> ${recommendedPatch <= 8 ? 'Excellent' : recommendedPatch <= 16 ? 'Good' : 'Fair'}<br>
+                        • <strong>Training Speed:</strong> ${recommendedPatch <= 8 ? 'Slow' : recommendedPatch <= 16 ? 'Moderate' : 'Fast'}<br>
+                        • <strong>Inference Speed:</strong> ${recommendedPatch <= 8 ? 'Slow' : recommendedPatch <= 16 ? 'Good' : 'Excellent'}
+                    </div>
+                    
+                    <div class="success">
+                        <strong>✅ Implementation Strategy:</strong><br><br>
+                        
+                        <strong>Phase 1 - Baseline:</strong><br>
+                        • Start with ${recommendedPatch}×${recommendedPatch} patches<br>
+                        • Use standard learnable positional encoding<br>
+                        • Train on your target resolution<br><br>
+                        
+                        <strong>Phase 2 - Optimization:</strong><br>
+                        ${alternatives.map(alt => `• Consider ${alt} if baseline insufficient`).join('<br>')}<br><br>
+                        
+                        <strong>Phase 3 - Production:</strong><br>
+                        • Profile memory usage on target hardware<br>
+                        • Optimize batch size and precision<br>
+                        • Consider deployment-specific optimizations
+                    </div>
+                    
+                    ${warnings.length > 0 ? `
+                        <div class="warning">
+                            <strong>⚠️ Important Considerations:</strong><br>
+                            ${warnings.map(warning => `• ${warning}`).join('<br>')}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="comparison-table">
+                        <h5>Alternative Configurations:</h5>
+                        <table>
+                            <tr>
+                                <th>Patch Size</th>
+                                <th>Use Case</th>
+                                <th>Memory</th>
+                                <th>Accuracy</th>
+                                <th>Speed</th>
+                            </tr>
+                            ${[recommendedPatch - 8, recommendedPatch, recommendedPatch + 8].filter(p => p > 0 && p <= 32).map(patch => `
+                                <tr class="${patch === recommendedPatch ? 'optimal' : ''}">
+                                    <td><strong>${patch}×${patch}</strong></td>
+                                    <td>${patch <= 8 ? 'Fine details' : patch <= 16 ? 'Balanced' : 'Efficiency'}</td>
+                                    <td class="${patch <= 8 ? 'poor' : patch <= 16 ? 'moderate' : 'optimal'}">${patch <= 8 ? 'High' : patch <= 16 ? 'Med' : 'Low'}</td>
+                                    <td class="${patch <= 8 ? 'optimal' : patch <= 16 ? 'moderate' : 'poor'}">${patch <= 8 ? 'High' : patch <= 16 ? 'Med' : 'Fair'}</td>
+                                    <td class="${patch <= 8 ? 'poor' : patch <= 16 ? 'moderate' : 'optimal'}">${patch <= 8 ? 'Slow' : patch <= 16 ? 'Med' : 'Fast'}</td>
+                                </tr>
+                            `).join('')}
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('recommendationResults').innerHTML = html;
+        }
+
+        // Event listeners and initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize slider updates
+            const sliderIds = [
+                'imageRes', 'patchSize', 'projPatchSize', 'posGridSize',
+                'memImageRes', 'memPatchSize', 'memBatchSize'
+            ];
+            
+            sliderIds.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', updateSliderValues);
+                }
+            });
+            
+            // Initialize with default values
+            updateSliderValues();
+            
+            // Run initial calculations
+            setTimeout(() => {
+                analyzePatchImpact();
+                analyzeLinearProjection();
+                visualizePositionalEncoding();
+                simulateResolutionTransfer();
+                calculateProductionMemory();
+                generateRecommendation();
+            }, 100);
+        });
+    </script>
+</body>
+</html>
