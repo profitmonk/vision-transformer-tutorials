@@ -547,71 +547,176 @@
     </div>
   </div>
 
-  <div class="container">
+<div class="container">
     <h2>📊 Evaluation & Validation Methodologies</h2>
     <div class="step">
       <h3>📈 Beyond Top-1 Accuracy: Comprehensive Evaluation</h3>
-      <p>Vision Transformers require more sophisticated evaluation than traditional CNNs. We need to assess not just accuracy, but also attention quality, robustness, and efficiency.</p>
+      <p>Vision Transformers require more sophisticated evaluation than traditional CNNs. We need to assess not just accuracy, but also attention quality, robustness, and efficiency. <strong>Think of it like evaluating a doctor</strong> - you don't just ask "did they get the diagnosis right?" but also "how confident were they?", "did they consider all symptoms?", and "how consistently do they perform?"</p>
 
       <div class="interactive-demo">
         <div class="demo-title">📊 Evaluation Metric Calculator</div>
+        <p><strong>What this does:</strong> Takes your model's predictions and calculates multiple quality metrics. This helps you understand not just <em>if</em> your model is right, but <em>how</em> and <em>why</em> it makes decisions.</p>
 
         <div class="controls">
           <div class="control-group">
-            <label>Model Predictions (Top-5):</label>
+            <label>Model Predictions (Top-5 Probabilities):</label>
             <textarea id="modelPreds" rows="4" placeholder="0.4,0.3,0.15,0.1,0.05">0.4,0.3,0.15,0.1,0.05</textarea>
+            <small style="display:block;color:#666;margin-top:3px">Enter 5 probability values that sum to ~1.0. These represent your model's confidence in its top 5 guesses.</small>
           </div>
           <div class="control-group">
             <label>True Label Index:</label>
             <input type="number" id="trueLabel" min="0" max="4" value="1" step="1">
+            <small style="display:block;color:#666;margin-top:3px">Which position (0-4) contains the correct answer? 0 = highest confidence prediction, 4 = lowest.</small>
           </div>
           <div class="control-group">
             <label>Confidence Threshold:</label>
             <input type="range" id="confThreshold" min="0.1" max="0.9" value="0.5" step="0.1">
             <span id="confDisplay">0.5</span>
+            <small style="display:block;color:#666;margin-top:3px">Minimum confidence to consider a prediction "reliable". Used in production to filter uncertain predictions.</small>
           </div>
         </div>
 
         <button onclick="calculateMetrics()">📊 Calculate All Metrics</button>
         <div class="metric-grid" id="evaluationMetrics"></div>
         <div id="metricsExplanation"></div>
+        
+        <div class="info" style="margin-top:20px">
+          <strong>📚 Metric Explanations:</strong><br><br>
+          <strong>Top-1 Accuracy:</strong> Did the model's #1 guess match the true label? Most common metric but tells you nothing about confidence.<br><br>
+          <strong>Top-5 Accuracy:</strong> Was the correct answer in the model's top 5 guesses? More forgiving, useful for classes that look similar.<br><br>
+          <strong>Confidence Score:</strong> How sure is the model about its top prediction? High confidence + wrong answer = problematic overconfidence.<br><br>
+          <strong>Prediction Entropy:</strong> How "spread out" are the predictions? Low entropy = confident, high entropy = uncertain across many classes.<br><br>
+          <strong>Calibration Error:</strong> Does confidence match actual accuracy? Well-calibrated models say "90% confident" and are right 90% of the time.<br><br>
+          <strong>Confidence Level:</strong> Is the model confident enough for your application? Critical for medical, autonomous driving, etc.
+        </div>
       </div>
     </div>
 
     <div class="step">
       <h3>🎯 Attention Quality Assessment</h3>
+      <p><strong>Why this matters:</strong> Unlike CNNs, ViTs make decisions through attention mechanisms. Poor attention patterns can indicate fundamental problems even if accuracy seems okay. <strong>Think of it like checking if a student is paying attention to the right parts of a textbook</strong> - they might get some answers right by luck, but good attention patterns indicate real understanding.</p>
+      
       <div class="math-formula">
         <strong>Attention Entropy (Diversity Measure):</strong><br><br>
-        H(A<sub>i</sub>) = -∑<sub>j</sub> A<sub>ij</sub> log A<sub>ij</sub><br><br>
+        H(A<sub>i</sub>) = -∑<sub>j</sub> A<sub>ij</sub> log A<sub>ij</sub><br>
+        <em>Higher entropy = more diverse attention, usually better</em><br><br>
         <strong>Attention Distance (Head Similarity):</strong><br><br>
-        D<sub>heads</sub> = 1 - (1/H²) ∑<sub>h,h'</sub> cos(A<sub>h</sub>, A<sub>h'</sub>)<br><br>
+        D<sub>heads</sub> = 1 - (1/H²) ∑<sub>h,h'</sub> cos(A<sub>h</sub>, A<sub>h'</sub>)<br>
+        <em>Higher distance = heads look at different things, usually better</em><br><br>
         Where H = number of heads, A<sub>h</sub> = attention pattern for head h
       </div>
 
       <div class="interactive-demo">
         <div class="demo-title">🔍 Attention Quality Analyzer</div>
+        <p><strong>What this checks:</strong> Are your attention heads doing useful, diverse work? Or are they all looking at the same things (attention collapse) or paying equal attention to everything (too uniform)?</p>
 
         <div class="controls">
           <div class="control-group">
             <label>Number of Heads:</label>
             <select id="evalHeads">
-              <option value="8">8 Heads</option>
-              <option value="12" selected>12 Heads</option>
-              <option value="16">16 Heads</option>
+              <option value="8">8 Heads (ViT-Small)</option>
+              <option value="12" selected>12 Heads (ViT-Base)</option>
+              <option value="16">16 Heads (ViT-Large)</option>
             </select>
+            <small style="display:block;color:#666;margin-top:3px">More heads can capture more diverse patterns, but only if they specialize differently.</small>
           </div>
           <div class="control-group">
-            <label>Attention Pattern:</label>
+            <label>Attention Pattern Type:</label>
             <select id="attentionPattern">
-              <option value="diverse" selected>Diverse (Good)</option>
-              <option value="collapsed">Collapsed (Bad)</option>
-              <option value="uniform">Uniform (Concerning)</option>
+              <option value="diverse" selected>Diverse (Healthy) - Different heads focus on different image regions</option>
+              <option value="collapsed">Collapsed (Problem) - All heads focus on same spots</option>
+              <option value="uniform">Uniform (Concerning) - All heads pay equal attention everywhere</option>
             </select>
+            <small style="display:block;color:#666;margin-top:3px">Simulate different attention behaviors to see quality scores.</small>
           </div>
         </div>
 
         <button onclick="analyzeAttentionQuality()">🔍 Analyze Attention</button>
         <div id="attentionQualityResults"></div>
+        
+        <div class="info" style="margin-top:20px">
+          <strong>🎯 What Good vs Bad Attention Looks Like:</strong><br><br>
+          <strong>✅ Good Attention (Diverse):</strong><br>
+          • Different heads focus on edges, textures, shapes, semantic regions<br>
+          • Entropy: 2.5-3.5 (moderate uncertainty per head)<br>
+          • Head diversity: 0.6-0.9 (heads do different things)<br>
+          • Model learns robust, interpretable features<br><br>
+          <strong>❌ Attention Collapse (Bad):</strong><br>
+          • All heads focus on same image regions<br>
+          • Entropy: 0.2-0.8 (overconfident, narrow focus)<br>
+          • Head diversity: 0.0-0.3 (heads are redundant)<br>
+          • Wastes model capacity, poor generalization<br><br>
+          <strong>⚠️ Uniform Attention (Concerning):</strong><br>
+          • Heads pay equal attention to everything<br>
+          • Entropy: 3.8+ (too uncertain, no focus)<br>
+          • Head diversity: 0.9+ (heads don't specialize)<br>
+          • Model can't identify important features
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🔬 Production Validation Strategies</h3>
+      <div class="warning">
+        <strong>⚠️ Critical for Production:</strong> Accuracy on your test set is just the beginning. Real-world deployment requires testing edge cases, distribution shifts, and failure modes that don't appear in clean datasets.
+      </div>
+
+      <div class="strategy-grid">
+        <div class="strategy-card">
+          <div class="strategy-title">🎯 Distribution Shift Testing</div>
+          <div class="strategy-description">Test on data that differs from training (lighting, angles, quality)</div>
+          <div class="strategy-specs">
+            <strong>Why:</strong> Real-world data never matches training perfectly<br>
+            <strong>How:</strong> Collect data from different cameras, times, conditions<br>
+            <strong>Watch for:</strong> Accuracy drops >10% indicate poor robustness
+          </div>
+        </div>
+        
+        <div class="strategy-card">
+          <div class="strategy-title">🔍 Adversarial Robustness</div>
+          <div class="strategy-description">Test resilience to small input perturbations</div>
+          <div class="strategy-specs">
+            <strong>Why:</strong> ViTs can be sensitive to pixel-level noise<br>
+            <strong>How:</strong> Add small random noise, test JPEG compression<br>
+            <strong>Watch for:</strong> Dramatic prediction changes from tiny inputs
+          </div>
+        </div>
+        
+        <div class="strategy-card">
+          <div class="strategy-title">⚖️ Fairness & Bias Testing</div>
+          <div class="strategy-description">Ensure consistent performance across demographics</div>
+          <div class="strategy-specs">
+            <strong>Why:</strong> Models can inherit biases from training data<br>
+            <strong>How:</strong> Test accuracy by gender, race, age groups<br>
+            <strong>Watch for:</strong> >5% accuracy gaps between groups
+          </div>
+        </div>
+        
+        <div class="strategy-card">
+          <div class="strategy-title">⚡ Computational Efficiency</div>
+          <div class="strategy-description">Real-world latency and memory constraints</div>
+          <div class="strategy-specs">
+            <strong>Why:</strong> Production has strict speed/memory limits<br>
+            <strong>How:</strong> Test on target hardware with realistic loads<br>
+            <strong>Watch for:</strong> Latency spikes, memory leaks over time
+          </div>
+        </div>
+      </div>
+
+      <div class="success" style="margin-top:20px">
+        <strong>✅ Production Validation Checklist:</strong><br>
+        □ Test on held-out data from same distribution (standard validation)<br>
+        □ Test on data from different time periods, locations, or conditions<br>
+        □ Verify attention patterns make sense for your domain<br>
+        □ Check calibration: do confidence scores match actual accuracy?<br>
+        □ Test edge cases: blurry images, unusual lighting, partial occlusion<br>
+        □ Measure inference speed on target hardware under load<br>
+        □ Monitor for fairness across relevant demographic groups<br>
+        □ Set up continuous monitoring for performance drift over time
+      </div>
+
+      <div class="info" style="margin-top:15px">
+        <strong>🎓 Key Insight:</strong> The best ViT models aren't just accurate - they're reliable, interpretable, and robust. Attention visualization helps you understand <em>why</em> your model makes decisions, which is crucial for debugging failures and building trust in high-stakes applications.
       </div>
     </div>
   </div>
