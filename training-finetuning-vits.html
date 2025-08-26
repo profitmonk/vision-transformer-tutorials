@@ -318,7 +318,7 @@
       <div class="breakthrough-highlight">🏆 DeiT Achievement: Matched CNN performance using only ImageNet-1K (1.3M images) instead of requiring JFT-300M (300M images)!</div>
     </div>
 
-    <div class="step">
+<div class="step">
       <h3>🔬 Interactive DeiT Recipe Builder</h3>
       <div class="interactive-demo">
         <div class="demo-title">🧪 Custom Training Recipe Generator</div>
@@ -332,132 +332,171 @@
 
         <div id="augmentation" class="tab-content active">
           <h4>🎨 Data Augmentation Pipeline</h4>
+          <p><strong>What it does:</strong> Creates variations of training images to prevent overfitting and improve generalization. Like showing the model the same object from different angles, lighting conditions, and with various distortions.</p>
+          
           <div class="controls">
             <div class="control-group">
               <label>RandAugment Magnitude:</label>
               <input type="range" id="randAugMag" min="5" max="15" value="9" step="1">
               <span id="randAugDisplay">9</span>
+              <small style="display:block;color:#666;margin-top:3px">How strongly to modify images (rotation, color changes, etc.). Higher = more dramatic changes.</small>
             </div>
             <div class="control-group">
               <label>MixUp Alpha:</label>
               <input type="range" id="mixupAlpha" min="0" max="1" value="0.8" step="0.1">
               <span id="mixupDisplay">0.8</span>
+              <small style="display:block;color:#666;margin-top:3px">Blends two images together. Creates "ghostly" combined images with mixed labels.</small>
             </div>
             <div class="control-group">
               <label>CutMix Alpha:</label>
               <input type="range" id="cutmixAlpha" min="0" max="1.5" value="1.0" step="0.1">
               <span id="cutmixDisplay">1.0</span>
+              <small style="display:block;color:#666;margin-top:3px">Cuts a patch from one image and pastes into another. Model learns from partial objects.</small>
             </div>
             <div class="control-group">
               <label>Random Erasing Prob:</label>
               <input type="range" id="erasingProb" min="0" max="0.5" value="0.25" step="0.05">
               <span id="erasingDisplay">0.25</span>
+              <small style="display:block;color:#666;margin-top:3px">Randomly blacks out rectangular regions. Prevents relying on specific image parts.</small>
             </div>
           </div>
           <div class="augmentation-demo" id="augmentationDemo"></div>
 
           <div class="math-formula">
             <strong>MixUp Mathematics:</strong><br>
-            x̃ = λx<sub>i</sub> + (1-λ)x<sub>j</sub><br>
-            ỹ = λy<sub>i</sub> + (1-λ)y<sub>j</sub><br><br>
+            x̃ = λx<sub>i</sub> + (1-λ)x<sub>j</sub> → <em>Blend two images with weight λ</em><br>
+            ỹ = λy<sub>i</sub> + (1-λ)y<sub>j</sub> → <em>Mix their labels proportionally</em><br><br>
             <strong>CutMix Mathematics:</strong><br>
-            x̃ = M ⊙ x<sub>i</sub> + (1-M) ⊙ x<sub>j</sub><br>
-            ỹ = λy<sub>i</sub> + (1-λ)y<sub>j</sub>, where λ = Area(M)/Area(Image)
+            x̃ = M ⊙ x<sub>i</sub> + (1-M) ⊙ x<sub>j</sub> → <em>Use mask M to combine images</em><br>
+            ỹ = λy<sub>i</sub> + (1-λ)y<sub>j</sub>, where λ = Area(M)/Area(Image) → <em>Label mixing based on patch size</em>
           </div>
         </div>
 
         <div id="optimization" class="tab-content">
           <h4>⚙️ Optimizer Configuration</h4>
+          <p><strong>What it does:</strong> Controls how the model learns from its mistakes. Like adjusting how big steps to take when climbing toward better performance, and how much to "remember" from previous steps.</p>
+          
           <div class="controls">
             <div class="control-group">
               <label>Optimizer:</label>
               <select id="optimizerType">
-                <option value="adamw" selected>AdamW</option>
+                <option value="adamw" selected>AdamW (Recommended)</option>
                 <option value="adam">Adam</option>
                 <option value="sgd">SGD with Momentum</option>
                 <option value="lion">Lion</option>
               </select>
+              <small style="display:block;color:#666;margin-top:3px">AdamW is best for ViTs - handles different parameter scales well and prevents overfitting.</small>
             </div>
             <div class="control-group">
               <label>Weight Decay:</label>
               <input type="range" id="weightDecay" min="0" max="0.1" value="0.05" step="0.01">
               <span id="weightDecayDisplay">0.05</span>
+              <small style="display:block;color:#666;margin-top:3px">Prevents model weights from growing too large. Acts like a "simplicity penalty" to avoid overfitting.</small>
             </div>
             <div class="control-group">
-              <label>Beta1:</label>
+              <label>Beta1 (Momentum):</label>
               <input type="range" id="beta1" min="0.85" max="0.95" value="0.9" step="0.01">
               <span id="beta1Display">0.90</span>
+              <small style="display:block;color:#666;margin-top:3px">How much to remember from previous gradient directions. Higher = more momentum, smoother updates.</small>
             </div>
             <div class="control-group">
-              <label>Beta2:</label>
+              <label>Beta2 (Adaptive):</label>
               <input type="range" id="beta2" min="0.99" max="0.999" value="0.999" step="0.001">
               <span id="beta2Display">0.999</span>
+              <small style="display:block;color:#666;margin-top:3px">How much to remember gradient magnitudes. Higher = more stable but slower adaptation.</small>
             </div>
           </div>
 
           <div class="math-formula">
             <strong>AdamW Update Rule:</strong><br><br>
-            m<sub>t</sub> = β₁m<sub>t-1</sub> + (1-β₁)g<sub>t</sub><br>
-            v<sub>t</sub> = β₂v<sub>t-1</sub> + (1-β₂)g<sub>t</sub>²<br>
-            θ<sub>t+1</sub> = θ<sub>t</sub> - α[m̂<sub>t</sub>/(√v̂<sub>t</sub> + ε) + λθ<sub>t</sub>]<br><br>
-            <strong>Why AdamW for ViTs:</strong> Decoupled weight decay prevents interference with adaptive gradients
+            m<sub>t</sub> = β₁m<sub>t-1</sub> + (1-β₁)g<sub>t</sub> → <em>Momentum: remember gradient direction</em><br>
+            v<sub>t</sub> = β₂v<sub>t-1</sub> + (1-β₂)g<sub>t</sub>² → <em>Adaptive: remember gradient magnitude</em><br>
+            θ<sub>t+1</sub> = θ<sub>t</sub> - α[m̂<sub>t</sub>/(√v̂<sub>t</sub> + ε) + λθ<sub>t</sub>] → <em>Final update with weight decay λ</em><br><br>
+            <strong>Why AdamW for ViTs:</strong> Separates weight decay from gradient updates, preventing interference with the adaptive learning rates that ViTs need.
           </div>
         </div>
 
         <div id="regularization" class="tab-content">
           <h4>🛡️ Regularization Techniques</h4>
+          <p><strong>What it does:</strong> Prevents the model from memorizing training data instead of learning generalizable patterns. Like teaching a student to understand concepts rather than just memorize answers.</p>
+          
           <div class="controls">
             <div class="control-group">
               <label>Dropout Rate:</label>
               <input type="range" id="dropoutRate" min="0" max="0.5" value="0.1" step="0.05">
               <span id="dropoutDisplay">0.10</span>
+              <small style="display:block;color:#666;margin-top:3px">Randomly "turns off" neurons during training. Forces the model to not rely on any single feature.</small>
             </div>
             <div class="control-group">
               <label>Attention Dropout:</label>
               <input type="range" id="attentionDropout" min="0" max="0.3" value="0.0" step="0.05">
               <span id="attentionDropoutDisplay">0.00</span>
+              <small style="display:block;color:#666;margin-top:3px">Randomly drops attention connections. Prevents over-focusing on specific image regions.</small>
             </div>
             <div class="control-group">
               <label>Stochastic Depth:</label>
               <input type="range" id="stochasticDepth" min="0" max="0.5" value="0.1" step="0.05">
               <span id="stochasticDepthDisplay">0.10</span>
+              <small style="display:block;color:#666;margin-top:3px">Randomly skips entire transformer layers. Makes the model robust to different "depths" of processing.</small>
             </div>
             <div class="control-group">
               <label>Label Smoothing:</label>
               <input type="range" id="labelSmoothing" min="0" max="0.3" value="0.1" step="0.05">
               <span id="labelSmoothingDisplay">0.10</span>
+              <small style="display:block;color:#666;margin-top:3px">Makes "correct" answers slightly less confident (0.9 instead of 1.0). Prevents overconfident predictions.</small>
             </div>
           </div>
 
           <div class="math-formula">
             <strong>Stochastic Depth Mathematics:</strong><br><br>
-            P(layer survives) = 1 - (l/L) × p<sub>drop</sub><br><br>
+            P(layer survives) = 1 - (l/L) × p<sub>drop</sub> → <em>Later layers dropped more often</em><br><br>
             Where l = current layer, L = total layers, p<sub>drop</sub> = final drop rate<br><br>
-            <strong>Effect:</strong> Early layers always active, later layers randomly dropped
+            <strong>Intuition:</strong> Early layers learn basic features (always needed), later layers learn complex patterns (can be skipped sometimes). This creates more robust feature hierarchies.
+          </div>
+          
+          <div class="info" style="margin-top:15px">
+            <strong>🎯 Quick Guide:</strong><br>
+            <strong>Small datasets:</strong> Higher dropout (0.3+), more label smoothing (0.2+)<br>
+            <strong>Large datasets:</strong> Lower dropout (0.1), minimal label smoothing (0.05)<br>
+            <strong>Overfitting signs:</strong> Training accuracy ≫ validation accuracy → increase regularization<br>
+            <strong>Underfitting signs:</strong> Both accuracies plateau early → decrease regularization
           </div>
         </div>
 
         <div id="schedule" class="tab-content">
           <h4>📅 Training Schedule</h4>
+          <p><strong>What it does:</strong> Controls the overall training timeline. ViTs need longer training than CNNs but with careful scheduling to avoid wasted computation.</p>
+          
           <div class="controls">
             <div class="control-group">
               <label>Total Epochs:</label>
               <input type="number" id="totalEpochs" min="100" max="1000" value="300" step="50">
+              <small style="display:block;color:#666;margin-top:3px">ViTs typically need 300+ epochs vs CNNs' 100-200. They learn more gradually.</small>
             </div>
             <div class="control-group">
               <label>Warmup Epochs:</label>
               <input type="number" id="warmupEpochs" min="5" max="50" value="20" step="5">
+              <small style="display:block;color:#666;margin-top:3px">Gradual learning rate increase at start. Prevents attention collapse in early training.</small>
             </div>
             <div class="control-group">
               <label>Batch Size:</label>
               <select id="batchSize">
-                <option value="32">32</option>
-                <option value="64">64</option>
-                <option value="128" selected>128</option>
-                <option value="256">256</option>
-                <option value="512">512</option>
+                <option value="32">32 (Small GPU)</option>
+                <option value="64">64 (Medium GPU)</option>
+                <option value="128" selected>128 (Recommended)</option>
+                <option value="256">256 (Large GPU)</option>
+                <option value="512">512 (Multi-GPU)</option>
               </select>
+              <small style="display:block;color:#666;margin-top:3px">ViTs benefit from larger batches than CNNs. Use gradient accumulation if GPU memory is limited.</small>
             </div>
+          </div>
+          
+          <div class="info" style="margin-top:15px">
+            <strong>💡 Training Timeline:</strong><br>
+            <strong>Epochs 1-20:</strong> Warmup phase, attention patterns forming<br>
+            <strong>Epochs 20-150:</strong> Rapid learning phase, major accuracy gains<br>
+            <strong>Epochs 150-300:</strong> Fine-tuning phase, gradual improvements<br>
+            <strong>Beyond 300:</strong> Diminishing returns unless very large dataset
           </div>
         </div>
 
