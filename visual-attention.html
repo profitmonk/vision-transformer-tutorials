@@ -1292,49 +1292,123 @@
             });
         }
         
-        function animateAttentionComputation() {
-            if (selectedPatch === null) {
-                alert('Please select a patch first!');
-                return;
-            }
-            
-            const steps = [
-                'Computing Q×K^T similarities...',
-                'Scaling by temperature...',
-                'Applying softmax normalization...',
-                'Performing weighted aggregation...'
-            ];
-            
-            let stepIndex = 0;
-            
-            function animateStep() {
-                if (stepIndex < steps.length) {
-                    document.getElementById('attentionResults').innerHTML = `
-                        <div class="info" style="animation: attention-pulse 1s ease-in-out;">
-                            <strong>Step ${stepIndex + 1}:</strong> ${steps[stepIndex]}
-                        </div>
-                    `;
-                    
-                    // Add visual effects
-                    document.getElementById('matrixVisualization').classList.add('matrix-animation');
-                    
-                    setTimeout(() => {
-                        document.getElementById('matrixVisualization').classList.remove('matrix-animation');
-                        stepIndex++;
-                        animateStep();
-                    }, 1500);
-                } else {
-                    document.getElementById('attentionResults').innerHTML = `
-                        <div class="success">
-                            <strong>✅ Layer evolution complete!</strong><br>
-                            Notice how attention patterns evolve from local neighborhoods in early layers to global semantic understanding in later layers. This progressive refinement is key to ViT's success.
-                        </div>
-                    `;
-                }
-            }
-            
-            animateStep();
-        }
+    function animateAttentionComputation() {
+       if (selectedPatch === null) {
+           alert('Please select a patch first!');
+           return;
+       }
+       
+       const steps = [
+           'Computing Q×K^T similarities...',
+           'Scaling by temperature...',
+           'Applying softmax normalization...',
+           'Performing weighted aggregation...'
+       ];
+       
+       const temperature = parseFloat(document.getElementById('temperature').value);
+       const attentionWeights = generateAttentionWeights(selectedPatch, temperature);
+       let stepIndex = 0;
+       
+       function animateStep() {
+           if (stepIndex < steps.length) {
+               document.getElementById('attentionResults').innerHTML = `
+                   <div class="info" style="animation: attention-pulse 1s ease-in-out;">
+                       <strong>Step ${stepIndex + 1}:</strong> ${steps[stepIndex]}
+                   </div>
+               `;
+               
+               // Add visual effects to matrices
+               document.getElementById('matrixVisualization').classList.add('matrix-animation');
+               
+               // Update attention visualization based on current step
+               const heatmap = document.getElementById('attentionHeatmap');
+               const cells = heatmap.querySelectorAll('.attention-cell');
+               
+               // Animate attention cells based on step
+               cells.forEach((cell, i) => {
+                   cell.classList.add('attention-pulse');
+                   cell.style.transform = 'scale(1.1)';
+                   
+                   setTimeout(() => {
+                       cell.classList.remove('attention-pulse');
+                       cell.style.transform = 'scale(1)';
+                   }, 800);
+               });
+               
+               // Show step-specific visualization
+               setTimeout(() => {
+                   let values, mode;
+                   switch(stepIndex) {
+                       case 0: // Q×K^T similarities
+                           values = attentionWeights.raw;
+                           mode = 'Raw Similarities';
+                           break;
+                       case 1: // Temperature scaling
+                           values = attentionWeights.scaled;
+                           mode = 'Temperature Scaled';
+                           break;
+                       case 2: // Softmax
+                           values = attentionWeights.softmax;
+                           mode = 'Softmax Normalized';
+                           break;
+                       case 3: // Final output
+                           values = attentionWeights.softmax;
+                           mode = 'Final Attention';
+                           break;
+                   }
+                   
+                   updateAttentionHeatmapWithValues(values, mode);
+                   document.getElementById('matrixVisualization').classList.remove('matrix-animation');
+                   stepIndex++;
+                   setTimeout(animateStep, 1000);
+               }, 1500);
+           } else {
+               document.getElementById('attentionResults').innerHTML = `
+                   <div class="success">
+                       <strong>✅ Attention computation complete!</strong><br>
+                       The selected patch now has an updated representation incorporating information from all other patches, weighted by their attention scores. This is how transformers achieve global understanding!
+                   </div>
+               `;
+           }
+       }
+       
+       animateStep();
+    }
+    
+    function updateAttentionHeatmapWithValues(values, mode) {
+       const heatmap = document.getElementById('attentionHeatmap');
+       heatmap.innerHTML = '';
+       
+       const maxVal = Math.max(...values);
+       const minVal = Math.min(...values);
+       
+       values.forEach((weight, i) => {
+           const cell = document.createElement('div');
+           cell.className = 'attention-cell';
+           
+           const intensity = (weight - minVal) / (maxVal - minVal);
+           const color = `rgba(${Math.round(255 * intensity)}, ${Math.round(100 * (1-intensity))}, ${Math.round(50 * (1-intensity))}, 0.8)`;
+           cell.style.backgroundColor = color;
+           
+           cell.textContent = weight.toFixed(2);
+           cell.title = `${patchLabels[i]}: ${weight.toFixed(3)} (${mode})`;
+           
+           heatmap.appendChild(cell);
+       });
+       
+       // Update computation steps display
+       const steps = document.getElementById('computationSteps');
+       steps.innerHTML = `
+           <h5>🔍 Current Step: ${mode}</h5>
+           <div style="font-size: 12px; background: white; padding: 15px; border-radius: 6px; border: 1px solid #dee2e6;">
+               <p><strong>Displaying:</strong> ${mode}</p>
+               <p><strong>Values range:</strong> ${minVal.toFixed(3)} to ${maxVal.toFixed(3)}</p>
+               <div style="margin-top: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;">
+                   <strong>Max attention:</strong> ${Math.max(...values).toFixed(3)} → ${patchLabels[values.indexOf(Math.max(...values))]}
+               </div>
+           </div>
+       `;
+    }
         
         function compareReceptiveFields() {
             const imageSize = parseInt(document.getElementById('imageSize').value);
