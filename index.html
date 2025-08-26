@@ -155,8 +155,21 @@
             right: 15px;
         }
         
-        .new-badge {
+        .complete-badge {
             background: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+        
+        .new-badge {
+            background: #fd7e14;
             color: white;
             padding: 4px 8px;
             border-radius: 12px;
@@ -314,7 +327,7 @@
     <div class="container">
         <div class="hero">
             <h1>👁️ Vision Transformer Architecture Tutorials</h1>
-            <p>Master Vision Transformers through hands-on visualizations, mathematical deep dives, and real-world architecture analysis. From ViT fundamentals to multimodal models.</p>
+            <p>Master Vision Transformers through hands-on visualizations, mathematical deep dives, and real-world architecture analysis. From ViT fundamentals to multimodal models with complete training guidance.</p>
             
             <a href="https://github.com/yourusername/vision-transformer-tutorials" class="github-link">
                 📂 View on GitHub
@@ -346,7 +359,7 @@
     <div class="container">
         <div class="section-header">
             <div class="section-title">🏛️ Foundation Tutorials</div>
-            <div class="section-description">Essential concepts and architectural understanding</div>
+            <div class="section-description">Essential concepts and practical implementation</div>
         </div>
         
         <div class="tutorial-grid">
@@ -355,49 +368,62 @@
                     <div class="foundation-badge">Start Here</div>
                     <div class="tutorial-title">🤔 Why Transformers for Vision? CNN vs ViT Revolution</div>
                     <div class="tutorial-description">
-                        Understand why Vision Transformers revolutionized computer vision. Compare CNN limitations with ViT advantages, analyze the 2020 breakthrough, and learn when to choose each architecture for real applications.
+                        Understand why Vision Transformers revolutionized computer vision. Compare CNN limitations with ViT advantages, analyze the 2020 breakthrough, and learn when to choose each architecture.
                     </div>
                     <div class="tutorial-concepts">
-                        CNN limitations • Global attention • Quadratic scaling • Decision framework
+                        CNN limitations • Global attention • Decision framework • Architecture trade-offs
                     </div>
                 </div>
             </a>
             
             <a href="vit-fundamentals.html" class="tutorial-link">
                 <div class="tutorial-card">
-                    <div class="new-badge"></div>
+                    <div class="complete-badge">Complete</div>
                     <div class="tutorial-title">🖼️ Vision Transformers: From Pixels to Patches</div>
                     <div class="tutorial-description">
-                        Master ViT architecture through mathematical deep dive. Patch tokenization, 2D positional encoding, visual attention mechanics, memory analysis, and complete forward pass with real model specifications.
+                        Master ViT architecture through complete forward pass analysis. Full pipeline from patches to classification, transformer blocks, residuals, and layer normalization.
                     </div>
                     <div class="tutorial-concepts">
-                        Patch embedding • Position encoding • Visual attention • Memory scaling • Architecture analysis
+                        Forward pass • Transformer blocks • Residual connections • Architecture scaling
                     </div>
                 </div>
             </a>
             
             <a href="patch-embeddings.html" class="tutorial-link">
                 <div class="tutorial-card">
-                    <div class="new-badge"></div>
+                    <div class="complete-badge">Complete</div>
                     <div class="tutorial-title">📐 Patch Embeddings & Positional Encoding Deep Dive</div>
                     <div class="tutorial-description">
-                        Mathematical analysis of patch size trade-offs, linear projection mechanics, 2D vs 1D positional encoding, learnable vs fixed encodings, and resolution transfer strategies.
+                        Mathematical analysis of patch size trade-offs, linear projection mechanics, 2D vs 1D positional encoding, and resolution transfer strategies.
                     </div>
                     <div class="tutorial-concepts">
-                        Patch size analysis • Linear projection • 2D position encoding • Transfer learning
+                        Patch optimization • Linear projection • 2D position encoding • Transfer learning
                     </div>
                 </div>
             </a>
             
-            <a href="#" class="tutorial-link">
-                <div class="tutorial-card coming-soon">
-                    <div class="coming-soon-badge">Coming Soon</div>
+            <a href="visual-attention.html" class="tutorial-link">
+                <div class="tutorial-card">
+                    <div class="complete-badge">Complete</div>
                     <div class="tutorial-title">🎯 Visual Attention Mechanisms Deep Dive</div>
                     <div class="tutorial-description">
-                        Understand how attention works in the visual domain. Global receptive fields, attention pattern analysis, head specialization, and interpretability through attention visualization.
+                        Understand how attention works in the visual domain. Global receptive fields, multi-head specialization, attention pattern analysis, and O(N²) complexity solutions.
                     </div>
                     <div class="tutorial-concepts">
-                        Global attention • Pattern analysis • Head specialization • Attention visualization
+                        Global attention • Multi-head patterns • Complexity analysis • Interpretability
+                    </div>
+                </div>
+            </a>
+            
+            <a href="training-finetuning-vits.html" class="tutorial-link">
+                <div class="tutorial-card">
+                    <div class="new-badge">New</div>
+                    <div class="tutorial-title">🎓 Training & Fine-tuning ViTs</div>
+                    <div class="tutorial-description">
+                        Practical guide to training Vision Transformers. DeiT recipe, data augmentation, transfer learning, evaluation metrics, and production optimization strategies.
+                    </div>
+                    <div class="tutorial-concepts">
+                        Training recipes • Transfer learning • Evaluation metrics • Production optimization
                     </div>
                 </div>
             </a>
@@ -587,27 +613,27 @@
                 <div class="path-step">
                     <div class="step-number">2</div>
                     <div class="step-title">🖼️ ViT Fundamentals</div>
-                    <div class="step-description">Master the core architecture and mathematics</div>
+                    <div class="step-description">Master the core architecture</div>
                 </div>
                 <div class="path-step">
                     <div class="step-number">3</div>
-                    <div class="step-title">🔗 CLIP Architecture</div>
-                    <div class="step-description">Learn vision-language connections</div>
+                    <div class="step-title">📐 Patch Embeddings</div>
+                    <div class="step-description">Mathematical deep dive</div>
                 </div>
                 <div class="path-step">
                     <div class="step-number">4</div>
-                    <div class="step-title">👁️ Modern VLMs</div>
-                    <div class="step-description">Analyze GPT-4V, Gemini, Claude</div>
+                    <div class="step-title">🎯 Visual Attention</div>
+                    <div class="step-description">Attention mechanisms</div>
                 </div>
                 <div class="path-step">
                     <div class="step-number">5</div>
-                    <div class="step-title">🎨 Generative Models</div>
-                    <div class="step-description">DALL-E, diffusion transformers</div>
+                    <div class="step-title">🎓 Training & Fine-tuning</div>
+                    <div class="step-description">Practical implementation</div>
                 </div>
                 <div class="path-step">
                     <div class="step-number">6</div>
-                    <div class="step-title">🚀 Advanced Topics</div>
-                    <div class="step-description">Optimization, interpretability, production</div>
+                    <div class="step-title">🔗 CLIP & Beyond</div>
+                    <div class="step-description">Multimodal applications</div>
                 </div>
             </div>
         </div>
@@ -648,9 +674,9 @@
             </div>
             
             <div class="feature">
-                <div class="feature-icon">🚀</div>
-                <div class="feature-title">Production Ready</div>
-                <div>Real deployment strategies and optimization techniques</div>
+                <div class="feature-icon">🎓</div>
+                <div class="feature-title">Training Guidance</div>
+                <div>Complete recipes for training and fine-tuning</div>
             </div>
         </div>
     </div>
@@ -663,6 +689,7 @@
             <li><strong>Robotics Engineers</strong> working with vision-language-action models</li>
             <li><strong>Students</strong> in computer vision and deep learning courses</li>
             <li><strong>Developers</strong> building applications with GPT-4V, Gemini, or Claude</li>
+            <li><strong>ML Engineers</strong> training and deploying vision transformers in production</li>
             <li><strong>Anyone curious</strong> about how modern AI "sees" and processes images</li>
         </ul>
     </div>
@@ -675,6 +702,7 @@
             <li><strong>Responsive design</strong> - Optimized for all devices</li>
             <li><strong>GitHub Pages ready</strong> - Deploy with zero configuration</li>
             <li><strong>Production model data</strong> - Real specifications and benchmarks</li>
+            <li><strong>Training simulators</strong> - Hyperparameter configuration and cost estimation</li>
         </ul>
     </div>
     
