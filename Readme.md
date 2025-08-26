@@ -32,22 +32,21 @@ Essential foundation tutorial that motivates the entire vision transformer journ
 
 ---
 
-#### **🖼️ Vision Transformers: From Pixels to Patches** 🆕 **CORE TUTORIAL**
+#### **🖼️ Vision Transformers: From Pixels to Patches** ✅ **COMPLETE**
 **File:** `vit-fundamentals.html`
 
-Complete mathematical and architectural deep dive into Vision Transformers:
-- **Patch tokenization mathematics** - How images become sequences with interactive patch grid
-- **2D positional encoding** - Learnable vs sinusoidal vs relative position encoding analysis
-- **Multi-head visual attention** - Complete mathematical breakdown with complexity analysis
-- **Architecture scaling** - Memory, FLOPs, and parameter analysis across ViT variants (Tiny → Giant)
-- **Interactive calculators** - Real-time parameter counting, memory analysis, attention visualization
-- **Production considerations** - Hardware requirements, optimization strategies, deployment patterns
+Complete architectural walkthrough of Vision Transformers:
+- **Full forward pass** - End-to-end ViT processing pipeline with interactive visualization
+- **Architecture components** - Patch embedding, transformer blocks, classification head
+- **Residual connections & LayerNorm** - Pre-norm vs post-norm analysis
+- **Multi-layer processing** - How information flows through transformer stack
+- **Interactive architecture explorer** - Real-time parameter counting and memory analysis
 
-**Key Concepts:** Patch embedding, position encoding, visual attention, memory scaling, architecture analysis
+**Key Concepts:** Full forward pass, transformer blocks, residual connections, architecture scaling
 
 ---
 
-#### **📐 Patch Embeddings & Positional Encoding Deep Dive** 🔜 **COMING SOON**
+#### **📐 Patch Embeddings & Positional Encoding Deep Dive** ✅ **COMPLETE**
 **File:** `patch-embeddings.html`
 
 Mathematical analysis of the foundation components that make ViTs work:
@@ -61,7 +60,7 @@ Mathematical analysis of the foundation components that make ViTs work:
 
 ---
 
-#### **🎯 Visual Attention Mechanisms Deep Dive** 🔜 **COMING SOON**  
+#### **🎯 Visual Attention Mechanisms Deep Dive** ✅ **COMPLETE**
 **File:** `visual-attention.html`
 
 Understanding how attention works in the visual domain:
@@ -72,6 +71,20 @@ Understanding how attention works in the visual domain:
 - **Computational complexity** - O(N²) scaling challenges and solutions
 
 **Key Concepts:** Global attention, pattern analysis, head specialization, attention visualization
+
+---
+
+#### **🎓 Training & Fine-tuning ViTs** 🆕 **ESSENTIAL FOR PRACTITIONERS**
+**File:** `training-finetuning-vits.html`
+
+Practical guide to training and deploying Vision Transformers in production:
+- **DeiT training recipe** - Data augmentation, regularization, learning rate schedules
+- **Transfer learning strategies** - Pre-trained model selection and adaptation techniques
+- **Evaluation methodologies** - ImageNet, COCO benchmarks and custom dataset evaluation
+- **Memory optimization** - Gradient checkpointing, mixed precision, batch size tuning
+- **Interactive training simulator** - Configure hyperparameters, estimate training costs
+
+**Key Concepts:** Training recipes, transfer learning, evaluation metrics, optimization techniques
 
 ### ⚡ Core Vision-Language Models
 
@@ -227,15 +240,92 @@ Building real-world vision systems at scale:
 
 **Key Concepts:** Production pipelines, real-time processing, deployment patterns, case studies
 
+## 🎓 Recommended Learning Path
+
+### **Phase 1: Foundation (Essential for Everyone)**
+1. **🤔 Why Transformers for Vision?** - Understand the breakthrough and motivation
+2. **🖼️ ViT Fundamentals** - Master core architecture and mathematics
+3. **📐 Patch Embeddings Deep Dive** - Understand the foundation components
+4. **🎯 Visual Attention Mechanisms** - Learn how attention works for images
+5. **🎓 Training & Fine-tuning ViTs** - Master practical implementation strategies
+
+### **Phase 2: Vision-Language Integration**  
+6. **🔗 CLIP Architecture** - Master vision-language connections
+7. **👁️ Modern VLMs** - Analyze GPT-4V, Gemini, Claude architectures
+8. **🤖 Vision-Language-Action** - Explore robotics applications
+9. **🧠 V-JEPA** - Understand world model approaches
+
+### **Phase 3: Generative Applications**
+10. **🎨 Generative Vision Transformers** - DALL-E and text-to-image
+11. **🌊 Diffusion Transformers** - DiT and advanced generation models
+12. **📹 Video Transformers** - Temporal modeling and video generation
+
+### **Phase 4: Advanced & Production**
+13. **⚡ Vision Optimization** - Production deployment strategies
+14. **🔬 Interpretability** - Understanding model behavior
+15. **🌟 Self-Supervised Learning** - Learning without labels
+16. **🏭 Production Systems** - Real-world case studies
+
+## 📊 Learning Outcomes
+
+After completing these tutorials, you'll master:
+
+### **Mathematical Foundations**
+- How patch tokenization converts images to sequences
+- Why global attention enables superior performance
+- Memory and compute scaling relationships
+- Cross-modal attention mathematics
+
+### **Architecture Principles**  
+- Vision Transformer variants and their trade-offs
+- Vision-language model design patterns
+- Generative model architectures (autoregressive vs diffusion)
+- Efficient architecture design principles
+
+### **Production Skills**
+- Hardware requirement analysis and optimization
+- Model deployment strategies across different platforms
+- Performance optimization techniques
+- Real-world system design patterns
+- Training and fine-tuning best practices
+
+### **Research Understanding**
+- Latest developments in multimodal AI
+- Self-supervised learning approaches
+- Emerging architectures and techniques
+- Future research directions
+
+## 🎯 Target Audience
+
+- **Computer Vision Engineers** learning transformer architectures for vision applications
+- **AI/ML Researchers** studying multimodal models and generative AI
+- **Robotics Engineers** working with vision-language-action models
+- **Students** in computer vision and deep learning courses  
+- **Developers** building applications with GPT-4V, Gemini Vision, or Claude
+- **ML Engineers** training and deploying vision transformers in production
+- **Anyone curious** about how modern AI systems "see" and process visual information
+
+## ✨ Tutorial Features
+
+- **📱 Responsive Design** - Perfect experience on desktop, tablet, and mobile
+- **🎨 Interactive Visualizations** - Real-time mathematical demonstrations and visual explorations
+- **🔢 Mathematical Precision** - Step-by-step formulas with actual model specifications
+- **📊 Production Model Data** - Real architectures from GPT-4V, Gemini, Claude, DALL-E
+- **🎛️ Hands-on Learning** - Interactive calculators, parameter explorers, attention visualizers
+- **🚀 Production Focus** - Real deployment strategies, optimization techniques, hardware analysis
+- **🎓 Training Guidance** - Practical recipes for training and fine-tuning in production
+- **💡 Educational Design** - Complex concepts made accessible through visualization and interaction
+
 ## 🏗️ Repository Structure
 
 ```
 vision-transformer-tutorials/
 ├── index.html                          # Landing page with all tutorials
 ├── why-transformers-vision.html        # Foundation: CNN vs ViT ⭐ START HERE
-├── vit-fundamentals.html               # Core ViT architecture deep dive 🆕
-├── patch-embeddings.html               # Patch embedding mathematics 🔜
-├── visual-attention.html               # Visual attention mechanisms 🔜
+├── vit-fundamentals.html               # Core ViT architecture ✅ COMPLETE
+├── patch-embeddings.html               # Patch embedding mathematics ✅ COMPLETE
+├── visual-attention.html               # Visual attention mechanisms ✅ COMPLETE
+├── training-finetuning-vits.html       # Training & fine-tuning 🆕 NEW
 ├── clip-architecture.html              # CLIP contrastive learning 🔜
 ├── vision-language-models.html         # Modern VLMs (GPT-4V, Gemini) 🔜
 ├── vision-language-action.html         # VLA robotics models 🔜
@@ -249,50 +339,6 @@ vision-transformer-tutorials/
 ├── production-vision-systems.html      # Real-world deployment 🔜
 └── README.md                           # This file
 ```
-
-## 🎯 Target Audience
-
-- **Computer Vision Engineers** learning transformer architectures for vision applications
-- **AI/ML Researchers** studying multimodal models and generative AI
-- **Robotics Engineers** working with vision-language-action models
-- **Students** in computer vision and deep learning courses  
-- **Developers** building applications with GPT-4V, Gemini Vision, or Claude
-- **Anyone curious** about how modern AI systems "see" and process visual information
-
-## ✨ Tutorial Features
-
-- **📱 Responsive Design** - Perfect experience on desktop, tablet, and mobile
-- **🎨 Interactive Visualizations** - Real-time mathematical demonstrations and visual explorations
-- **🔢 Mathematical Precision** - Step-by-step formulas with actual model specifications
-- **📊 Production Model Data** - Real architectures from GPT-4V, Gemini, Claude, DALL-E
-- **🎛️ Hands-on Learning** - Interactive calculators, parameter explorers, attention visualizers
-- **🚀 Production Focus** - Real deployment strategies, optimization techniques, hardware analysis
-- **💡 Educational Design** - Complex concepts made accessible through visualization and interaction
-
-## 🎓 Recommended Learning Path
-
-### **Phase 1: Foundation (Essential for Everyone)**
-1. **🤔 Why Transformers for Vision?** - Understand the breakthrough and motivation
-2. **🖼️ ViT Fundamentals** - Master core architecture and mathematics
-3. **📐 Patch Embeddings Deep Dive** - Understand the foundation components
-4. **🎯 Visual Attention Mechanisms** - Learn how attention works for images
-
-### **Phase 2: Vision-Language Integration**  
-5. **🔗 CLIP Architecture** - Master vision-language connections
-6. **👁️ Modern VLMs** - Analyze GPT-4V, Gemini, Claude architectures
-7. **🤖 Vision-Language-Action** - Explore robotics applications
-8. **🧠 V-JEPA** - Understand world model approaches
-
-### **Phase 3: Generative Applications**
-9. **🎨 Generative Vision Transformers** - DALL-E and text-to-image
-10. **🌊 Diffusion Transformers** - DiT and advanced generation models
-11. **📹 Video Transformers** - Temporal modeling and video generation
-
-### **Phase 4: Advanced & Production**
-12. **⚡ Vision Optimization** - Production deployment strategies
-13. **🔬 Interpretability** - Understanding model behavior
-14. **🌟 Self-Supervised Learning** - Learning without labels
-15. **🏭 Production Systems** - Real-world case studies
 
 ## 🚀 Getting Started
 
@@ -323,13 +369,14 @@ Simply visit the [live demo](https://profitmonk.github.io/vision-transformer-tut
 ### 🎨 **Interactive Visual Learning**
 - **Patch Grid Visualizers** - See exactly how images become token sequences
 - **Attention Pattern Explorers** - Visualize what different layers focus on
-- **Memory Calculators** - Real-time hardware requirement analysis
+- **Training Simulators** - Configure hyperparameters and estimate costs
 - **Architecture Comparisons** - Interactive model specification comparisons
 
 ### 🏭 **Production-Ready Knowledge**
 - Real deployment strategies from industry leaders
 - Hardware optimization techniques for different constraints
 - Memory and compute budgeting for production systems
+- Complete training and fine-tuning recipes
 - Case studies from Tesla FSD, medical AI, robotics applications
 
 ### 🌍 **Complete Ecosystem Coverage**
@@ -337,34 +384,7 @@ Simply visit the [live demo](https://profitmonk.github.io/vision-transformer-tut
 - **Generative Models** - DALL-E, DiT, video generation
 - **Robotics Applications** - VLA models, embodied AI
 - **Optimization Techniques** - Quantization, efficient architectures
-
-## 📊 Learning Outcomes
-
-After completing these tutorials, you'll master:
-
-### **Mathematical Foundations**
-- How patch tokenization converts images to sequences
-- Why global attention enables superior performance
-- Memory and compute scaling relationships
-- Cross-modal attention mathematics
-
-### **Architecture Principles**  
-- Vision Transformer variants and their trade-offs
-- Vision-language model design patterns
-- Generative model architectures (autoregressive vs diffusion)
-- Efficient architecture design principles
-
-### **Production Skills**
-- Hardware requirement analysis and optimization
-- Model deployment strategies across different platforms
-- Performance optimization techniques
-- Real-world system design patterns
-
-### **Research Understanding**
-- Latest developments in multimodal AI
-- Self-supervised learning approaches
-- Emerging architectures and techniques
-- Future research directions
+- **Training & Deployment** - End-to-end production workflows
 
 ## 🤝 Contributing
 
@@ -375,6 +395,7 @@ We welcome contributions! Here's how you can help:
 - 📝 **Documentation** - Help improve explanations or add examples
 - 🎨 **Visualizations** - Enhance interactive components or add new ones
 - 📊 **Model Updates** - Add new model architectures or update specifications
+- 🎓 **Training Recipes** - Contribute practical training and fine-tuning strategies
 
 Please feel free to open issues or submit pull requests!
 
@@ -387,6 +408,7 @@ This project is open source and available under the [MIT License](LICENSE).
 - Built on the mathematical foundations established by the original Vision Transformer paper
 - Inspired by the need for accessible, interactive explanations of complex AI architectures
 - Model specifications sourced from official papers and production system documentation
+- Training recipes adapted from DeiT, CLIP, and modern computer vision best practices
 - Educational approach designed to bridge the gap between research and practical understanding
 
 ## 📞 Contact & Support
