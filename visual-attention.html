@@ -1333,7 +1333,7 @@
                 }
             }
             
-            animateNextLayer();
+            animateStep();
         }
         
         function compareReceptiveFields() {
@@ -1510,17 +1510,6 @@
             // Initialize with first patch selected
             selectPatch(0);
         });
-    </script>
-</body>
-</html><strong>✅ Attention computation complete!</strong><br>
-                            The selected patch now has an updated representation incorporating information from all other patches, weighted by attention scores.
-                        </div>
-                    `;
-                }
-            }
-            
-            animateStep();
-        }
         
         function updateMultiHeadVisualization() {
             const grid = document.getElementById('multiHeadGrid');
@@ -1734,153 +1723,6 @@
             }
             
             animateNextLayer();
-        }
-        
-        function compareReceptiveFields() {
-            const imageSize = parseInt(document.getElementById('imageSize').value);
-            const speed = document.getElementById('animationSpeed').value;
-            
-            const speedMap = { slow: 2000, medium: 1000, fast: 500 };
-            const animationDuration = speedMap[speed];
-            
-            // Update display
-            document.getElementById('imageSizeDisplay').textContent = `${imageSize}×${imageSize}`;
-            
-            // Animate CNN receptive field growth
-            const cnnLayers = document.querySelectorAll('#cnnDemo .rf-fill');
-            const vitLayers = document.querySelectorAll('#vitDemo .rf-fill');
-            
-            // Reset animations
-            cnnLayers.forEach(layer => layer.style.width = '0%');
-            
-            // Animate CNN growth
-            setTimeout(() => {
-                cnnLayers.forEach((layer, i) => {
-                    setTimeout(() => {
-                        const widths = [15, 35, 65, 100];
-                        layer.style.width = `${widths[i]}%`;
-                        layer.style.transition = `width ${animationDuration/1000}s ease`;
-                    }, i * animationDuration);
-                });
-            }, 500);
-            
-            // Show analysis
-            setTimeout(() => {
-                const patchSize = 16; // Assume 16x16 patches
-                const numPatches = (imageSize / patchSize) ** 2;
-                const attentionMatrixSize = numPatches * numPatches;
-                
-                document.getElementById('receptiveFieldAnalysis').innerHTML = `
-                    <div class="step">
-                        <h4>📊 Receptive Field Analysis</h4>
-                        <table>
-                            <tr><th>Architecture</th><th>Layer 1 RF</th><th>Final RF</th><th>Global Access</th></tr>
-                            <tr>
-                                <td><strong>CNN (ResNet-50)</strong></td>
-                                <td>7×7 pixels</td>
-                                <td>Full image (layer 50)</td>
-                                <td>❌ Gradual</td>
-                            </tr>
-                            <tr>
-                                <td><strong>ViT (All layers)</strong></td>
-                                <td>Full image</td>
-                                <td>Full image</td>
-                                <td>✅ Immediate</td>
-                            </tr>
-                        </table>
-                        
-                        <div class="info">
-                            <strong>🎯 Key Advantage:</strong> ViT's global receptive field from layer 1 enables immediate access to long-range dependencies, while CNNs must build up context gradually through many layers.
-                            <br><br>
-                            <strong>💾 Memory Cost:</strong> ${numPatches} patches × ${numPatches} patches = ${attentionMatrixSize.toLocaleString()} attention weights per head
-                        </div>
-                    </div>
-                `;
-            }, cnnLayers.length * animationDuration + 1000);
-        }
-        
-        function calculateComplexity() {
-            const height = parseInt(document.getElementById('imageHeight').value);
-            const width = parseInt(document.getElementById('imageWidth').value);
-            const patchSize = parseInt(document.getElementById('patchSize').value);
-            const numHeads = parseInt(document.getElementById('numHeads').value);
-            const modelDim = parseInt(document.getElementById('modelDim').value);
-            
-            // Calculate sequence length
-            const numPatchesH = Math.floor(height / patchSize);
-            const numPatchesW = Math.floor(width / patchSize);
-            const sequenceLength = numPatchesH * numPatchesW;
-            
-            // Calculate complexity metrics
-            const attentionMatrixSize = sequenceLength * sequenceLength;
-            const totalAttentionWeights = attentionMatrixSize * numHeads;
-            const memoryMB = (totalAttentionWeights * 4) / (1024 * 1024); // 4 bytes per float32
-            const flopsPerLayer = (sequenceLength ** 2) * modelDim + sequenceLength * (modelDim ** 2);
-            
-            // Display results
-            const resultsDiv = document.getElementById('complexityResults');
-            resultsDiv.innerHTML = `
-                <div class="complexity-metric">
-                    <div class="metric-value">${sequenceLength}</div>
-                    <div class="metric-label">Sequence Length</div>
-                </div>
-                <div class="complexity-metric">
-                    <div class="metric-value">${attentionMatrixSize.toLocaleString()}</div>
-                    <div class="metric-label">Attention Matrix Size</div>
-                </div>
-                <div class="complexity-metric">
-                    <div class="metric-value">${memoryMB.toFixed(1)} MB</div>
-                    <div class="metric-label">Attention Memory</div>
-                </div>
-                <div class="complexity-metric">
-                    <div class="metric-value">${(flopsPerLayer / 1e9).toFixed(2)} GFLOPs</div>
-                    <div class="metric-label">Compute per Layer</div>
-                </div>
-            `;
-            
-            // Optimization suggestions
-            let suggestions = '';
-            if (memoryMB > 100) {
-                suggestions += '⚠️ High memory usage - consider gradient checkpointing<br>';
-            }
-            if (sequenceLength > 500) {
-                suggestions += '⚠️ Long sequence - linear attention might help<br>';
-            }
-            if (patchSize < 16) {
-                suggestions += '💡 Smaller patches increase quality but quadratic cost<br>';
-            }
-            
-            document.getElementById('optimizationSuggestions').innerHTML = suggestions ? `
-                <div class="warning">
-                    <strong>🔧 Optimization Suggestions:</strong><br>
-                    ${suggestions}
-                </div>
-            ` : `
-                <div class="success">
-                    <strong>✅ Reasonable complexity</strong> - This configuration should work well for most hardware.
-                </div>
-            `;
-        }
-        
-        function updateSliderDisplays() {
-            const temperature = document.getElementById('temperature');
-            const temperatureValue = document.getElementById('temperatureValue');
-            
-            if (temperature && temperatureValue) {
-                temperature.addEventListener('input', () => {
-                    temperatureValue.textContent = temperature.value;
-                    updateAttentionVisualization();
-                });
-            }
-            
-            const imageSize = document.getElementById('imageSize');
-            const imageSizeDisplay = document.getElementById('imageSizeDisplay');
-            
-            if (imageSize && imageSizeDisplay) {
-                imageSize.addEventListener('input', () => {
-                    imageSizeDisplay.textContent = `${imageSize.value}×${imageSize.value}`;
-                });
-            }
         }
         
         // Event listeners
