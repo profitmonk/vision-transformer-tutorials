@@ -624,7 +624,46 @@
                 • d<sub>v</sub> = value dimension
             </div>
         </div>
-        
+         <div class="step">
+            <h3>🌡️ Understanding Temperature Scaling</h3>
+            
+            <p>Before diving into the interactive demo, let's understand the <strong>temperature parameter (√d<sub>k</sub>)</strong> in the attention formula. This isn't like the "creativity temperature" you might know from ChatGPT - it serves a completely different purpose.</p>
+            
+            <div class="visual-comparison">
+                <div class="visual-card">
+                    <div class="visual-title">🎯 What Temperature Controls</div>
+                    <div class="visual-diagram">
+<strong>Low Temperature (√d<sub>k</sub> = 2):</strong><br>
+• Sharp, focused attention<br>
+• Model pays attention to very few patches<br>
+• softmax([10,8,6]) = [0.88,0.09,0.03]<br><br>
+<strong>High Temperature (√d<sub>k</sub> = 8):</strong><br>
+• Soft, distributed attention<br>
+• Model spreads attention more evenly<br>
+• softmax([2.5,2.0,1.5]) = [0.48,0.29,0.23]
+                    </div>
+                </div>
+                
+                <div class="visual-card">
+                    <div class="visual-title">⚖️ Why Temperature Matters</div>
+                    <div class="visual-diagram">
+<strong>Without scaling:</strong><br>
+• Dot products QK^T can get very large<br>
+• Softmax becomes extremely peaked<br>
+• Attention collapses to single patches<br><br>
+<strong>With √d<sub>k</sub> scaling:</strong><br>
+• Normalizes for dimension size<br>
+• Prevents attention collapse<br>
+• Enables diverse attention patterns<br>
+• Stable training dynamics
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info">
+                <strong>🔍 Key Insight:</strong> Temperature scaling (dividing by √d<sub>k</sub>) is baked into the ViT architecture to prevent attention from becoming too sharp during training. Unlike LLM sampling temperature which you adjust for creativity, this temperature ensures the model can learn balanced attention patterns across all patches.
+            </div>
+        </div>
         <div class="step">
             <h3>🎮 Interactive Attention Calculator</h3>
             
