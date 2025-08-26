@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Training & Fine-tuning ViTs</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);color:#e0e0e0;line-height:1.6}
+    .container{background:#fff;color:#2d2d2d;border-radius:20px;padding:30px;margin:20px 0;border:1px solid #e0e0e0;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+    .nav-bar{background:#2d2d2d;color:#fff;padding:15px 30px;border-radius:15px;margin:20px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px}
+    .nav-home,.nav-prev,.nav-next{background:#fff;color:#2d2d2d;padding:8px 16px;border-radius:6px;text-decoration:none;font-weight:bold;transition:all .3s}
+    .nav-next{background:#28a745;color:#fff}
+    .nav-home:hover,.nav-prev:hover,.nav-next:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+    .nav-title{font-size:1.2em;font-weight:bold;flex:1;min-width:300px}
+    .step{background:#f8f9fa;border:1px solid #e9ecef;padding:20px;margin:15px 0;border-radius:15px;border-left:4px solid #2d2d2d}
+    .interactive-demo{background:#f8f9fa;border:2px solid #e9ecef;border-radius:15px;padding:25px;margin:20px 0}
+    .demo-title{font-size:1.3em;font-weight:bold;margin-bottom:20px;text-align:center;color:#2d2d2d}
+    .controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin:20px 0}
+    .control-group{display:flex;flex-direction:column;gap:5px}
+    .control-group label{font-weight:bold;font-size:14px;color:#2d2d2d}
+    button{background:#2d2d2d;border:none;color:#fff;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:bold;transition:all .3s;margin:5px}
+    button:hover{background:#1a1a1a;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+    button.primary{background:#28a745}
+    button.primary:hover{background:#218838}
+    input,select,textarea{padding:8px 12px;border:1px solid #dadce0;border-radius:6px;background:#fff;color:#2d2d2d}
+    textarea{min-height:70px;resize:vertical}
+    .math-formula{background:#f8f9fa;border:1px solid #e9ecef;padding:20px;border-radius:8px;margin:15px 0;font-family:'Courier New',monospace;text-align:center;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+    .code-block{background:#2d2d2d;color:#e0e0e0;padding:20px;border-radius:8px;margin:15px 0;font-family:'Courier New',monospace;font-size:14px;overflow:auto;position:relative}
+    .code-header{background:#1a1a1a;color:#28a745;padding:8px 15px;margin:-20px -20px 15px -20px;border-radius:8px 8px 0 0;font-weight:bold;font-size:12px}
+    .copy-button{position:absolute;top:10px;right:10px;background:#28a745;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:10px}
+    .training-chart{width:100%;height:300px;background:#fff;border:2px solid #e9ecef;border-radius:8px;margin:15px 0;position:relative}
+    .chart-canvas{width:100%;height:100%}
+    .metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin:20px 0}
+    .metric-card{background:#fff;border:2px solid #e9ecef;border-radius:8px;padding:15px;text-align:center}
+    .metric-value{font-size:1.5em;font-weight:bold;color:#2d2d2d;margin-bottom:5px}
+    .metric-label{font-size:12px;color:#666}
+    .strategy-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin:20px 0}
+    .strategy-card{background:#fff;border:2px solid #e9ecef;border-radius:12px;padding:20px;cursor:pointer;transition:all .3s}
+    .strategy-card:hover{border-color:#2d2d2d;transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.1)}
+    .strategy-card.selected{border-color:#28a745;background:#d4edda}
+    .strategy-title{font-weight:bold;margin-bottom:10px;color:#2d2d2d}
+    .strategy-description{font-size:14px;color:#666;margin-bottom:10px}
+    .strategy-specs{background:#f8f9fa;padding:8px;border-radius:4px;font-size:12px;font-family:'Courier New',monospace}
+    .recipe-output{background:#1a1a1a;color:#28a745;padding:20px;border-radius:8px;margin:15px 0;font-family:'Courier New',monospace;font-size:13px;max-height:400px;overflow-y:auto}
+    .comparison-table{width:100%;border-collapse:collapse;margin:15px 0;background:#fff;border:1px solid #e9ecef;border-radius:8px;overflow:hidden}
+    .comparison-table th{background:#2d2d2d;color:#fff;padding:12px;text-align:center;font-weight:bold}
+    .comparison-table td{padding:12px;text-align:center;border-bottom:1px solid #e9ecef}
+    .performance-indicator{display:inline-block;padding:4px 8px;border-radius:12px;font-size:11px;font-weight:bold;text-transform:uppercase}
+    .performance-excellent{background:#d4edda;color:#155724}.performance-good{background:#d1ecf1;color:#0c5460}.performance-moderate{background:#fff3cd;color:#856404}.performance-poor{background:#f8d7da;color:#721c24}
+    .augmentation-demo{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:15px 0}
+    .aug-example{background:#f8f9fa;border:1px solid #e9ecef;border-radius:6px;padding:10px;text-align:center;font-size:11px}
+    .aug-visual{width:80px;height:80px;background:linear-gradient(45deg,#e9ecef,#dee2e6);border-radius:4px;margin:5px auto;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#495057}
+    .info{background:#d1ecf1;border-left:4px solid #17a2b8;color:#0c5460;padding:15px;border-radius:8px;margin:15px 0}
+    .success{background:#d4edda;border-left:4px solid #28a745;color:#155724;padding:15px;border-radius:8px;margin:15px 0}
+    .warning{background:#fff3cd;border-left:4px solid #ffc107;color:#856404;padding:15px;border-radius:8px;margin:15px 0}
+    .breakthrough-highlight{background:linear-gradient(135deg,#28a745,#20c997);color:#fff;padding:20px;border-radius:12px;text-align:center;margin:20px 0;font-size:18px;font-weight:bold;box-shadow:0 4px 15px rgba(40,167,69,.3)}
+    .tabs{display:flex;margin-bottom:20px;border-bottom:2px solid #e9ecef}
+    .tab{padding:12px 24px;cursor:pointer;border-bottom:3px solid transparent;font-weight:bold;transition:all .3s}
+    .tab:hover{background:#f8f9fa}
+    .tab.active{border-bottom-color:#28a745;background:#d4edda;color:#155724}
+    .tab-content{display:none}
+    .tab-content.active{display:block}
+    .progress-bar{width:100%;height:20px;background:#e9ecef;border-radius:10px;overflow:hidden;margin:10px 0}
+    .progress-fill{height:100%;background:linear-gradient(135deg,#28a745,#20c997);transition:width 1s ease;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:bold}
+    @keyframes training-pulse{0%{transform:scale(1);opacity:.8}50%{transform:scale(1.05);opacity:1}100%{transform:scale(1);opacity:.8}}
+    .training-animation{animation:training-pulse 2s ease-in-out infinite}
+    .gradient-flow{display:flex;justify-content:space-between;align-items:center;margin:15px 0;padding:15px;background:#fff;border-radius:8px;border:1px solid #dee2e6}
+    .layer-box{background:#f8f9fa;border:2px solid #e9ecef;border-radius:8px;padding:10px;text-align:center;min-width:80px;font-weight:bold;color:#2d2d2d}
+    .gradient-arrow{font-size:20px;color:#28a745;font-weight:bold}
+    .model-selector{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin:20px 0}
+    .model-card{background:#fff;border:2px solid #e9ecef;border-radius:8px;padding:15px;cursor:pointer;transition:all .3s;text-align:center}
+    .model-card:hover{border-color:#2d2d2d;transform:translateY(-2px)}
+    .model-card.selected{border-color:#28a745;background:#d4edda}
+    .model-name{font-weight:bold;margin-bottom:8px;color:#2d2d2d}
+    .model-specs{font-size:12px;color:#666;font-family:'Courier New',monospace}
+  </style>
+</head>
+<body>
+  <div class="nav-bar">
+    <div class="nav-title">🎓 Training & Fine-tuning ViTs</div>
+    <a href="index.html" class="nav-home">🏠 Home</a>
+    <a href="visual-attention.html" class="nav-prev">← Visual Attention</a>
+    <a href="clip-architecture.html" class="nav-next">Next: CLIP Architecture →</a>
+  </div>
+
+  <div class="container">
+    <h1>🎓 Training & Fine-tuning Vision Transformers</h1>
+    <p>Now that you understand ViT architecture and attention mechanisms, let's master the <strong>practical skills</strong> needed to train and fine-tune these models for real-world applications. We'll cover the complete pipeline from dataset preparation to production deployment using <strong>PyTorch and Hugging Face</strong>.</p>
+    <div class="info"><strong>🎯 What You'll Master:</strong> Complete training mathematics, transfer learning strategies, the famous DeiT training recipe, data augmentation techniques, evaluation methodologies, and production optimization - all with interactive tools and working PyTorch code.</div>
+  </div>
+
+  <div class="container">
+    <h2>🧠 Why ViT Training is Different from CNNs</h2>
+    <div class="step">
+      <h3>⚡ The Fundamental Training Challenges</h3>
+      <p>Vision Transformers require <strong>fundamentally different training strategies</strong> than CNNs. While CNNs have useful inductive biases (locality, translation equivariance), ViTs start with minimal assumptions and must learn everything from data. This creates unique training dynamics that we need to understand mathematically.</p>
+
+      <div class="interactive-demo">
+        <div class="demo-title">📊 Training Dynamics Comparison</div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Dataset Size:</label>
+            <select id="datasetSize">
+              <option value="small">Small (10K images)</option>
+              <option value="medium" selected>Medium (100K images)</option>
+              <option value="large">Large (1M+ images)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Model Size:</label>
+            <select id="modelSize">
+              <option value="tiny">ViT-Tiny (5M params)</option>
+              <option value="base" selected>ViT-Base (86M params)</option>
+              <option value="large">ViT-Large (307M params)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Training Strategy:</label>
+            <select id="trainingStrategy">
+              <option value="scratch">From Scratch</option>
+              <option value="pretrained" selected>Pre-trained + Fine-tune</option>
+              <option value="frozen">Frozen Features</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="simulateTrainingDynamics()">📈 Simulate Training</button>
+
+        <div class="training-chart">
+          <canvas id="trainingChart" class="chart-canvas"></canvas>
+        </div>
+
+        <div id="trainingAnalysis"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🔥 The Warmup Necessity: Mathematical Foundation</h3>
+
+      <div class="math-formula">
+        <strong>Learning Rate Schedule with Warmup:</strong><br><br>
+        lr(t) = lr<sub>base</sub> × min(t/warmup_steps, cos(π(t-warmup_steps)/(total_steps-warmup_steps)))<br><br>
+        <strong>Why Warmup is Critical for ViTs:</strong><br>
+        • Large gradient magnitudes in early training<br>
+        • Attention weights start random → need gradual learning<br>
+        • Prevents attention collapse in early epochs<br>
+        • Stabilizes layer normalization statistics
+      </div>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🌡️ Learning Rate Schedule Optimizer</div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Base Learning Rate:</label>
+            <input type="range" id="baseLR" min="0.0001" max="0.01" value="0.001" step="0.0001">
+            <span id="baseLRDisplay">0.0010</span>
+          </div>
+          <div class="control-group">
+            <label>Warmup Steps:</label>
+            <input type="range" id="warmupSteps" min="500" max="10000" value="2000" step="500">
+            <span id="warmupDisplay">2000</span>
+          </div>
+          <div class="control-group">
+            <label>Total Steps:</label>
+            <input type="range" id="totalSteps" min="10000" max="100000" value="50000" step="5000">
+            <span id="totalDisplay">50000</span>
+          </div>
+          <div class="control-group">
+            <label>Schedule Type:</label>
+            <select id="scheduleType">
+              <option value="cosine" selected>Cosine Annealing</option>
+              <option value="linear">Linear Decay</option>
+              <option value="exponential">Exponential Decay</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="updateLearningRateSchedule()">📊 Update Schedule</button>
+
+        <div class="training-chart">
+          <canvas id="learningRateChart" class="chart-canvas"></canvas>
+        </div>
+
+        <div id="scheduleAnalysis"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🌊 Gradient Flow Analysis</h3>
+      <p>Understanding gradient flow through transformer layers is crucial for stable training. Unlike CNNs with skip connections, ViTs rely on residual connections around attention and MLP blocks.</p>
+      <div class="gradient-flow">
+        <div class="layer-box">Input<br>Patches</div><div class="gradient-arrow">→</div>
+        <div class="layer-box">Layer<br>Norm</div><div class="gradient-arrow">→</div>
+        <div class="layer-box">Multi-Head<br>Attention</div><div class="gradient-arrow">→</div>
+        <div class="layer-box">Residual<br>Add</div><div class="gradient-arrow">→</div>
+        <div class="layer-box">Layer<br>Norm</div><div class="gradient-arrow">→</div>
+        <div class="layer-box">MLP</div><div class="gradient-arrow">→</div>
+        <div class="layer-box">Residual<br>Add</div>
+      </div>
+      <div class="info">
+        <strong>🔍 Key Training Insights:</strong><br>
+        • <strong>Pre-LayerNorm:</strong> Modern ViTs use LayerNorm before attention/MLP (better gradients)<br>
+        • <strong>Residual Connections:</strong> Enable deep networks (12+ layers) to train effectively<br>
+        • <strong>Gradient Magnitude:</strong> Attention gradients can be 10x larger than MLP gradients<br>
+        • <strong>Learning Rate Sensitivity:</strong> ViTs much more sensitive than CNNs to LR choice
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🎯 Transfer Learning Strategies & Model Selection</h2>
+    <div class="step">
+      <h3>🏛️ Hugging Face Model Zoo Navigation</h3>
+      <p>The Hugging Face ecosystem offers dozens of pre-trained ViT variants. Understanding which model to choose for your specific task is crucial for success. Let's build an intelligent model selector.</p>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🔍 Model Selection Assistant</div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Your Task:</label>
+            <select id="taskType">
+              <option value="classification">Image Classification</option>
+              <option value="detection">Object Detection</option>
+              <option value="segmentation">Semantic Segmentation</option>
+              <option value="medical">Medical Imaging</option>
+              <option value="satellite">Satellite/Aerial</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Dataset Size:</label>
+            <select id="datasetSizeTask">
+              <option value="tiny">&lt; 1K images</option>
+              <option value="small">1K - 10K images</option>
+              <option value="medium" selected>10K - 100K images</option>
+              <option value="large">100K+ images</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Hardware Constraint:</label>
+            <select id="hardwareConstraint">
+              <option value="mobile">Mobile/Edge</option>
+              <option value="single-gpu" selected>Single GPU</option>
+              <option value="multi-gpu">Multi-GPU</option>
+              <option value="unlimited">No Constraints</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Accuracy Priority:</label>
+            <select id="accuracyPriority">
+              <option value="speed">Speed &gt; Accuracy</option>
+              <option value="balanced" selected>Balanced</option>
+              <option value="accuracy">Accuracy &gt; Speed</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="recommendModel()" class="primary">🎯 Get Model Recommendation</button>
+
+        <div class="model-selector" id="modelRecommendations"></div>
+        <div id="implementationCode"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🔄 Transfer Learning Mathematics</h3>
+      <div class="math-formula">
+        <strong>Transfer Learning Objective:</strong><br><br>
+        θ<sub>fine</sub> = argmin<sub>θ</sub> L<sub>target</sub>(f<sub>θ</sub>(X<sub>target</sub>), Y<sub>target</sub>) + λR(θ, θ<sub>pretrained</sub>)<br><br>
+        Where:<br>
+        • θ<sub>pretrained</sub>: Parameters from ImageNet pre-training<br>
+        • θ<sub>fine</sub>: Fine-tuned parameters for target task<br>
+        • R(θ, θ<sub>pretrained</sub>): Regularization term (weight decay)<br>
+        • λ: Regularization strength
+      </div>
+
+      <div class="strategy-grid" id="transferStrategies">
+        <div class="strategy-card" onclick="selectStrategy('full', this)">
+          <div class="strategy-title">🔄 Full Fine-tuning</div>
+          <div class="strategy-description">Update all parameters with task-specific data</div>
+          <div class="strategy-specs">
+            • All layers trainable<br>• Highest accuracy potential<br>• Requires substantial data<br>• High compute cost
+          </div>
+        </div>
+        <div class="strategy-card" onclick="selectStrategy('partial', this)">
+          <div class="strategy-title">❄️ Partial Freezing</div>
+          <div class="strategy-description">Freeze early layers, train later layers</div>
+          <div class="strategy-specs">
+            • Freeze layers 0-6<br>• Train layers 7-11 + head<br>• Good data efficiency<br>• Moderate compute cost
+          </div>
+        </div>
+        <div class="strategy-card" onclick="selectStrategy('head', this)">
+          <div class="strategy-title">🧠 Head-only Training</div>
+          <div class="strategy-description">Freeze backbone, train classification head only</div>
+          <div class="strategy-specs">
+            • Freeze all ViT layers<br>• Train final linear layer<br>• Fast training<br>• Limited adaptation
+          </div>
+        </div>
+        <div class="strategy-card" onclick="selectStrategy('lora', this)">
+          <div class="strategy-title">🎛️ LoRA Fine-tuning</div>
+          <div class="strategy-description">Low-rank adaptation for parameter efficiency</div>
+          <div class="strategy-specs">
+            • Rank-decomposed updates<br>• ~0.1% trainable parameters<br>• Memory efficient<br>• Comparable performance
+          </div>
+        </div>
+      </div>
+      <div id="strategyAnalysis"></div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🧪 The DeiT Training Recipe: Mathematical Deep Dive</h2>
+    <div class="step">
+      <h3>📜 DeiT: The Gold Standard Training Recipe</h3>
+      <p><strong>Data-efficient image Transformers (DeiT)</strong> solved the training problem for ViTs. Before DeiT, ViTs needed massive datasets (300M+ images). DeiT showed how to train competitive ViTs on ImageNet-1K alone through clever training recipes.</p>
+      <div class="breakthrough-highlight">🏆 DeiT Achievement: Matched CNN performance using only ImageNet-1K (1.3M images) instead of requiring JFT-300M (300M images)!</div>
+    </div>
+
+    <div class="step">
+      <h3>🔬 Interactive DeiT Recipe Builder</h3>
+      <div class="interactive-demo">
+        <div class="demo-title">🧪 Custom Training Recipe Generator</div>
+
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab('augmentation', this)">🎨 Augmentation</div>
+          <div class="tab" onclick="switchTab('optimization', this)">⚙️ Optimization</div>
+          <div class="tab" onclick="switchTab('regularization', this)">🛡️ Regularization</div>
+          <div class="tab" onclick="switchTab('schedule', this)">📅 Schedule</div>
+        </div>
+
+        <div id="augmentation" class="tab-content active">
+          <h4>🎨 Data Augmentation Pipeline</h4>
+          <div class="controls">
+            <div class="control-group">
+              <label>RandAugment Magnitude:</label>
+              <input type="range" id="randAugMag" min="5" max="15" value="9" step="1">
+              <span id="randAugDisplay">9</span>
+            </div>
+            <div class="control-group">
+              <label>MixUp Alpha:</label>
+              <input type="range" id="mixupAlpha" min="0" max="1" value="0.8" step="0.1">
+              <span id="mixupDisplay">0.8</span>
+            </div>
+            <div class="control-group">
+              <label>CutMix Alpha:</label>
+              <input type="range" id="cutmixAlpha" min="0" max="1.5" value="1.0" step="0.1">
+              <span id="cutmixDisplay">1.0</span>
+            </div>
+            <div class="control-group">
+              <label>Random Erasing Prob:</label>
+              <input type="range" id="erasingProb" min="0" max="0.5" value="0.25" step="0.05">
+              <span id="erasingDisplay">0.25</span>
+            </div>
+          </div>
+          <div class="augmentation-demo" id="augmentationDemo"></div>
+
+          <div class="math-formula">
+            <strong>MixUp Mathematics:</strong><br>
+            x̃ = λx<sub>i</sub> + (1-λ)x<sub>j</sub><br>
+            ỹ = λy<sub>i</sub> + (1-λ)y<sub>j</sub><br><br>
+            <strong>CutMix Mathematics:</strong><br>
+            x̃ = M ⊙ x<sub>i</sub> + (1-M) ⊙ x<sub>j</sub><br>
+            ỹ = λy<sub>i</sub> + (1-λ)y<sub>j</sub>, where λ = Area(M)/Area(Image)
+          </div>
+        </div>
+
+        <div id="optimization" class="tab-content">
+          <h4>⚙️ Optimizer Configuration</h4>
+          <div class="controls">
+            <div class="control-group">
+              <label>Optimizer:</label>
+              <select id="optimizerType">
+                <option value="adamw" selected>AdamW</option>
+                <option value="adam">Adam</option>
+                <option value="sgd">SGD with Momentum</option>
+                <option value="lion">Lion</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Weight Decay:</label>
+              <input type="range" id="weightDecay" min="0" max="0.1" value="0.05" step="0.01">
+              <span id="weightDecayDisplay">0.05</span>
+            </div>
+            <div class="control-group">
+              <label>Beta1:</label>
+              <input type="range" id="beta1" min="0.85" max="0.95" value="0.9" step="0.01">
+              <span id="beta1Display">0.90</span>
+            </div>
+            <div class="control-group">
+              <label>Beta2:</label>
+              <input type="range" id="beta2" min="0.99" max="0.999" value="0.999" step="0.001">
+              <span id="beta2Display">0.999</span>
+            </div>
+          </div>
+
+          <div class="math-formula">
+            <strong>AdamW Update Rule:</strong><br><br>
+            m<sub>t</sub> = β₁m<sub>t-1</sub> + (1-β₁)g<sub>t</sub><br>
+            v<sub>t</sub> = β₂v<sub>t-1</sub> + (1-β₂)g<sub>t</sub>²<br>
+            θ<sub>t+1</sub> = θ<sub>t</sub> - α[m̂<sub>t</sub>/(√v̂<sub>t</sub> + ε) + λθ<sub>t</sub>]<br><br>
+            <strong>Why AdamW for ViTs:</strong> Decoupled weight decay prevents interference with adaptive gradients
+          </div>
+        </div>
+
+        <div id="regularization" class="tab-content">
+          <h4>🛡️ Regularization Techniques</h4>
+          <div class="controls">
+            <div class="control-group">
+              <label>Dropout Rate:</label>
+              <input type="range" id="dropoutRate" min="0" max="0.5" value="0.1" step="0.05">
+              <span id="dropoutDisplay">0.10</span>
+            </div>
+            <div class="control-group">
+              <label>Attention Dropout:</label>
+              <input type="range" id="attentionDropout" min="0" max="0.3" value="0.0" step="0.05">
+              <span id="attentionDropoutDisplay">0.00</span>
+            </div>
+            <div class="control-group">
+              <label>Stochastic Depth:</label>
+              <input type="range" id="stochasticDepth" min="0" max="0.5" value="0.1" step="0.05">
+              <span id="stochasticDepthDisplay">0.10</span>
+            </div>
+            <div class="control-group">
+              <label>Label Smoothing:</label>
+              <input type="range" id="labelSmoothing" min="0" max="0.3" value="0.1" step="0.05">
+              <span id="labelSmoothingDisplay">0.10</span>
+            </div>
+          </div>
+
+          <div class="math-formula">
+            <strong>Stochastic Depth Mathematics:</strong><br><br>
+            P(layer survives) = 1 - (l/L) × p<sub>drop</sub><br><br>
+            Where l = current layer, L = total layers, p<sub>drop</sub> = final drop rate<br><br>
+            <strong>Effect:</strong> Early layers always active, later layers randomly dropped
+          </div>
+        </div>
+
+        <div id="schedule" class="tab-content">
+          <h4>📅 Training Schedule</h4>
+          <div class="controls">
+            <div class="control-group">
+              <label>Total Epochs:</label>
+              <input type="number" id="totalEpochs" min="100" max="1000" value="300" step="50">
+            </div>
+            <div class="control-group">
+              <label>Warmup Epochs:</label>
+              <input type="number" id="warmupEpochs" min="5" max="50" value="20" step="5">
+            </div>
+            <div class="control-group">
+              <label>Batch Size:</label>
+              <select id="batchSize">
+                <option value="32">32</option>
+                <option value="64">64</option>
+                <option value="128" selected>128</option>
+                <option value="256">256</option>
+                <option value="512">512</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="generateTrainingRecipe()" class="primary">🧪 Generate Complete Recipe</button>
+        <div id="recipeOutput"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🎯 Layer Freezing Strategy Analysis</h3>
+      <div class="interactive-demo">
+        <div class="demo-title">❄️ Layer Freezing Optimizer</div>
+        <p><strong>Question:</strong> Which layers should you freeze when fine-tuning? The answer depends on task similarity to ImageNet and your data availability.</p>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Task Similarity to ImageNet:</label>
+            <select id="taskSimilarity">
+              <option value="very-high">Very High (Natural images, similar classes)</option>
+              <option value="high" selected>High (Natural images, different classes)</option>
+              <option value="medium">Medium (Different domain, similar concepts)</option>
+              <option value="low">Low (Medical, satellite, microscopy)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Available Training Data:</label>
+            <select id="dataAvailability">
+              <option value="very-low">&lt; 1K images</option>
+              <option value="low">1K - 5K images</option>
+              <option value="medium" selected>5K - 50K images</option>
+              <option value="high">50K+ images</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Computational Budget:</label>
+            <select id="computeBudget">
+              <option value="low">Low (hours)</option>
+              <option value="medium" selected>Medium (days)</option>
+              <option value="high">High (weeks)</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="optimizeLayerFreezing()">🎯 Optimize Freezing Strategy</button>
+        <div id="freezingVisualization"></div>
+        <div id="freezingRecommendation"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>📊 Evaluation & Validation Methodologies</h2>
+    <div class="step">
+      <h3>📈 Beyond Top-1 Accuracy: Comprehensive Evaluation</h3>
+      <p>Vision Transformers require more sophisticated evaluation than traditional CNNs. We need to assess not just accuracy, but also attention quality, robustness, and efficiency.</p>
+
+      <div class="interactive-demo">
+        <div class="demo-title">📊 Evaluation Metric Calculator</div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Model Predictions (Top-5):</label>
+            <textarea id="modelPreds" rows="4" placeholder="0.4,0.3,0.15,0.1,0.05">0.4,0.3,0.15,0.1,0.05</textarea>
+          </div>
+          <div class="control-group">
+            <label>True Label Index:</label>
+            <input type="number" id="trueLabel" min="0" max="4" value="1" step="1">
+          </div>
+          <div class="control-group">
+            <label>Confidence Threshold:</label>
+            <input type="range" id="confThreshold" min="0.1" max="0.9" value="0.5" step="0.1">
+            <span id="confDisplay">0.5</span>
+          </div>
+        </div>
+
+        <button onclick="calculateMetrics()">📊 Calculate All Metrics</button>
+        <div class="metric-grid" id="evaluationMetrics"></div>
+        <div id="metricsExplanation"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🎯 Attention Quality Assessment</h3>
+      <div class="math-formula">
+        <strong>Attention Entropy (Diversity Measure):</strong><br><br>
+        H(A<sub>i</sub>) = -∑<sub>j</sub> A<sub>ij</sub> log A<sub>ij</sub><br><br>
+        <strong>Attention Distance (Head Similarity):</strong><br><br>
+        D<sub>heads</sub> = 1 - (1/H²) ∑<sub>h,h'</sub> cos(A<sub>h</sub>, A<sub>h'</sub>)<br><br>
+        Where H = number of heads, A<sub>h</sub> = attention pattern for head h
+      </div>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🔍 Attention Quality Analyzer</div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Number of Heads:</label>
+            <select id="evalHeads">
+              <option value="8">8 Heads</option>
+              <option value="12" selected>12 Heads</option>
+              <option value="16">16 Heads</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Attention Pattern:</label>
+            <select id="attentionPattern">
+              <option value="diverse" selected>Diverse (Good)</option>
+              <option value="collapsed">Collapsed (Bad)</option>
+              <option value="uniform">Uniform (Concerning)</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="analyzeAttentionQuality()">🔍 Analyze Attention</button>
+        <div id="attentionQualityResults"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🚀 Production Optimization & Deployment</h2>
+    <div class="step">
+      <h3>⚡ Training Efficiency Optimization</h3>
+      <div class="interactive-demo">
+        <div class="demo-title">💾 Memory & Speed Optimization Calculator</div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>GPU Memory (GB):</label>
+            <select id="gpuMemory">
+              <option value="8">8 GB (RTX 3070)</option>
+              <option value="12">12 GB (RTX 3080Ti)</option>
+              <option value="16">16 GB (Tesla V100)</option>
+              <option value="24" selected>24 GB (RTX 3090)</option>
+              <option value="40">40 GB (A100)</option>
+              <option value="80">80 GB (A100 80GB)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Model Size:</label>
+            <select id="optimizationModel">
+              <option value="tiny">ViT-Tiny (5M)</option>
+              <option value="small">ViT-Small (22M)</option>
+              <option value="base" selected>ViT-Base (86M)</option>
+              <option value="large">ViT-Large (307M)</option>
+              <option value="huge">ViT-Huge (632M)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Optimization Techniques:</label>
+            <div style="display:flex;flex-direction:column;gap:5px;margin-top:5px">
+              <label><input type="checkbox" id="mixedPrecision" checked> Mixed Precision (FP16)</label>
+              <label><input type="checkbox" id="gradientCheckpoint"> Gradient Checkpointing</label>
+              <label><input type="checkbox" id="gradientAccumulation"> Gradient Accumulation</label>
+              <label><input type="checkbox" id="flashAttention"> Flash Attention</label>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="calculateOptimization()">⚡ Calculate Optimizations</button>
+        <div id="optimizationResults"></div>
+        <div id="optimizationCode"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>📋 Complete Training Code Generation</h3>
+      <div class="interactive-demo">
+        <div class="demo-title">💻 PyTorch + Hugging Face Code Generator</div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Task Type:</label>
+            <select id="codeTaskType">
+              <option value="classification" selected>Image Classification</option>
+              <option value="detection">Object Detection</option>
+              <option value="segmentation">Segmentation</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Fine-tuning Approach:</label>
+            <select id="finetuneApproach">
+              <option value="full">Full Fine-tuning</option>
+              <option value="partial" selected>Partial (Freeze Early)</option>
+              <option value="lora">LoRA Fine-tuning</option>
+              <option value="head-only">Head Only</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Model Variant:</label>
+            <select id="codeModelVariant">
+              <option value="google/vit-base-patch16-224" selected>ViT-Base-16 (224)</option>
+              <option value="google/vit-large-patch16-224">ViT-Large-16 (224)</option>
+              <option value="google/vit-base-patch32-224">ViT-Base-32 (224)</option>
+              <option value="facebook/deit-base-distilled-patch16-224">DeiT-Base (Distilled)</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="generateCompleteCode()" class="primary">💻 Generate Training Code</button>
+        <div id="generatedCode"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🏥 Real-World Case Study: Medical Imaging</h2>
+    <div class="step">
+      <h3>🩺 Chest X-ray Classification: Complete Walkthrough</h3>
+      <p>Let's implement a real medical imaging fine-tuning pipeline. This case study demonstrates the complete process from data preparation to model deployment for a critical healthcare application.</p>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🏥 Medical ViT Training Simulator</div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Medical Dataset:</label>
+            <select id="medicalDataset">
+              <option value="chestxray" selected>Chest X-ray (COVID/Pneumonia/Normal)</option>
+              <option value="skinlesion">Skin Lesion (Melanoma Detection)</option>
+              <option value="retinal">Retinal Images (Diabetic Retinopathy)</option>
+              <option value="pathology">Histopathology (Cancer Detection)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Class Imbalance Ratio:</label>
+            <select id="classImbalance">
+              <option value="balanced">Balanced (1:1:1)</option>
+              <option value="mild" selected>Mild (3:2:1)</option>
+              <option value="severe">Severe (10:3:1)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Data Quality:</label>
+            <select id="dataQuality">
+              <option value="research">Research Grade</option>
+              <option value="clinical" selected>Clinical Standard</option>
+              <option value="noisy">Noisy/Web-scraped</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="simulateMedicalTraining()">🏥 Simulate Medical Training</button>
+        <div id="medicalResults"></div>
+        <div id="medicalCodeExample"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🏆 Advanced Techniques & Best Practices</h2>
+    <div class="step">
+      <h3>🧬 LoRA for Vision Transformers</h3>
+      <p><strong>Low-Rank Adaptation (LoRA)</strong> enables parameter-efficient fine-tuning by learning low-rank decompositions of weight updates. For ViTs, this is particularly effective for attention weight matrices.</p>
+
+      <div class="math-formula">
+        <strong>LoRA Mathematics for Attention:</strong><br><br>
+        W<sub>q</sub>' = W<sub>q</sub> + ΔW = W<sub>q</sub> + BA<br><br>
+        Where:<br>
+        • W<sub>q</sub> ∈ ℝ<sup>d×d</sup>: Original query projection (frozen)<br>
+        • B ∈ ℝ<sup>d×r</sup>, A ∈ ℝ<sup>r×d</sup>: Low-rank matrices (trainable)<br>
+        • r ≪ d: Rank parameter (typically 4-64)<br>
+        • Parameters: 2dr instead of d²
+      </div>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🎛️ LoRA Configuration Optimizer</div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>LoRA Rank:</label>
+            <input type="range" id="loraRank" min="4" max="64" value="16" step="4">
+            <span id="loraRankDisplay">16</span>
+          </div>
+          <div class="control-group">
+            <label>LoRA Alpha:</label>
+            <input type="range" id="loraAlpha" min="8" max="128" value="32" step="8">
+            <span id="loraAlphaDisplay">32</span>
+          </div>
+          <div class="control-group">
+            <label>Target Modules:</label>
+            <div style="display:flex;flex-direction:column;gap:5px;margin-top:5px">
+              <label><input type="checkbox" id="loraQuery" checked> Query Projections</label>
+              <label><input type="checkbox" id="loraValue" checked> Value Projections</label>
+              <label><input type="checkbox" id="loraKey"> Key Projections</label>
+              <label><input type="checkbox" id="loraMLP"> MLP Layers</label>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="calculateLoRAEfficiency()">🧮 Calculate LoRA Efficiency</button>
+        <div id="loraResults"></div>
+        <div id="loraCodeExample"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🎯 Key Takeaways & Production Checklist</h3>
+      <div class="success">
+        <strong>✅ Essential Training Knowledge Mastered:</strong><br>
+        • Mathematical understanding of ViT training dynamics and why they differ from CNNs<br>
+        • Complete DeiT training recipe with hyperparameter justification<br>
+        • Transfer learning strategies for different data regimes and task similarities<br>
+        • Advanced techniques like LoRA for parameter-efficient fine-tuning<br>
+        • Comprehensive evaluation methodologies beyond simple accuracy<br>
+        • Production optimization techniques for real-world deployment
+      </div>
+      <div class="info">
+        <strong>🚀 Production Deployment Checklist:</strong><br>
+        ✅ Model selection based on task requirements and constraints<br>
+        ✅ Appropriate fine-tuning strategy for available data<br>
+        ✅ Robust evaluation including attention quality analysis<br>
+        ✅ Memory and speed optimization for target hardware<br>
+        ✅ Monitoring setup for production performance tracking<br>
+        ✅ A/B testing framework for continuous improvement
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global state
+    let activeTab = 'augmentation';
+
+    // Model specs (per-sample relative memory is a coarse heuristic for demo)
+    const modelSpecs = {
+      'tiny':  { params: 5.7,  layers: 12, dim:  192, heads:  3, memory: 1.2 },
+      'small': { params: 22,   layers: 12, dim:  384, heads:  6, memory: 2.8 },
+      'base':  { params: 86,   layers: 12, dim:  768, heads: 12, memory: 8.5 },
+      'large': { params: 307,  layers: 24, dim: 1024, heads: 16, memory: 24.2 },
+      'huge':  { params: 632,  layers: 32, dim: 1280, heads: 16, memory: 48.6 } // fixed typo
+    };
+
+    const huggingfaceModels = {
+      'classification': [
+        { name: 'google/vit-base-patch16-224', desc: 'ViT-Base, 86M params, IN-21k→IN-1k', size: 'base' },
+        { name: 'google/vit-large-patch16-224', desc: 'ViT-Large, 307M params, IN-21k→IN-1k', size: 'large' },
+        { name: 'facebook/deit-base-distilled-patch16-224', desc: 'DeiT-Base (distilled), 86M', size: 'base' },
+        { name: 'microsoft/swin-base-patch4-window7-224', desc: 'Swin Transformer (hierarchical)', size: 'base' }
+      ],
+      'detection': [
+        { name: 'facebook/detr-resnet-50', desc: 'DETR (ResNet backbone)', size: 'base' },
+        { name: 'microsoft/conditional-detr-resnet-50', desc: 'Conditional DETR', size: 'base' }
+      ],
+      'medical': [
+        { name: 'google/vit-base-patch16-224', desc: 'Reliable base for medical transfer', size: 'base' },
+        { name: 'microsoft/swin-tiny-patch4-window7-224', desc: 'Efficient w/ limited data', size: 'tiny' }
+      ]
+    };
+
+    // ---------- Init ----------
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeCharts();
+      updateLearningRateSchedule();
+      updateAugmentationDemo();
+      setupEventListeners();
+      // seed first recommendation
+      recommendModel();
+      // seed recipe/code areas
+      generateTrainingRecipe();
+      generateCompleteCode();
+    });
+
+    function setupEventListeners(){
+      // Schedule sliders
+      const baseLR = document.getElementById('baseLR');
+      const warmup = document.getElementById('warmupSteps');
+      const total = document.getElementById('totalSteps');
+      const conf = document.getElementById('confThreshold');
+
+      if(baseLR){ baseLR.addEventListener('input', () => { document.getElementById('baseLRDisplay').textContent = (+baseLR.value).toFixed(4); updateLearningRateSchedule(); });}
+      if(warmup){ warmup.addEventListener('input', () => { document.getElementById('warmupDisplay').textContent = warmup.value; updateLearningRateSchedule(); });}
+      if(total){ total.addEventListener('input', () => { document.getElementById('totalDisplay').textContent = total.value; updateLearningRateSchedule(); });}
+      if(conf){ conf.addEventListener('input', () => { document.getElementById('confDisplay').textContent = conf.value; });}
+
+      // Augmentation sliders
+      ['randAugMag','mixupAlpha','cutmixAlpha','erasingProb'].forEach(id=>{
+        const el = document.getElementById(id);
+        if(!el) return;
+        const spanId = ({randAugMag:'randAugDisplay',mixupAlpha:'mixupDisplay',cutmixAlpha:'cutmixDisplay',erasingProb:'erasingDisplay'})[id];
+        el.addEventListener('input', ()=>{
+          document.getElementById(spanId).textContent = el.value;
+          updateAugmentationDemo();
+        });
+      });
+
+      // Optimization controls: mirror displays
+      const wd = document.getElementById('weightDecay');
+      const b1 = document.getElementById('beta1');
+      const b2 = document.getElementById('beta2');
+      if(wd){ wd.addEventListener('input', ()=> document.getElementById('weightDecayDisplay').textContent = (+wd.value).toFixed(2));}
+      if(b1){ b1.addEventListener('input', ()=> document.getElementById('beta1Display').textContent = (+b1.value).toFixed(2));}
+      if(b2){ b2.addEventListener('input', ()=> document.getElementById('beta2Display').textContent = (+b2.value).toFixed(3));}
+
+      // LoRA sliders
+      const lrk = document.getElementById('loraRank');
+      const la = document.getElementById('loraAlpha');
+      if(lrk){ lrk.addEventListener('input', ()=> document.getElementById('loraRankDisplay').textContent = lrk.value); }
+      if(la){ la.addEventListener('input', ()=> document.getElementById('loraAlphaDisplay').textContent = la.value); }
+    }
+
+    // ---------- Charts ----------
+    function initializeCharts(){
+      const chartCanvas = document.getElementById('trainingChart');
+      if(chartCanvas){
+        // match drawing buffer to CSS size
+        chartCanvas.width = chartCanvas.clientWidth;
+        chartCanvas.height = chartCanvas.clientHeight;
+        const ctx = chartCanvas.getContext('2d');
+        ctx.fillStyle = '#f8f9fa';
+        ctx.fillRect(0,0,chartCanvas.width,chartCanvas.height);
+        ctx.fillStyle = '#2d2d2d';
+        ctx.font = '16px Arial'; ctx.textAlign = 'center';
+        ctx.fillText('Click "Simulate Training" to see dynamics', chartCanvas.width/2, chartCanvas.height/2);
+      }
+      const lrCanvas = document.getElementById('learningRateChart');
+      if(lrCanvas){
+        lrCanvas.width = lrCanvas.clientWidth;
+        lrCanvas.height = lrCanvas.clientHeight;
+        drawLearningRateSchedule();
+      }
+    }
+
+    function simulateTrainingDynamics(){
+      const datasetSize = document.getElementById('datasetSize').value;
+      const modelSize = document.getElementById('modelSize').value;
+      const strategy = document.getElementById('trainingStrategy').value;
+
+      const canvas = document.getElementById('trainingChart');
+      canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight;
+      const ctx = canvas.getContext('2d');
+
+      const epochs = 100;
+      const cnnCurve = generateTrainingCurve('cnn', datasetSize, strategy, epochs);
+      const vitCurve = generateTrainingCurve('vit', datasetSize, strategy, epochs);
+      drawTrainingCurves(ctx, cnnCurve, vitCurve, epochs);
+      updateTrainingAnalysis(datasetSize, modelSize, strategy, cnnCurve, vitCurve);
+    }
+
+    function generateTrainingCurve(modelType, datasetSize, strategy, epochs){
+      const curve = [];
+      const basePerformance = strategy === 'pretrained' ? 0.7 : 0.1;
+      const dataMultiplier = datasetSize === 'large' ? 1.0 : (datasetSize === 'medium' ? 0.8 : 0.6);
+
+      for(let epoch=0; epoch<=epochs; epoch++){
+        let performance;
+        if(modelType==='cnn'){
+          performance = basePerformance + (0.25 * dataMultiplier) * (1 - Math.exp(-epoch/20));
+        } else {
+          const vitBoost = datasetSize === 'large' ? 0.1 : (datasetSize === 'medium' ? 0.05 : -0.05);
+          performance = basePerformance + (0.3 + vitBoost) * (1 - Math.exp(-epoch/40)) * Math.min(1, epoch/30);
+        }
+        performance += (Math.random()-0.5)*0.02;
+        performance = Math.min(0.95, Math.max(0.1, performance));
+        curve.push(performance);
+      }
+      return curve;
+    }
+
+    function drawTrainingCurves(ctx, cnnCurve, vitCurve, epochs){
+      const w = ctx.canvas.width, h = ctx.canvas.height, pad = 40;
+      ctx.fillStyle = '#fff'; ctx.fillRect(0,0,w,h);
+      // axes
+      ctx.strokeStyle = '#2d2d2d'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(pad,h-pad); ctx.lineTo(w-pad,h-pad); ctx.moveTo(pad,h-pad); ctx.lineTo(pad,pad); ctx.stroke();
+
+      // helper
+      function plot(curve, color){
+        ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.beginPath();
+        for(let i=0;i<curve.length;i++){
+          const x = pad + (i/epochs)*(w-2*pad);
+          const y = h - pad - (curve[i]*(h-2*pad));
+          if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+        }
+        ctx.stroke();
+      }
+      plot(cnnCurve, '#dc3545');
+      plot(vitCurve, '#28a745');
+
+      ctx.fillStyle='#2d2d2d'; ctx.font='14px Arial'; ctx.fillText('Epochs', w-80, h-10);
+      ctx.save(); ctx.translate(15, h/2); ctx.rotate(-Math.PI/2); ctx.fillText('Accuracy', 0,0); ctx.restore();
+
+      // legend
+      ctx.fillStyle='#dc3545'; ctx.fillRect(w-150,20,15,15);
+      ctx.fillStyle='#2d2d2d'; ctx.font='12px Arial'; ctx.fillText('CNN (ResNet)', w-130,32);
+      ctx.fillStyle='#28a745'; ctx.fillRect(w-150,45,15,15);
+      ctx.fillStyle='#2d2d2d'; ctx.fillText('ViT', w-130,57);
+    }
+
+    function updateTrainingAnalysis(datasetSize, modelSize, strategy, cnnCurve, vitCurve){
+      const finalCNN = cnnCurve[cnnCurve.length-1];
+      const finalViT = vitCurve[vitCurve.length-1];
+      const vitAdvantage = finalViT - finalCNN;
+
+      let html = `
+        <div class="step">
+          <h4>📊 Training Dynamics Analysis</h4>
+          <div class="metric-grid">
+            <div class="metric-card"><div class="metric-value">${(finalCNN*100).toFixed(1)}%</div><div class="metric-label">CNN Final Accuracy</div></div>
+            <div class="metric-card"><div class="metric-value">${(finalViT*100).toFixed(1)}%</div><div class="metric-label">ViT Final Accuracy</div></div>
+            <div class="metric-card"><div class="metric-value">${vitAdvantage>0?'+':''}${(vitAdvantage*100).toFixed(1)}%</div><div class="metric-label">ViT Advantage</div></div>
+            <div class="metric-card"><div class="metric-value">${strategy==='pretrained'?'5x':'10x'}</div><div class="metric-label">Training Speed Boost</div></div>
+          </div>`;
+      if(vitAdvantage > 0.05){
+        html += `<div class="success"><strong>✅ ViT Advantage Achieved!</strong> With sufficient data and proper training, ViT outperforms CNNs by capturing long-range dependencies and global patterns.</div>`;
+      } else if (datasetSize==='small'){
+        html += `<div class="warning"><strong>⚠️ Data Limitation:</strong> ViTs typically need more data than CNNs. Consider augmentation, transfer learning, or a smaller ViT variant.</div>`;
+      }
+      html += `</div>`;
+      document.getElementById('trainingAnalysis').innerHTML = html;
+    }
+
+    // ---------- LR Schedule ----------
+    function updateLearningRateSchedule(){
+      const baseLR = parseFloat(document.getElementById('baseLR').value);
+      const warmupSteps = parseInt(document.getElementById('warmupSteps').value);
+      const totalSteps = parseInt(document.getElementById('totalSteps').value);
+      const scheduleType = document.getElementById('scheduleType').value;
+
+      document.getElementById('baseLRDisplay').textContent = baseLR.toFixed(4);
+      document.getElementById('warmupDisplay').textContent = warmupSteps;
+      document.getElementById('totalDisplay').textContent = totalSteps;
+
+      drawLearningRateSchedule(baseLR, warmupSteps, totalSteps, scheduleType);
+      document.getElementById('scheduleAnalysis').innerHTML = `
+        <div class="info">
+          <strong>📊 Schedule Analysis:</strong><br>
+          <strong>Peak LR:</strong> ${baseLR.toFixed(4)} (reached after ${warmupSteps} steps)<br>
+          <strong>Warmup Ratio:</strong> ${(warmupSteps/totalSteps*100).toFixed(1)}% of total training<br>
+          <strong>Final LR:</strong> ${scheduleType==='cosine' ? (baseLR*0.01).toFixed(4) : 'Varies'}<br><br>
+          <strong>💡 Why This Works:</strong> Gradual warmup prevents attention collapse; decay enables fine convergence.
+        </div>`;
+    }
+
+    function drawLearningRateSchedule(baseLR=0.001, warmupSteps=2000, totalSteps=50000, scheduleType='cosine'){
+      const canvas = document.getElementById('learningRateChart'); if(!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width, h = canvas.height, pad=40;
+
+      ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
+
+      const lrValues = [];
+      const stepSize = Math.max(1, Math.floor(totalSteps/200));
+      for(let step=0; step<=totalSteps; step+=stepSize){
+        let lr;
+        if(step < warmupSteps){
+          lr = baseLR * (step / warmupSteps);
+        } else {
+          const progress = (step-warmupSteps)/(totalSteps-warmupSteps);
+          if(scheduleType==='cosine') lr = baseLR * (0.5*(1+Math.cos(Math.PI*progress)));
+          else if(scheduleType==='linear') lr = baseLR*(1-progress);
+          else lr = baseLR*Math.exp(-5*progress);
+        }
+        lrValues.push(lr);
+      }
+
+      // axes
+      ctx.strokeStyle='#2d2d2d'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(pad,h-pad); ctx.lineTo(w-pad,h-pad); ctx.moveTo(pad,h-pad); ctx.lineTo(pad,pad); ctx.stroke();
+
+      // curve
+      ctx.strokeStyle='#28a745'; ctx.lineWidth=3; ctx.beginPath();
+      const maxLR = Math.max(...lrValues);
+      for(let i=0;i<lrValues.length;i++){
+        const x = pad + (i/(lrValues.length-1))*(w-2*pad);
+        const y = h - pad - (lrValues[i]/maxLR)*(h-2*pad);
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+
+      // warmup marker
+      const warmupX = pad + (warmupSteps/totalSteps)*(w-2*pad);
+      ctx.strokeStyle='#dc3545'; ctx.lineWidth=2; ctx.setLineDash([5,5]);
+      ctx.beginPath(); ctx.moveTo(warmupX,pad); ctx.lineTo(warmupX,h-pad); ctx.stroke(); ctx.setLineDash([]);
+
+      ctx.fillStyle='#2d2d2d'; ctx.font='14px Arial'; ctx.fillText('Steps', w-80, h-10);
+      ctx.save(); ctx.translate(15,h/2); ctx.rotate(-Math.PI/2); ctx.fillText('Learning Rate',0,0); ctx.restore();
+      ctx.fillStyle='#dc3545'; ctx.font='12px Arial'; ctx.fillText('Warmup End', warmupX-30, pad-10);
+    }
+
+    // ---------- Tabs & Augmentation ----------
+    function switchTab(tabName, el){
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      if(el) el.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+      document.getElementById(tabName).classList.add('active');
+      activeTab = tabName;
+      if(tabName==='augmentation') updateAugmentationDemo();
+    }
+
+    function updateAugmentationDemo(){
+      const demo = document.getElementById('augmentationDemo'); if(!demo) return;
+      const randAug = document.getElementById('randAugMag').value;
+      const mixup = document.getElementById('mixupAlpha').value;
+      const cutmix = document.getElementById('cutmixAlpha').value;
+      const erasing = document.getElementById('erasingProb').value;
+
+      demo.innerHTML = `
+        <div class="aug-example"><div class="aug-visual">Original</div><div>Base Image</div></div>
+        <div class="aug-example"><div class="aug-visual" style="background:linear-gradient(45deg,#ffeaa7,#fab1a0)">RandAug</div><div>Magnitude: ${randAug}</div></div>
+        <div class="aug-example"><div class="aug-visual" style="background:linear-gradient(45deg,#a29bfe,#6c5ce7)">MixUp</div><div>Alpha: ${mixup}</div></div>
+        <div class="aug-example"><div class="aug-visual" style="background:linear-gradient(45deg,#fd79a8,#e84393)">CutMix</div><div>Alpha: ${cutmix}</div></div>
+        <div class="aug-example"><div class="aug-visual" style="background:linear-gradient(45deg,#00b894,#00a085)">Erasing</div><div>Prob: ${erasing}</div></div>`;
+    }
+
+    function generateTrainingRecipe(){
+      const randAug = document.getElementById('randAugMag')?.value || '9';
+      const mixup = document.getElementById('mixupAlpha')?.value || '0.8';
+      const cutmix = document.getElementById('cutmixAlpha')?.value || '1.0';
+      const weightDecay = document.getElementById('weightDecay')?.value || '0.05';
+
+      const recipe = `# 🧪 DeiT-Style Fine-tuning (Hugging Face Trainer)
+from transformers import ViTImageProcessor, ViTForImageClassification, TrainingArguments, Trainer, EarlyStoppingCallback
+from datasets import load_dataset
+import numpy as np
+import evaluate
+import torch
+
+model_name = "google/vit-base-patch16-224"
+num_classes = 100  # <-- set this
+
+processor = ViTImageProcessor.from_pretrained(model_name)
+accuracy = evaluate.load("accuracy")
+
+def transform(batch):
+    images = [img.convert("RGB") for img in batch["image"]]
+    inputs = processor(images, return_tensors="pt")
+    batch["pixel_values"] = inputs["pixel_values"]
+    return batch
+
+ds = load_dataset("beans")  # <-- replace with your dataset
+ds = ds.with_transform(transform)
+
+def collate_fn(examples):
+    pixel_values = torch.stack([ex["pixel_values"] for ex in examples])
+    labels = torch.tensor([ex["labels"] if "labels" in ex else ex["label"] for ex in examples])
+    return {"pixel_values": pixel_values, "labels": labels}
+
+model = ViTForImageClassification.from_pretrained(
+    model_name,
+    num_labels=num_classes,
+    ignore_mismatched_sizes=True
+)
+
+args = TrainingArguments(
+    output_dir="./vit-finetuned",
+    per_device_train_batch_size=32,
+    per_device_eval_batch_size=64,
+    num_train_epochs=100,
+    learning_rate=5e-4,
+    warmup_ratio=0.1,
+    weight_decay=${weightDecay},
+    logging_steps=50,
+    evaluation_strategy="steps",
+    eval_steps=200,
+    save_steps=200,
+    save_total_limit=2,
+    load_best_model_at_end=True,
+    metric_for_best_model="accuracy",
+    fp16=True,
+    remove_unused_columns=False,
+    dataloader_num_workers=4,
+    report_to="none",
+)
+
+def compute_metrics(eval_pred):
+    logits, labels = eval_pred
+    preds = np.argmax(logits, axis=1)
+    return {"accuracy": accuracy.compute(predictions=preds, references=labels)["accuracy"]}
+
+trainer = Trainer(
+    model=model,
+    args=args,
+    train_dataset=ds["train"],
+    eval_dataset=ds.get("validation", ds["test"]),
+    data_collator=collate_fn,
+    compute_metrics=compute_metrics,
+    callbacks=[EarlyStoppingCallback(early_stopping_patience=5)]
+)
+
+trainer.train()
+print("✅ Done!")`;
+
+      const out = document.getElementById('recipeOutput');
+      out.innerHTML = `
+        <div class="code-block">
+          <div class="code-header">🧪 Complete DeiT-Inspired Recipe (Trainer)</div>
+          <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>${recipe.replace(/</g,'&lt;')}</pre>
+        </div>`;
+    }
+
+    // ---------- Strategies ----------
+    function selectStrategy(strategyType, el){
+      document.querySelectorAll('.strategy-card').forEach(c=>c.classList.remove('selected'));
+      if(el) el.closest('.strategy-card').classList.add('selected');
+
+      const strategies = {
+        'full':   {description:'All parameters trainable, maximum adaptation potential', dataRequirement:'Large (10K+ images recommended)', computeCost:'High', performance:'Highest potential accuracy', whenToUse:'Large datasets, domain-specific tasks'},
+        'partial':{description:'Freeze early layers, fine-tune later layers + head',     dataRequirement:'Medium (1K+)', computeCost:'Medium', performance:'High accuracy with efficiency', whenToUse:'Medium datasets, similar domains'},
+        'head':  {description:'Freeze backbone, train only classification head',         dataRequirement:'Small (100+)', computeCost:'Very Low', performance:'Limited adaptation capability', whenToUse:'Very small datasets, quick prototyping'},
+        'lora':  {description:'Low-rank adaptation matrices, parameter efficient',       dataRequirement:'Small–Medium (500+)', computeCost:'Low', performance:'Good adaptation for few params', whenToUse:'Multiple tasks, memory constraints'}
+      };
+
+      const s = strategies[strategyType];
+      document.getElementById('strategyAnalysis').innerHTML = `
+        <div class="info">
+          <strong>🎯 ${strategyType[0].toUpperCase()+strategyType.slice(1)} Strategy Analysis:</strong><br><br>
+          <strong>Description:</strong> ${s.description}<br>
+          <strong>Data Requirement:</strong> ${s.dataRequirement}<br>
+          <strong>Compute Cost:</strong> ${s.computeCost}<br>
+          <strong>Performance:</strong> ${s.performance}<br>
+          <strong>When to Use:</strong> ${s.whenToUse}
+        </div>`;
+    }
+
+    // ---------- Model Recommend ----------
+    function recommendModel(){
+      const task = document.getElementById('taskType').value;
+      const datasetSize = document.getElementById('datasetSizeTask').value;
+      const hardware = document.getElementById('hardwareConstraint').value;
+      const priority = document.getElementById('accuracyPriority').value;
+
+      let recs = [];
+      if(task==='medical' || datasetSize==='tiny'){
+        recs = [
+          { model:'google/vit-base-patch16-224', reason:'Strong pre-training for medical transfer', rank:1 },
+          { model:'microsoft/swin-tiny-patch4-window7-224', reason:'Efficient for limited data', rank:2 },
+          { model:'facebook/deit-base-distilled-patch16-224', reason:'Data-efficient training', rank:3 }
+        ];
+      } else if (hardware==='mobile'){
+        recs = [
+          { model:'apple/mobilevit-small', reason:'Optimized for mobile', rank:1 },
+          { model:'microsoft/swin-tiny-patch4-window7-224', reason:'Lightweight transformer', rank:2 },
+          { model:'facebook/deit-small-patch16-224', reason:'Smaller DeiT variant', rank:3 }
+        ];
+      } else if (priority==='accuracy' && hardware==='multi-gpu'){
+        recs = [
+          { model:'google/vit-large-patch16-224', reason:'Maximum accuracy potential', rank:1 },
+          { model:'google/vit-huge-patch14-224-in21k', reason:'Largest ViT variant', rank:2 },
+          { model:'microsoft/swin-large-patch4-window12-384', reason:'Hierarchical efficiency', rank:3 }
+        ];
+      } else {
+        recs = [
+          { model:'google/vit-base-patch16-224', reason:'Balanced performance & efficiency', rank:1 },
+          { model:'facebook/deit-base-distilled-patch16-224', reason:'Optimized training recipe', rank:2 },
+          { model:'microsoft/swin-base-patch4-window7-224', reason:'Hierarchical attention', rank:3 }
+        ];
+      }
+
+      const grid = document.getElementById('modelRecommendations');
+      grid.innerHTML = '';
+      recs.forEach((rec,i)=>{
+        const card = document.createElement('div');
+        card.className = 'model-card' + (i===0?' selected':'');
+        card.innerHTML = `
+          <div class="model-name">#${rec.rank} ${rec.model.split('/')[1]}</div>
+          <div class="model-specs">${rec.model}<br>${rec.reason}</div>`;
+        card.onclick = () => selectRecommendedModel(rec.model, i, task);
+        grid.appendChild(card);
+      });
+
+      generateImplementationCode(recs[0].model, task);
+    }
+
+    function selectRecommendedModel(modelName, index, task){
+      document.querySelectorAll('.model-card').forEach((c,i)=> c.classList.toggle('selected', i===index));
+      generateImplementationCode(modelName, task);
+    }
+
+    function generateImplementationCode(modelName, task){
+      let code = '';
+      if(task==='classification' || task==='satellite' || task==='segmentation'){
+        code = `# Image Classification Fine-tuning (HF Trainer)
+from transformers import ViTImageProcessor, ViTForImageClassification, TrainingArguments, Trainer
+from datasets import load_dataset
+import numpy as np, evaluate, torch
+
+model_name = "${modelName}"
+num_classes = 100  # <-- set this
+processor = ViTImageProcessor.from_pretrained(model_name)
+accuracy = evaluate.load("accuracy")
+
+def transform(batch):
+    images = [img.convert("RGB") for img in batch["image"]]
+    inputs = processor(images, return_tensors="pt")
+    batch["pixel_values"] = inputs["pixel_values"]
+    return batch
+
+ds = load_dataset("beans")  # replace
+ds = ds.with_transform(transform)
+
+def collate_fn(examples):
+    pixel_values = torch.stack([e["pixel_values"] for e in examples])
+    labels = torch.tensor([e.get("labels", e.get("label")) for e in examples])
+    return {"pixel_values": pixel_values, "labels": labels}
+
+model = ViTForImageClassification.from_pretrained(model_name, num_labels=num_classes, ignore_mismatched_sizes=True)
+
+args = TrainingArguments(output_dir="./out", per_device_train_batch_size=32, per_device_eval_batch_size=64,
+                         num_train_epochs=50, learning_rate=5e-4, warmup_ratio=0.1, weight_decay=0.05,
+                         fp16=True, evaluation_strategy="steps", eval_steps=200, save_steps=200,
+                         load_best_model_at_end=True, metric_for_best_model="accuracy",
+                         remove_unused_columns=False, report_to="none")
+
+def compute_metrics(e):
+    logits, labels = e
+    preds = np.argmax(logits, axis=1)
+    return {"accuracy": accuracy.compute(predictions=preds, references=labels)["accuracy"]}
+
+Trainer(model=model, args=args, train_dataset=ds["train"], eval_dataset=ds.get("validation", ds["test"]),
+        data_collator=collate_fn, compute_metrics=compute_metrics).train()`;
+      } else if (task==='medical'){
+        code = `# Medical Imaging Fine-tuning (class weights + smaller LR)
+from transformers import ViTImageProcessor, ViTForImageClassification, TrainingArguments, Trainer
+from datasets import load_dataset
+import numpy as np, evaluate, torch
+
+model_name = "${modelName}"
+num_classes = 3   # e.g., COVID/Pneumonia/Normal
+processor = ViTImageProcessor.from_pretrained(model_name)
+accuracy = evaluate.load("accuracy")
+
+ds = load_dataset("your_med_dataset")  # replace
+def transform(batch):
+    images = [img.convert("RGB") for img in batch["image"]]
+    inputs = processor(images, return_tensors="pt")
+    batch["pixel_values"] = inputs["pixel_values"]
+    return batch
+ds = ds.with_transform(transform)
+
+def collate_fn(examples):
+    pixel_values = torch.stack([e["pixel_values"] for e in examples])
+    labels = torch.tensor([e["label"] for e in examples])
+    return {"pixel_values": pixel_values, "labels": labels}
+
+model = ViTForImageClassification.from_pretrained(model_name, num_labels=num_classes, ignore_mismatched_sizes=True)
+
+# Freeze early layers (domain transfer)
+for p in model.vit.embeddings.parameters(): p.requires_grad = False
+for i in range(4):
+    for p in model.vit.encoder.layer[i].parameters(): p.requires_grad = False
+
+args = TrainingArguments(output_dir="./out-med", per_device_train_batch_size=16, per_device_eval_batch_size=32,
+                         num_train_epochs=30, learning_rate=1e-4, warmup_ratio=0.1, weight_decay=0.01,
+                         fp16=True, evaluation_strategy="steps", eval_steps=200, save_steps=200,
+                         load_best_model_at_end=True, metric_for_best_model="accuracy",
+                         remove_unused_columns=False, report_to="none")
+
+def compute_metrics(e):
+    logits, labels = e
+    preds = np.argmax(logits, axis=1)
+    return {"accuracy": accuracy.compute(predictions=preds, references=labels)["accuracy"]}
+
+Trainer(model=model, args=args, train_dataset=ds["train"], eval_dataset=ds.get("validation", ds["test"]),
+        data_collator=collate_fn, compute_metrics=compute_metrics).train()`;
+      }
+
+      document.getElementById('implementationCode').innerHTML = `
+        <div class="code-block">
+          <div class="code-header">📝 ${task} Implementation</div>
+          <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>${code.replace(/</g,'&lt;')}</pre>
+        </div>`;
+    }
+
+    // ---------- Freezing ----------
+    function optimizeLayerFreezing(){
+      const similarity = document.getElementById('taskSimilarity').value;
+      const dataAvail = document.getElementById('dataAvailability').value;
+      const computeBudget = document.getElementById('computeBudget').value;
+
+      let recommendation;
+      if(dataAvail==='very-low' || computeBudget==='low'){
+        recommendation = { strategy:'Head-only training', freezeLayers:[0,1,2,3,4,5,6,7,8,9,10,11], trainLayers:['classification_head'], reasoning:'Insufficient data/compute for backbone fine-tuning' };
+      } else if (similarity==='very-high' || similarity==='high'){
+        recommendation = { strategy:'Partial freezing (early layers)', freezeLayers:[0,1,2,3,4,5], trainLayers:[6,7,8,9,10,11,'classification_head'], reasoning:'Early layers contain transferable low-level features' };
+      } else if (dataAvail==='high' && computeBudget==='high'){
+        recommendation = { strategy:'Full fine-tuning', freezeLayers:[], trainLayers:[0,1,2,3,4,5,6,7,8,9,10,11,'classification_head'], reasoning:'Sufficient resources for complete adaptation' };
+      } else {
+        recommendation = { strategy:'LoRA fine-tuning', freezeLayers:[0,1,2,3,4,5,6,7,8,9,10,11], trainLayers:['lora_adapters','classification_head'], reasoning:'Parameter-efficient adaptation for medium data/compute' };
+      }
+
+      // visualize
+      const vis = document.getElementById('freezingVisualization');
+      vis.innerHTML = `
+        <div class="gradient-flow" style="flex-direction:column;gap:10px">
+          <h4 style="text-align:center;margin-bottom:15px">🧊 Recommended Layer Configuration</h4>
+          ${Array.from({length:12}, (_,i)=>{
+            const isFrozen = recommendation.freezeLayers.includes(i);
+            const bg = isFrozen ? '#f8d7da' : '#d4edda';
+            const fg = isFrozen ? '#721c24' : '#155724';
+            const status = isFrozen ? '❄️ Frozen' : '🔥 Trainable';
+            return `<div class="layer-box" style="background:${bg};color:${fg};margin:2px">Layer ${i}<br><small>${status}</small></div>`;
+          }).join('')}
+          <div class="layer-box" style="background:#d4edda;color:#155724">Classification Head<br><small>🔥 Trainable</small></div>
+        </div>`;
+
+      document.getElementById('freezingRecommendation').innerHTML = `
+        <div class="success">
+          <strong>🎯 Recommended Strategy: ${recommendation.strategy}</strong><br><br>
+          <strong>Reasoning:</strong> ${recommendation.reasoning}<br>
+          <strong>Frozen Layers:</strong> ${recommendation.freezeLayers.length?recommendation.freezeLayers.join(', '):'None'}<br>
+          <strong>Trainable:</strong> ${recommendation.trainLayers.join(', ')}<br><br>
+          <strong>Expected Benefits:</strong><br>
+          • ${dataAvail==='very-low'?'Prevents overfitting on small dataset':'Balanced adaptation & efficiency'}<br>
+          • ${computeBudget==='low'?'Reduced training time & memory usage':'Makes full use of available compute'}<br>
+          • ${similarity==='low'?'Allows domain-specific adaptation':'Leverages pre-trained features effectively'}
+        </div>`;
+    }
+
+    // ---------- Metrics ----------
+    function calculateMetrics(){
+      const predsText = document.getElementById('modelPreds').value;
+      const trueLabel = parseInt(document.getElementById('trueLabel').value);
+      const threshold = parseFloat(document.getElementById('confThreshold').value);
+      const predictions = predsText.split(',').map(x=>parseFloat(x.trim()));
+
+      const top1Acc = predictions.indexOf(Math.max(...predictions)) === trueLabel ? 1 : 0;
+      const top5Acc = predictions.map((p,i)=>({prob:p,idx:i})).sort((a,b)=>b.prob-a.prob).slice(0,5).some(p=>p.idx===trueLabel) ? 1 : 0;
+      const confidence = Math.max(...predictions);
+      const entropy = -predictions.reduce((s,p)=> s + (p>0 ? p*Math.log2(p) : 0), 0);
+      const calibration = Math.abs(confidence - top1Acc);
+
+      document.getElementById('evaluationMetrics').innerHTML = `
+        <div class="metric-card"><div class="metric-value">${(top1Acc*100).toFixed(1)}%</div><div class="metric-label">Top-1 Accuracy</div></div>
+        <div class="metric-card"><div class="metric-value">${(top5Acc*100).toFixed(1)}%</div><div class="metric-label">Top-5 Accuracy</div></div>
+        <div class="metric-card"><div class="metric-value">${confidence.toFixed(3)}</div><div class="metric-label">Confidence</div></div>
+        <div class="metric-card"><div class="metric-value">${entropy.toFixed(3)}</div><div class="metric-label">Prediction Entropy</div></div>
+        <div class="metric-card"><div class="metric-value">${calibration.toFixed(3)}</div><div class="metric-label">Calibration Error</div></div>
+        <div class="metric-card"><div class="metric-value">${confidence>threshold?'High':'Low'}</div><div class="metric-label">Confidence Level</div></div>`;
+
+      document.getElementById('metricsExplanation').innerHTML = `
+        <div class="info">
+          <strong>📊 Metric Explanations:</strong><br>
+          <strong>Confidence:</strong> Max predicted probability<br>
+          <strong>Entropy:</strong> Uncertainty (lower is more confident)<br>
+          <strong>Calibration Error:</strong> Match between confidence and accuracy (lower is better)
+        </div>`;
+    }
+
+    function analyzeAttentionQuality(){
+      const heads = parseInt(document.getElementById('evalHeads').value);
+      const pattern = document.getElementById('attentionPattern').value;
+
+      let entropy, diversity, recommendation;
+      if(pattern==='diverse'){ entropy = 2.8 + Math.random()*0.4; diversity = 0.7 + Math.random()*0.2; recommendation='✅ Excellent attention quality'; }
+      else if(pattern==='collapsed'){ entropy = 0.5 + Math.random()*0.3; diversity = 0.1 + Math.random()*0.2; recommendation='❌ Attention collapse detected'; }
+      else { entropy = 3.8 + Math.random()*0.2; diversity = 0.9 + Math.random()*0.1; recommendation='⚠️ Overly uniform attention'; }
+
+      document.getElementById('attentionQualityResults').innerHTML = `
+        <div class="metric-grid">
+          <div class="metric-card"><div class="metric-value">${entropy.toFixed(2)}</div><div class="metric-label">Avg Attention Entropy</div></div>
+          <div class="metric-card"><div class="metric-value">${diversity.toFixed(2)}</div><div class="metric-label">Head Diversity Score</div></div>
+          <div class="metric-card"><div class="metric-value">${heads}</div><div class="metric-label">Attention Heads</div></div>
+        </div>
+        <div class="${pattern==='diverse'?'success':(pattern==='collapsed'?'warning':'info')}"><strong>${recommendation}</strong></div>`;
+    }
+
+    // ---------- Optimization ----------
+    function calculateOptimization(){
+      const gpuMem = parseInt(document.getElementById('gpuMemory').value);
+      const modelSize = document.getElementById('optimizationModel').value;
+      const mixedPrec = document.getElementById('mixedPrecision').checked;
+      const gradCheckpoint = document.getElementById('gradientCheckpoint').checked;
+      const gradAccum = document.getElementById('gradientAccumulation').checked;
+      const flashAttn = document.getElementById('flashAttention').checked;
+
+      const specs = modelSpecs[modelSize];
+      let memoryUsage = specs.memory; // GB per sample (rough demo metric)
+      let speedMultiplier = 1.0;
+      let maxBatchSize = Math.max(1, Math.floor(gpuMem / memoryUsage));
+
+      if(mixedPrec){ memoryUsage *= 0.5; speedMultiplier *= 1.6; maxBatchSize = Math.max(1, Math.floor(gpuMem/memoryUsage)); }
+      if(gradCheckpoint){ memoryUsage *= 0.3; speedMultiplier *= 0.8; maxBatchSize = Math.max(1, Math.floor(gpuMem/memoryUsage)); }
+      if(flashAttn){ memoryUsage *= 0.7; speedMultiplier *= 1.8; maxBatchSize = Math.max(1, Math.floor(gpuMem/memoryUsage)); }
+
+      const effectiveBatch = gradAccum ? maxBatchSize * 4 : maxBatchSize;
+
+      document.getElementById('optimizationResults').innerHTML = `
+        <div class="metric-grid">
+          <div class="metric-card"><div class="metric-value">${memoryUsage.toFixed(1)} GB</div><div class="metric-label">Memory per Sample</div></div>
+          <div class="metric-card"><div class="metric-value">${maxBatchSize}</div><div class="metric-label">Max Batch Size</div></div>
+          <div class="metric-card"><div class="metric-value">${effectiveBatch}</div><div class="metric-label">Effective Batch Size</div></div>
+          <div class="metric-card"><div class="metric-value">${speedMultiplier.toFixed(1)}x</div><div class="metric-label">Speed Improvement</div></div>
+        </div>
+        <div class="${memoryUsage < gpuMem/4 ? 'success' : 'warning'}">
+          <strong>💾 Memory Analysis:</strong><br>
+          Uses ${(memoryUsage/gpuMem*100).toFixed(1)}% of available GPU memory per sample.
+          ${memoryUsage < gpuMem/4 ? 'Plenty of headroom for larger batches.' : 'Consider more optimizations or a smaller model.'}
+        </div>`;
+
+      generateOptimizationCode(mixedPrec, gradCheckpoint, gradAccum, flashAttn, maxBatchSize);
+    }
+
+    function generateOptimizationCode(mixedPrec, gradCheckpoint, gradAccum, flashAttn, batchSize){
+      const code = `# 🚀 Production Training Optimizations (HF Trainer)
+from transformers import ViTForImageClassification, TrainingArguments, Trainer
+from datasets import load_dataset
+import numpy as np, evaluate, torch
+
+model = ViTForImageClassification.from_pretrained("google/vit-base-patch16-224", num_labels=100)
+
+${gradCheckpoint ? 'model.gradient_checkpointing_enable()\n' : ''}args = TrainingArguments(
+    output_dir="./results",
+    per_device_train_batch_size=${batchSize},
+    ${gradAccum ? 'gradient_accumulation_steps=4,\n    ' : ''}${mixedPrec ? 'fp16=True,\n    ' : ''}max_grad_norm=1.0,
+    warmup_steps=2000,
+    learning_rate=5e-4,
+    weight_decay=0.05,
+    logging_steps=100,
+    evaluation_strategy="steps",
+    eval_steps=500,
+    save_steps=1000,
+    remove_unused_columns=False
+)
+
+# Your Trainer(...) here
+print("🎯 Optimized training setup ready.")${flashAttn ? '\n# Note: Integrating FlashAttention requires model-side changes (flash-attn package).' : ''}`;
+
+      document.getElementById('optimizationCode').innerHTML = `
+        <div class="code-block">
+          <div class="code-header">⚡ Optimization Code</div>
+          <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>${code.replace(/</g,'&lt;')}</pre>
+        </div>`;
+    }
+
+    // ---------- LoRA ----------
+    function calculateLoRAEfficiency(){
+      const rank = parseInt(document.getElementById('loraRank').value);
+      const alpha = parseInt(document.getElementById('loraAlpha').value);
+      const targetQuery = document.getElementById('loraQuery').checked;
+      const targetValue = document.getElementById('loraValue').checked;
+      const targetKey   = document.getElementById('loraKey').checked;
+      const targetMLP   = document.getElementById('loraMLP').checked;
+
+      const baseDim = 768, numLayers = 12, totalParams = 86 * 1e6;
+      let loraParams = 0; const targets = [];
+      if(targetQuery){ loraParams += numLayers * 2 * rank * baseDim; targets.push('query'); }
+      if(targetValue){ loraParams += numLayers * 2 * rank * baseDim; targets.push('value'); }
+      if(targetKey){   loraParams += numLayers * 2 * rank * baseDim; targets.push('key'); }
+      if(targetMLP){   loraParams += numLayers * 2 * rank * (baseDim*4); targets.push('mlp'); }
+
+      const reduction = ((totalParams - loraParams)/totalParams)*100;
+      const memSave = reduction * 0.8;
+
+      document.getElementById('loraResults').innerHTML = `
+        <div class="metric-grid">
+          <div class="metric-card"><div class="metric-value">${(loraParams/1e6).toFixed(1)}M</div><div class="metric-label">Trainable Parameters</div></div>
+          <div class="metric-card"><div class="metric-value">${reduction.toFixed(1)}%</div><div class="metric-label">Parameter Reduction</div></div>
+          <div class="metric-card"><div class="metric-value">${memSave.toFixed(1)}%</div><div class="metric-label">Memory Savings</div></div>
+          <div class="metric-card"><div class="metric-value">${(alpha/rank).toFixed(1)}</div><div class="metric-label">Scaling (α/r)</div></div>
+        </div>
+        <div class="success"><strong>🎛️ LoRA Configuration:</strong> Targets: ${targets.join(', ')||'none'} | Rank=${rank} | Alpha=${alpha}</div>`;
+
+      const loraCode = `# 🎛️ LoRA Fine-tuning with PEFT
+from peft import LoraConfig, get_peft_model, TaskType
+from transformers import ViTForImageClassification, TrainingArguments, Trainer
+import numpy as np, evaluate
+
+base = ViTForImageClassification.from_pretrained("google/vit-base-patch16-224", num_labels=100)
+
+cfg = LoraConfig(task_type=TaskType.IMAGE_CLASSIFICATION, r=${rank}, lora_alpha=${alpha},
+                 target_modules=[${targets.map(t=>`"${t}"`).join(', ')}], lora_dropout=0.1, bias="none")
+model = get_peft_model(base, cfg)
+model.print_trainable_parameters()
+
+# ... Trainer(...) as usual
+print("✅ LoRA ready")`;
+
+      document.getElementById('loraCodeExample').innerHTML = `
+        <div class="code-block">
+          <div class="code-header">🎛️ LoRA Implementation</div>
+          <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>${loraCode.replace(/</g,'&lt;')}</pre>
+        </div>`;
+    }
+
+    // ---------- Medical ----------
+    function simulateMedicalTraining(){
+      const dataset = document.getElementById('medicalDataset').value;
+      const imbalance = document.getElementById('classImbalance').value;
+      const quality = document.getElementById('dataQuality').value;
+
+      let baseAcc, auc, sens;
+      if(quality==='research' && imbalance==='balanced'){ baseAcc=0.92; auc=0.96; sens=0.89; }
+      else if(quality==='clinical'){ baseAcc=0.87; auc=0.91; sens=0.84; }
+      else { baseAcc=0.79; auc=0.83; sens=0.76; }
+
+      const mult = {
+        'chestxray': {acc:1.0, auc:1.0, sens:1.0},
+        'skinlesion': {acc:0.95, auc:0.97, sens:0.92},
+        'retinal': {acc:0.98, auc:0.99, sens:0.96},
+        'pathology': {acc:0.85, auc:0.88, sens:0.82}
+      }[dataset];
+
+      baseAcc *= mult.acc; auc *= mult.auc; sens *= mult.sens;
+
+      document.getElementById('medicalResults').innerHTML = `
+        <div class="metric-grid">
+          <div class="metric-card"><div class="metric-value">${(baseAcc*100).toFixed(1)}%</div><div class="metric-label">Overall Accuracy</div></div>
+          <div class="metric-card"><div class="metric-value">${auc.toFixed(3)}</div><div class="metric-label">AUC Score</div></div>
+          <div class="metric-card"><div class="metric-value">${(sens*100).toFixed(1)}%</div><div class="metric-label">Sensitivity</div></div>
+          <div class="metric-card"><div class="metric-value">${imbalance==='severe'?'3.2x':'1.8x'}</div><div class="metric-label">Training Time</div></div>
+        </div>
+        <div class="${baseAcc>0.9?'success':(baseAcc>0.8?'info':'warning')}">
+          <strong>🏥 Medical Training Analysis:</strong><br>
+          <strong>Dataset:</strong> ${dataset[0].toUpperCase()+dataset.slice(1)} imaging<br>
+          <strong>Key Challenges:</strong> ${getDatasetChallenges(dataset, imbalance, quality)}<br>
+          <strong>Recommendation:</strong> ${getMedicalRecommendation(baseAcc, imbalance)}
+        </div>`;
+
+      generateMedicalCode(dataset, imbalance, quality);
+    }
+
+    function getDatasetChallenges(dataset, imbalance, quality){
+      const challenges = [];
+      if(imbalance==='severe') challenges.push('severe class imbalance');
+      if(quality==='noisy') challenges.push('noisy labels');
+      if(dataset==='pathology') challenges.push('high inter-observer variability');
+      if(dataset==='retinal') challenges.push('subtle feature differences');
+      return challenges.length?challenges.join(', '):'standard medical imaging challenges';
+    }
+
+    function getMedicalRecommendation(acc, imbalance){
+      if(acc>0.9) return 'Excellent — consider clinical validation';
+      if(acc>0.8) return 'Good — try ensembling or more data';
+      return 'Needs improvement — augment, change architecture, or gather more data';
+    }
+
+    function generateMedicalCode(dataset, imbalance, quality){
+      const code = `# 🏥 Medical Imaging Fine-tuning (skeleton)
+from transformers import ViTImageProcessor, ViTForImageClassification, TrainingArguments, Trainer
+from datasets import load_dataset
+import torch, numpy as np, evaluate
+
+model_name = "google/vit-base-patch16-224"
+num_classes = 3  # update
+processor = ViTImageProcessor.from_pretrained(model_name)
+accuracy = evaluate.load("accuracy")
+
+ds = load_dataset("your_med_dataset")  # replace
+def transform(batch):
+    images = [img.convert("RGB") for img in batch["image"]]
+    out = processor(images, return_tensors="pt")
+    batch["pixel_values"] = out["pixel_values"]
+    return batch
+ds = ds.with_transform(transform)
+
+def collate_fn(examples):
+    return {"pixel_values": torch.stack([e["pixel_values"] for e in examples]),
+            "labels": torch.tensor([e["label"] for e in examples])}
+
+model = ViTForImageClassification.from_pretrained(model_name, num_labels=num_classes, ignore_mismatched_sizes=True)
+for p in model.vit.embeddings.parameters(): p.requires_grad = False
+for i in range(4):
+    for p in model.vit.encoder.layer[i].parameters(): p.requires_grad = False
+
+args = TrainingArguments(output_dir="./out-med", learning_rate=1e-4, weight_decay=0.01,
+                         per_device_train_batch_size=16, per_device_eval_batch_size=32, num_train_epochs=20,
+                         fp16=True, evaluation_strategy="steps", eval_steps=200, save_steps=200,
+                         load_best_model_at_end=True, metric_for_best_model="accuracy",
+                         remove_unused_columns=False, report_to="none")
+
+def compute_metrics(e):
+    logits, labels = e
+    preds = np.argmax(logits, axis=1)
+    return {"accuracy": accuracy.compute(predictions=preds, references=labels)["accuracy"]}
+
+Trainer(model=model, args=args, train_dataset=ds["train"], eval_dataset=ds.get("validation", ds["test"]),
+        data_collator=collate_fn, compute_metrics=compute_metrics).train()`;
+      document.getElementById('medicalCodeExample').innerHTML = `
+        <div class="code-block">
+          <div class="code-header">🏥 Medical Imaging Pipeline</div>
+          <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>${code.replace(/<g,'&lt;')}</pre>
+        </div>`;
+    }
+
+    // ---------- Code Generator ----------
+    function getModelModificationCode(approach){
+      if(approach==='partial'){
+        return `
+# Freeze early layers (embeddings + first 4 blocks)
+for p in model.vit.embeddings.parameters(): p.requires_grad = False
+for i in range(4):
+    for p in model.vit.encoder.layer[i].parameters():
+        p.requires_grad = False`;
+      } else if (approach==='head-only'){
+        return `
+# Freeze entire ViT backbone
+for p in model.vit.parameters(): p.requires_grad = False`;
+      } else if (approach==='lora'){
+        return `
+# Apply LoRA adapters (requires peft)
+from peft import LoraConfig, get_peft_model, TaskType
+lora_cfg = LoraConfig(task_type=TaskType.IMAGE_CLASSIFICATION, r=16, lora_alpha=32,
+                      target_modules=["query","value"], lora_dropout=0.1, bias="none")
+model = get_peft_model(model, lora_cfg)
+model.print_trainable_parameters()`;
+      }
+      return `# Full fine-tuning (no freezing)`;
+    }
+
+    function getApproachSpecificCode(approach){
+      if(approach==='head-only'){
+        return `# Higher LR is fine when only head trains
+lr = 1e-3`;
+      } else if (approach==='partial'){
+        return `lr = 5e-4`;
+      } else if (approach==='lora'){
+        return `lr = 5e-4  # adapters are lightweight`;
+      }
+      return `lr = 5e-4`;
+    }
+
+    function generateCompleteCode(){
+      const task = document.getElementById('codeTaskType').value;
+      const approach = document.getElementById('finetuneApproach').value;
+      const modelVariant = document.getElementById('codeModelVariant').value;
+
+      const mod = getModelModificationCode(approach);
+      const extra = getApproachSpecificCode(approach);
+
+      const code = `# 🚀 Complete ViT ${task} Pipeline (HF Trainer)
+from transformers import (ViTImageProcessor, ViTForImageClassification, TrainingArguments, Trainer, EarlyStoppingCallback)
+from datasets import load_dataset
+import numpy as np, evaluate, torch
+
+# 1) Data
+dataset = load_dataset("your_dataset_name")  # replace
+processor = ViTImageProcessor.from_pretrained("${modelVariant}")
+
+def transform(batch):
+    imgs = [img.convert("RGB") for img in batch["image"]]
+    out = processor(imgs, return_tensors="pt")
+    batch["pixel_values"] = out["pixel_values"]; return batch
+
+dataset = dataset.with_transform(transform)
+
+def collate_fn(examples):
+    return {"pixel_values": torch.stack([e["pixel_values"] for e in examples]),
+            "labels": torch.tensor([e["label"] for e in examples])}
+
+# 2) Model
+num_labels = 100  # set this
+model = ViTForImageClassification.from_pretrained("${modelVariant}", num_labels=num_labels, ignore_mismatched_sizes=True)
+${mod}
+
+# 3) Training args
+${extra}
+args = TrainingArguments(
+    output_dir="./vit-${task}-finetuned",
+    per_device_train_batch_size=32,
+    per_device_eval_batch_size=64,
+    num_train_epochs=100,
+    learning_rate=lr,
+    warmup_ratio=0.1,
+    weight_decay=0.05,
+    logging_steps=100,
+    evaluation_strategy="steps",
+    eval_steps=500,
+    save_steps=500,
+    save_total_limit=3,
+    load_best_model_at_end=True,
+    metric_for_best_model="accuracy",
+    fp16=True,
+    remove_unused_columns=False,
+    report_to="none",
+)
+
+# 4) Metrics
+accuracy = evaluate.load("accuracy")
+def compute_metrics(e):
+    logits, labels = e
+    preds = np.argmax(logits, axis=1)
+    return {"accuracy": accuracy.compute(predictions=preds, references=labels)["accuracy"]}
+
+# 5) Train
+Trainer(model=model, args=args, train_dataset=dataset["train"], eval_dataset=dataset.get("validation", dataset["test"]),
+        data_collator=collate_fn, compute_metrics=compute_metrics,
+        callbacks=[EarlyStoppingCallback(early_stopping_patience=5)]).train()`;
+
+      document.getElementById('generatedCode').innerHTML = `
+        <div class="code-block">
+          <div class="code-header">💻 Generated Training Code</div>
+          <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>${code.replace(/</g,'&lt;')}</pre>
+        </div>`;
+    }
+
+    // ---------- Utils ----------
+    function copyCode(btn){
+      const pre = btn.parentElement.querySelector('pre');
+      if(!pre) return;
+      const text = pre.innerText;
+      navigator.clipboard.writeText(text).then(()=>{
+        const original = btn.textContent;
+        btn.textContent = '✅ Copied';
+        setTimeout(()=> btn.textContent = original, 1200);
+      });
+    }
+  </script>
+</body>
+</html>
