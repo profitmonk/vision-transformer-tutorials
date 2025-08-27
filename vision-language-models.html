@@ -1928,64 +1928,79 @@ if __name__ == "__main__":
     }
 
     function updateBenchmarks() {
-      const category = document.getElementById('benchmarkCategory').value;
-      const metric = document.getElementById('evaluationMetric').value;
+	  const category = document.getElementById('benchmarkCategory').value;
+	  const metric = document.getElementById('evaluationMetric').value;
 
-      const benchmarkData = {
-        'general': {
-          'accuracy': { 'GPT-4V': 87.2, 'Gemini Pro': 84.3, 'Claude 3': 86.1 },
-          'speed': { 'GPT-4V': 12, 'Gemini Pro': 18, 'Claude 3': 15 },
-          'cost': { 'GPT-4V': 0.010, 'Gemini Pro': 0.0025, 'Claude 3': 0.0048 }
-        },
-        'reasoning': {
-          'accuracy': { 'GPT-4V': 78.5, 'Gemini Pro': 82.1, 'Claude 3': 79.8 },
-          'speed': { 'GPT-4V': 8, 'Gemini Pro': 12, 'Claude 3': 10 },
-          'cost': { 'GPT-4V': 0.015, 'Gemini Pro': 0.004, 'Claude 3': 0.007 }
-        },
-        'ocr': {
-          'accuracy': { 'GPT-4V': 94.1, 'Gemini Pro': 91.8, 'Claude 3': 95.2 },
-          'speed': { 'GPT-4V': 15, 'Gemini Pro': 22, 'Claude 3': 18 },
-          'cost': { 'GPT-4V': 0.008, 'Gemini Pro': 0.002, 'Claude 3': 0.004 }
-        }
-      };
+	  const benchmarkData = {
+		general: {
+		  accuracy: { 'GPT-4V': 87.2, 'Gemini Pro': 84.3, 'Claude 3': 86.1 },
+		  speed:    { 'GPT-4V': 12,   'Gemini Pro': 18,   'Claude 3': 15   },
+		  cost:     { 'GPT-4V': 0.010,'Gemini Pro': 0.0025,'Claude 3': 0.0048 }
+		},
+		reasoning: {
+		  accuracy: { 'GPT-4V': 78.5, 'Gemini Pro': 82.1, 'Claude 3': 79.8 },
+		  speed:    { 'GPT-4V': 8,    'Gemini Pro': 12,   'Claude 3': 10   },
+		  cost:     { 'GPT-4V': 0.015,'Gemini Pro': 0.004,'Claude 3': 0.007 }
+		},
+		ocr: {
+		  accuracy: { 'GPT-4V': 94.1, 'Gemini Pro': 91.8, 'Claude 3': 95.2 },
+		  speed:    { 'GPT-4V': 15,   'Gemini Pro': 22,   'Claude 3': 18   },
+		  cost:     { 'GPT-4V': 0.008,'Gemini Pro': 0.002,'Claude 3': 0.004 }
+		}
+	  };
 
-      const data = benchmarkData[category][metric];
-      const results = document.getElementById('benchmarkResults');
-      
-      let tableHtml = `
-        <table class="benchmark-table">
-          <tr><th>Model</th><th>${metric === 'accuracy' ? 'Accuracy (%)' : metric === 'speed' ? 'Speed (tokens/sec)' : 'Cost ($/1K images)'}</th><th>Ranking</th></tr>`;
-      
-      const sorted = Object.entries(data).sort((a, b) => 
-        metric === 'cost' ? a[1] - b[1] : b[1] - a[1]
-      );
-      
-      sorted.forEach(([model, value], idx) => {
-        const scoreClass = idx === 0 ? 'score-excellent' : idx === 1 ? 'score-good' : 'score-average';
-        const formattedValue = metric === 'accuracy' ? value.toFixed(1) : 
-                              metric === 'cost' ? ' + value.toFixed(4) : 
-                              value.toString();
-        
-        tableHtml += `
-          <tr>
-            <td><strong>${model}</strong></td>
-            <td class="${scoreClass}">${formattedValue}</td>
-            <td>#${idx + 1}</td>
-          </tr>`;
-      });
-      
-      tableHtml += '</table>';
-      
-      results.innerHTML = `
-        <div class="training-simulation">
-          <h4>📊 ${category.charAt(0).toUpperCase() + category.slice(1)} Benchmarks - ${metric.charAt(0).toUpperCase() + metric.slice(1)}</h4>
-          ${tableHtml}
-          <div class="info" style="margin-top: 15px;">
-            <strong>📈 Benchmark Notes:</strong><br>
-            ${getBenchmarkNotes(category, metric)}
-          </div>
-        </div>`;
-    }
+	  const results = document.getElementById('benchmarkResults');
+
+	  // Guard against categories you list in the <select> but don't provide data for
+	  if (!benchmarkData[category]) {
+		results.innerHTML = `
+		  <div class="warning"><strong>No data for "${category}".</strong> Try General, Reasoning, or OCR.</div>
+		`;
+		return;
+	  }
+
+	  const data = benchmarkData[category][metric];
+
+	  let tableHtml = `
+		<table class="benchmark-table">
+		  <tr>
+			<th>Model</th>
+			<th>${metric === 'accuracy' ? 'Accuracy (%)' : metric === 'speed' ? 'Speed (tokens/sec)' : 'Cost ($/image)'}</th>
+			<th>Ranking</th>
+		  </tr>`;
+
+	  const sorted = Object.entries(data).sort((a, b) =>
+		metric === 'cost' ? a[1] - b[1] : b[1] - a[1]
+	  );
+
+	  sorted.forEach(([model, value], idx) => {
+		const scoreClass = idx === 0 ? 'score-excellent' : idx === 1 ? 'score-good' : 'score-average';
+		const formattedValue =
+		  metric === 'accuracy' ? value.toFixed(1) :
+		  metric === 'cost'     ? value.toFixed(4) :
+								  String(value);
+
+		tableHtml += `
+		  <tr>
+			<td><strong>${model}</strong></td>
+			<td class="${scoreClass}">${formattedValue}</td>
+			<td>#${idx + 1}</td>
+		  </tr>`;
+	  });
+
+	  tableHtml += '</table>';
+
+	  results.innerHTML = `
+		<div class="training-simulation">
+		  <h4>📊 ${category.charAt(0).toUpperCase() + category.slice(1)} Benchmarks - ${metric.charAt(0).toUpperCase() + metric.slice(1)}</h4>
+		  ${tableHtml}
+		  <div class="info" style="margin-top: 15px;">
+			<strong>📈 Benchmark Notes:</strong><br>
+			${getBenchmarkNotes(category, metric)}
+		  </div>
+		</div>`;
+	}
+
 
     function getBenchmarkNotes(category, metric) {
       const notes = {
