@@ -173,46 +173,161 @@
       </div>
     </div>
 
-    <div class="step">
+<div class="step">
       <h3>🧮 Mathematical Foundation: Joint Embedding Space</h3>
+      <p><strong>The Big Idea:</strong> CLIP's revolutionary insight is creating a <strong>shared mathematical space</strong> where both images and text live as vectors. Think of it like a universal translator that converts both "a photo of a dog" and an actual dog photo into the same mathematical language - vectors of numbers that can be directly compared.</p>
       
+      <div class="info">
+        <strong>🎯 Why Joint Embeddings Matter:</strong><br>
+        Before CLIP, image models output "dog, cat, bird" categories, while text models output word vectors. These lived in completely different mathematical universes and couldn't talk to each other. CLIP creates one shared space where "dog" (text) and 🐕 (image) become nearly identical vectors.
+      </div>
+
       <div class="math-formula">
-        <strong>CLIP's Core Mathematical Operations:</strong><br><br>
+        <strong>Step-by-Step: From Images and Text to Comparable Vectors</strong><br><br>
         
-        <strong>1. Encoding:</strong><br>
-        I = f<sub>image</sub>(x<sub>img</sub>) ∈ ℝ<sup>d</sup> &nbsp;&nbsp;&nbsp; T = f<sub>text</sub>(x<sub>txt</sub>) ∈ ℝ<sup>d</sup><br><br>
+        <strong>Step 1 - Encoding (Translation to Vectors):</strong><br>
+        I = f<sub>image</sub>(x<sub>img</sub>) ∈ ℝ<sup>d</sup> &nbsp;&nbsp;&nbsp; T = f<sub>text</sub>(x<sub>txt</sub>) ∈ ℝ<sup>d</sup><br>
+        <em>Transform a dog photo → [0.2, -0.5, 0.8, ...] (512 numbers)</em><br>
+        <em>Transform "a dog" text → [0.3, -0.4, 0.9, ...] (same 512 numbers)</em><br><br>
         
-        <strong>2. Normalization:</strong><br>
-        Î = I / ||I||<sub>2</sub> &nbsp;&nbsp;&nbsp; T̂ = T / ||T||<sub>2</sub><br><br>
+        <strong>Step 2 - Normalization (Make All Vectors Same Length):</strong><br>
+        Î = I / ||I||<sub>2</sub> &nbsp;&nbsp;&nbsp; T̂ = T / ||T||<sub>2</sub><br>
+        <em>Why: So similarity only depends on direction, not magnitude</em><br>
+        <em>Like: All arrows point from origin but have length = 1</em><br><br>
         
-        <strong>3. Similarity:</strong><br>
-        s<sub>ij</sub> = Î<sub>i</sub> · T̂<sub>j</sub> = cos(θ<sub>ij</sub>)<br><br>
+        <strong>Step 3 - Similarity (How Alike Are They?):</strong><br>
+        s<sub>ij</sub> = Î<sub>i</sub> · T̂<sub>j</sub> = cos(θ<sub>ij</sub>)<br>
+        <em>Dot product = cosine similarity (angle between vectors)</em><br>
+        <em>+1 = identical, 0 = unrelated, -1 = opposite</em><br><br>
         
-        <strong>4. Temperature Scaling:</strong><br>
-        logit<sub>ij</sub> = s<sub>ij</sub> / τ
+        <strong>Step 4 - Temperature Scaling (Fine-tune Confidence):</strong><br>
+        logit<sub>ij</sub> = s<sub>ij</sub> / τ<br>
+        <em>τ = 0.07 makes the model more "decisive" about matches</em>
       </div>
 
       <div class="interactive-demo">
-        <div class="demo-title">🌡️ Temperature Scaling Interactive Demo</div>
-        <p><strong>What it does:</strong> Temperature (τ) controls how "sharp" or "soft" the similarity distributions become. Lower temperature = more confident predictions, higher temperature = more uniform distributions.</p>
-
-        <div class="temperature-slider">
-          <label>Temperature (τ): <span id="temperatureValue" class="temperature-display">0.07</span></label>
-          <input type="range" id="temperatureSlider" min="0.01" max="0.5" value="0.07" step="0.01">
-        </div>
+        <div class="demo-title">🧮 Vector Mathematics Playground</div>
+        <p><strong>See the math in action:</strong> Enter different similarity values and see how normalization and temperature scaling affect the final predictions. This is exactly what happens inside CLIP millions of times during training!</p>
 
         <div class="controls">
           <div class="control-group">
-            <label>Base Similarities (before temperature):</label>
-            <input type="text" id="baseSimilarities" value="0.8, 0.3, 0.1, -0.2, -0.5" placeholder="comma-separated values">
+            <label>Raw Image Vector (4D simplified):</label>
+            <input type="text" id="rawImageVector" value="2.0, -1.5, 3.0, 1.0" placeholder="e.g. 2.0, -1.5, 3.0, 1.0">
+            <small style="display:block;color:#666;margin-top:3px">In reality, CLIP uses 512 dimensions. Here we use 4 for visualization.</small>
+          </div>
+          <div class="control-group">
+            <label>Raw Text Vector (4D simplified):</label>
+            <input type="text" id="rawTextVector" value="1.8, -1.2, 2.9, 0.8" placeholder="e.g. 1.8, -1.2, 2.9, 0.8">
+            <small style="display:block;color:#666;margin-top:3px">Similar vectors = similar concepts. Try making them more/less similar!</small>
+          </div>
+          <div class="control-group">
+            <label>Temperature (τ):</label>
+            <input type="range" id="mathTemperature" min="0.01" max="0.2" value="0.07" step="0.01">
+            <span id="mathTempValue" class="temperature-display">0.07</span>
+            <small style="display:block;color:#666;margin-top:3px">Lower = more confident predictions, higher = more uncertain predictions.</small>
           </div>
         </div>
 
-        <button onclick="demonstrateTemperature()">🌡️ Apply Temperature Scaling</button>
-        <div id="temperatureDemo"></div>
+        <button onclick="calculateVectorMath()" class="primary">🧮 Calculate Step-by-Step</button>
+        <div id="vectorMathResults"></div>
+      </div>
+
+      <div class="step" style="background: #fff3cd; border-left-color: #ffc107;">
+        <h4>🤔 Why L2 Normalization? The Geometric Insight</h4>
+        <p><strong>The Problem:</strong> Without normalization, a vector like [1000, 2000, 3000] would have much higher similarity scores than [1, 2, 3] even if they point in the exact same direction!</p>
+        
+        <div class="math-formula">
+          <strong>L2 Norm (Vector Length):</strong><br>
+          ||v||<sub>2</sub> = √(v₁² + v₂² + v₃² + ... + v_d²)<br><br>
+          
+          <strong>L2 Normalization:</strong><br>
+          v̂ = v / ||v||<sub>2</sub><br><br>
+          
+          <strong>Result:</strong> All vectors have length = 1, so similarity only depends on <em>direction</em><br>
+          <strong>Geometric meaning:</strong> All points lie on a unit hypersphere (circle in 2D, sphere in 3D, hypersphere in 512D)
+        </div>
+
+        <div class="interactive-demo">
+          <div class="demo-title">📐 Normalization Visualizer</div>
+          
+          <div class="controls">
+            <div class="control-group">
+              <label>Vector A (before normalization):</label>
+              <input type="text" id="vectorA" value="3, 4" placeholder="e.g. 3, 4">
+            </div>
+            <div class="control-group">
+              <label>Vector B (before normalization):</label>
+              <input type="text" id="vectorB" value="30, 40" placeholder="e.g. 30, 40">
+            </div>
+          </div>
+
+          <button onclick="visualizeNormalization()">📐 Visualize Normalization Effect</button>
+          <div id="normalizationViz"></div>
+        </div>
+      </div>
+
+      <div class="step" style="background: #d1ecf1; border-left-color: #17a2b8;">
+        <h4>🌡️ Temperature Scaling: The Confidence Knob</h4>
+        <p><strong>What it does:</strong> Temperature (τ) controls how "confident" or "uncertain" the model's predictions become. It's like adjusting the contrast on a photo - lower temperature = higher contrast (more decisive), higher temperature = lower contrast (more uncertain).</p>
+
+        <div class="math-formula">
+          <strong>Temperature Effect on Softmax:</strong><br><br>
+          
+          <strong>Without temperature:</strong> p<sub>i</sub> = exp(s<sub>i</sub>) / ∑ exp(s<sub>j</sub>)<br>
+          <strong>With temperature:</strong> p<sub>i</sub> = exp(s<sub>i</sub>/τ) / ∑ exp(s<sub>j</sub>/τ)<br><br>
+          
+          <strong>Effect of τ values:</strong><br>
+          • τ → 0: Picks highest similarity with probability ≈ 1 (overconfident)<br>
+          • τ = 1: Standard softmax (baseline)<br>
+          • τ → ∞: All probabilities approach equal (uniform, no confidence)<br><br>
+          
+          <strong>CLIP's τ ≈ 0.07:</strong> Makes the model quite confident in its matches
+        </div>
+
+        <div class="interactive-demo">
+          <div class="demo-title">🌡️ Temperature Effects Explorer</div>
+          <p><strong>Experiment:</strong> See how the same similarity scores produce very different probability distributions with different temperatures. This is crucial for CLIP's training stability!</p>
+
+          <div class="controls">
+            <div class="control-group">
+              <label>Similarity Scores (5 text candidates):</label>
+              <input type="text" id="tempSimilarities" value="0.8, 0.3, 0.1, -0.2, -0.5" placeholder="e.g. 0.8, 0.3, 0.1, -0.2, -0.5">
+              <small style="display:block;color:#666;margin-top:3px">These represent how similar an image is to 5 different text descriptions.</small>
+            </div>
+            <div class="control-group">
+              <label>Temperature (τ):</label>
+              <input type="range" id="tempScaleSlider" min="0.01" max="1.0" value="0.07" step="0.01">
+              <span id="tempScaleValue" class="temperature-display">0.07</span>
+            </div>
+          </div>
+
+          <button onclick="exploreTemperature()">🌡️ Explore Temperature Effects</button>
+          <div id="temperatureExploration"></div>
+        </div>
+      </div>
+
+      <div class="success">
+        <strong>🎯 Key Mathematical Insights:</strong><br><br>
+        
+        <strong>🔗 Joint Space Magic:</strong><br>
+        • Both images and text become vectors in the same 512D space<br>
+        • Similar concepts cluster together regardless of modality<br>
+        • Distance in this space = semantic similarity<br><br>
+        
+        <strong>📐 Normalization Benefits:</strong><br>
+        • Focuses on direction (semantic meaning), not magnitude<br>
+        • All vectors lie on unit hypersphere for fair comparison<br>
+        • Cosine similarity becomes simple dot product<br><br>
+        
+        <strong>🌡️ Temperature Tuning:</strong><br>
+        • Controls prediction confidence during training<br>
+        • τ = 0.07 found optimal through experimentation<br>
+        • Too low = overconfident, too high = indecisive<br><br>
+        
+        <strong>💡 The Breakthrough:</strong><br>
+        This mathematical framework enables zero-shot classification, image search, and is the foundation for GPT-4V, DALL-E, and modern multimodal AI!
       </div>
     </div>
-  </div>
 
   <div class="container">
     <h2>🎯 Contrastive Learning: The Training Magic</h2>
