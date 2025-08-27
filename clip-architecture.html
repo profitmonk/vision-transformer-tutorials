@@ -1464,6 +1464,336 @@ print("Consider fine-tuning on smaller domain-specific datasets instead")
         });
       }
     }
+    // Vector Mathematics Functions for CLIP Tutorial
+
+function calculateVectorMath() {
+  const imageVectorStr = document.getElementById('rawImageVector')?.value || '2.0, -1.5, 3.0, 1.0';
+  const textVectorStr = document.getElementById('rawTextVector')?.value || '1.8, -1.2, 2.9, 0.8';
+  const temperature = parseFloat(document.getElementById('mathTemperature')?.value || '0.07');
+  
+  // Update temperature display
+  document.getElementById('mathTempValue').textContent = temperature.toFixed(2);
+  
+  // Parse vectors
+  const imageVector = imageVectorStr.split(',').map(x => parseFloat(x.trim()));
+  const textVector = textVectorStr.split(',').map(x => parseFloat(x.trim()));
+  
+  // Validate vectors
+  if (imageVector.length !== textVector.length || imageVector.some(isNaN) || textVector.some(isNaN)) {
+    document.getElementById('vectorMathResults').innerHTML = `
+      <div class="warning">⚠️ Please enter valid vectors of the same length (e.g., "2.0, -1.5, 3.0, 1.0")</div>`;
+    return;
+  }
+  
+  // Step 1: Calculate L2 norms
+  const imageNorm = Math.sqrt(imageVector.reduce((sum, val) => sum + val * val, 0));
+  const textNorm = Math.sqrt(textVector.reduce((sum, val) => sum + val * val, 0));
+  
+  // Step 2: Normalize vectors
+  const imageNormalized = imageVector.map(val => val / imageNorm);
+  const textNormalized = textVector.map(val => val / textNorm);
+  
+  // Step 3: Calculate cosine similarity (dot product of normalized vectors)
+  const similarity = imageNormalized.reduce((sum, val, i) => sum + val * textNormalized[i], 0);
+  
+  // Step 4: Apply temperature scaling
+  const logit = similarity / temperature;
+  
+  // Step 5: Convert to probability (simplified - assuming this is the positive case)
+  const probability = 1 / (1 + Math.exp(-logit)); // Sigmoid for demo
+  
+  const results = document.getElementById('vectorMathResults');
+  if (results) {
+    results.innerHTML = `
+      <div class="training-simulation">
+        <h4>🧮 Step-by-Step Mathematical Transformation</h4>
+        
+        <div style="display: grid; gap: 15px; margin: 20px 0;">
+          <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #dc3545;">
+            <strong>📥 Step 1: Raw Vectors</strong><br>
+            <strong>Image:</strong> [${imageVector.map(v => v.toFixed(2)).join(', ')}]<br>
+            <strong>Text:</strong> [${textVector.map(v => v.toFixed(2)).join(', ')}]
+          </div>
+          
+          <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #007bff;">
+            <strong>📏 Step 2: Calculate L2 Norms (Vector Lengths)</strong><br>
+            <strong>Image norm:</strong> √(${imageVector.map(v => v.toFixed(1) + '²').join(' + ')}) = ${imageNorm.toFixed(3)}<br>
+            <strong>Text norm:</strong> √(${textVector.map(v => v.toFixed(1) + '²').join(' + ')}) = ${textNorm.toFixed(3)}
+          </div>
+          
+          <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #28a745;">
+            <strong>🎯 Step 3: L2 Normalization (Make Length = 1)</strong><br>
+            <strong>Image normalized:</strong> [${imageNormalized.map(v => v.toFixed(3)).join(', ')}]<br>
+            <strong>Text normalized:</strong> [${textNormalized.map(v => v.toFixed(3)).join(', ')}]<br>
+            <em>Now both vectors have length = 1.000</em>
+          </div>
+          
+          <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107;">
+            <strong>📐 Step 4: Cosine Similarity (Dot Product)</strong><br>
+            <strong>Similarity:</strong> ${imageNormalized.map((v, i) => `${v.toFixed(2)}×${textNormalized[i].toFixed(2)}`).join(' + ')} = <strong>${similarity.toFixed(4)}</strong><br>
+            <em>Range: -1 (opposite) to +1 (identical)</em>
+          </div>
+          
+          <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #6f42c1;">
+            <strong>🌡️ Step 5: Temperature Scaling</strong><br>
+            <strong>Logit:</strong> ${similarity.toFixed(4)} ÷ ${temperature} = <strong>${logit.toFixed(2)}</strong><br>
+            <em>Temperature amplifies the similarity by ${(1/temperature).toFixed(1)}×</em>
+          </div>
+          
+          <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #17a2b8;">
+            <strong>🎯 Step 6: Final Probability</strong><br>
+            <strong>Probability:</strong> sigmoid(${logit.toFixed(2)}) = <strong>${(probability * 100).toFixed(1)}%</strong><br>
+            <em>This represents how likely these vectors represent the same concept</em>
+          </div>
+        </div>
+        
+        <div class="metric-grid">
+          <div class="metric-card">
+            <div class="metric-value">${similarity.toFixed(3)}</div>
+            <div class="metric-label">Cosine Similarity</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">${logit.toFixed(2)}</div>
+            <div class="metric-label">Temperature-Scaled Logit</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">${(probability * 100).toFixed(1)}%</div>
+            <div class="metric-label">Match Probability</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">${(1/temperature).toFixed(1)}×</div>
+            <div class="metric-label">Amplification Factor</div>
+          </div>
+        </div>
+        
+        <div class="info" style="margin-top: 15px;">
+          <strong>💡 Key Insights:</strong><br>
+          • <strong>Normalization effect:</strong> Without it, similarity would be ${(imageVector.reduce((sum, val, i) => sum + val * textVector[i], 0)).toFixed(4)} (magnitude-biased)<br>
+          • <strong>Temperature effect:</strong> Raw similarity ${similarity.toFixed(3)} becomes logit ${logit.toFixed(2)} (${logit > 0 ? 'amplified' : 'dampened'})<br>
+          • <strong>Interpretation:</strong> ${similarity > 0.7 ? 'Very similar concepts' : similarity > 0.3 ? 'Somewhat related concepts' : similarity > 0 ? 'Weakly related concepts' : 'Different/opposite concepts'}
+        </div>
+      </div>`;
+  }
+}
+
+function visualizeNormalization() {
+  const vectorAStr = document.getElementById('vectorA')?.value || '3, 4';
+  const vectorBStr = document.getElementById('vectorB')?.value || '30, 40';
+  
+  // Parse vectors (assuming 2D for visualization)
+  const vectorA = vectorAStr.split(',').map(x => parseFloat(x.trim()));
+  const vectorB = vectorBStr.split(',').map(x => parseFloat(x.trim()));
+  
+  if (vectorA.length !== 2 || vectorB.length !== 2 || vectorA.some(isNaN) || vectorB.some(isNaN)) {
+    document.getElementById('normalizationViz').innerHTML = `
+      <div class="warning">⚠️ Please enter valid 2D vectors (e.g., "3, 4")</div>`;
+    return;
+  }
+  
+  // Calculate norms
+  const normA = Math.sqrt(vectorA[0] * vectorA[0] + vectorA[1] * vectorA[1]);
+  const normB = Math.sqrt(vectorB[0] * vectorB[0] + vectorB[1] * vectorB[1]);
+  
+  // Normalize
+  const normalizedA = [vectorA[0] / normA, vectorA[1] / normA];
+  const normalizedB = [vectorB[0] / normB, vectorB[1] / normB];
+  
+  // Calculate similarities
+  const rawSimilarity = vectorA[0] * vectorB[0] + vectorA[1] * vectorB[1];
+  const normalizedSimilarity = normalizedA[0] * normalizedB[0] + normalizedA[1] * normalizedB[1];
+  
+  // Calculate angle
+  const angle = Math.acos(normalizedSimilarity) * 180 / Math.PI;
+  
+  const viz = document.getElementById('normalizationViz');
+  if (viz) {
+    viz.innerHTML = `
+      <div class="training-simulation">
+        <h4>📐 Before vs After Normalization</h4>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+          <div style="background: #fff3cd; padding: 15px; border-radius: 8px;">
+            <h5>❌ Before Normalization</h5>
+            <strong>Vector A:</strong> [${vectorA.join(', ')}] (length: ${normA.toFixed(2)})<br>
+            <strong>Vector B:</strong> [${vectorB.join(', ')}] (length: ${normB.toFixed(2)})<br>
+            <strong>Dot Product:</strong> ${rawSimilarity.toFixed(2)}<br>
+            <em>⚠️ Biased by vector lengths!</em>
+          </div>
+          
+          <div style="background: #d4edda; padding: 15px; border-radius: 8px;">
+            <h5>✅ After Normalization</h5>
+            <strong>Vector A:</strong> [${normalizedA.map(v => v.toFixed(3)).join(', ')}] (length: 1.000)<br>
+            <strong>Vector B:</strong> [${normalizedB.map(v => v.toFixed(3)).join(', ')}] (length: 1.000)<br>
+            <strong>Cosine Similarity:</strong> ${normalizedSimilarity.toFixed(3)}<br>
+            <em>✅ Only depends on direction!</em>
+          </div>
+        </div>
+        
+        <div class="metric-grid">
+          <div class="metric-card">
+            <div class="metric-value">${angle.toFixed(1)}°</div>
+            <div class="metric-label">Angle Between Vectors</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">${normalizedSimilarity.toFixed(3)}</div>
+            <div class="metric-label">Cosine Similarity</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">${(normB / normA).toFixed(1)}×</div>
+            <div class="metric-label">Length Ratio (B/A)</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">${Math.abs(rawSimilarity / normalizedSimilarity).toFixed(1)}×</div>
+            <div class="metric-label">Bias Factor</div>
+          </div>
+        </div>
+        
+        <div class="info">
+          <strong>🎯 Key Insight:</strong><br>
+          Vectors [${vectorA.join(', ')}] and [${vectorB.join(', ')}] point in the ${angle < 10 ? 'same' : angle < 45 ? 'similar' : angle < 90 ? 'somewhat different' : 'very different'} direction (${angle.toFixed(1)}° apart).<br><br>
+          
+          <strong>Without normalization:</strong> Dot product = ${rawSimilarity.toFixed(2)} (magnitude-biased)<br>
+          <strong>With normalization:</strong> Cosine similarity = ${normalizedSimilarity.toFixed(3)} (pure direction)<br><br>
+          
+          <strong>💡 This is why CLIP normalizes:</strong> We want similarity based on <em>semantic direction</em>, not vector magnitude!
+        </div>
+      </div>`;
+  }
+}
+
+function exploreTemperature() {
+  const similaritiesStr = document.getElementById('tempSimilarities')?.value || '0.8, 0.3, 0.1, -0.2, -0.5';
+  const temperature = parseFloat(document.getElementById('tempScaleSlider')?.value || '0.07');
+  
+  // Update temperature display
+  document.getElementById('tempScaleValue').textContent = temperature.toFixed(2);
+  
+  // Parse similarities
+  const similarities = similaritiesStr.split(',').map(x => parseFloat(x.trim()));
+  
+  if (similarities.some(isNaN)) {
+    document.getElementById('temperatureExploration').innerHTML = `
+      <div class="warning">⚠️ Please enter valid similarity values (e.g., "0.8, 0.3, 0.1, -0.2, -0.5")</div>`;
+    return;
+  }
+  
+  // Calculate logits
+  const logits = similarities.map(s => s / temperature);
+  
+  // Calculate softmax probabilities
+  const expLogits = logits.map(logit => Math.exp(logit));
+  const sumExp = expLogits.reduce((sum, exp) => sum + exp, 0);
+  const probabilities = expLogits.map(exp => exp / sumExp);
+  
+  // Calculate entropy
+  const entropy = -probabilities.reduce((sum, p) => sum + (p > 0 ? p * Math.log2(p) : 0), 0);
+  
+  // For comparison, also calculate with different temperatures
+  const temperatures = [0.01, 0.07, 0.2, 0.5, 1.0];
+  const tempComparisons = temperatures.map(temp => {
+    const tempLogits = similarities.map(s => s / temp);
+    const tempExpLogits = tempLogits.map(logit => Math.exp(logit));
+    const tempSumExp = tempExpLogits.reduce((sum, exp) => sum + exp, 0);
+    const tempProbs = tempExpLogits.map(exp => exp / tempSumExp);
+    const tempEntropy = -tempProbs.reduce((sum, p) => sum + (p > 0 ? p * Math.log2(p) : 0), 0);
+    
+    return {
+      temperature: temp,
+      probabilities: tempProbs,
+      entropy: tempEntropy,
+      maxProb: Math.max(...tempProbs)
+    };
+  });
+  
+  const exploration = document.getElementById('temperatureExploration');
+  if (exploration) {
+    exploration.innerHTML = `
+      <div class="training-simulation">
+        <h4>🌡️ Temperature Effects on Same Similarities</h4>
+        
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+          <strong>📊 Current Temperature τ = ${temperature}</strong><br>
+          <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 10px 0; font-family: monospace; font-size: 12px;">
+            <strong>Similarity</strong>
+            <strong>Logit (s/τ)</strong>
+            <strong>exp(logit)</strong>
+            <strong>Probability</strong>
+            <strong>Percentage</strong>
+            
+            ${similarities.map((sim, i) => `
+              <div>${sim.toFixed(2)}</div>
+              <div>${logits[i].toFixed(2)}</div>
+              <div>${expLogits[i].toFixed(2)}</div>
+              <div>${probabilities[i].toFixed(4)}</div>
+              <div style="font-weight: bold; color: ${i === 0 ? '#28a745' : '#666'}">${(probabilities[i] * 100).toFixed(1)}%</div>
+            `).join('')}
+          </div>
+        </div>
+        
+        <div class="metric-grid">
+          <div class="metric-card">
+            <div class="metric-value">${(probabilities[0] * 100).toFixed(1)}%</div>
+            <div class="metric-label">Top Prediction</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">${entropy.toFixed(2)}</div>
+            <div class="metric-label">Entropy (bits)</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">${(1/temperature).toFixed(1)}×</div>
+            <div class="metric-label">Amplification Factor</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">${Math.max(...logits).toFixed(1)}</div>
+            <div class="metric-label">Max Logit</div>
+          </div>
+        </div>
+        
+        <h5>🔍 Temperature Comparison Table</h5>
+        <div style="background: white; padding: 15px; border-radius: 8px; overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            <tr style="background: #e9ecef;">
+              <th style="padding: 8px; border: 1px solid #dee2e6;">Temperature (τ)</th>
+              <th style="padding: 8px; border: 1px solid #dee2e6;">Max Probability</th>
+              <th style="padding: 8px; border: 1px solid #dee2e6;">Entropy</th>
+              <th style="padding: 8px; border: 1px solid #dee2e6;">Interpretation</th>
+            </tr>
+            ${tempComparisons.map(comp => `
+              <tr style="background: ${Math.abs(comp.temperature - temperature) < 0.01 ? '#d4edda' : 'white'};">
+                <td style="padding: 8px; border: 1px solid #dee2e6; font-weight: bold;">${comp.temperature}</td>
+                <td style="padding: 8px; border: 1px solid #dee2e6;">${(comp.maxProb * 100).toFixed(1)}%</td>
+                <td style="padding: 8px; border: 1px solid #dee2e6;">${comp.entropy.toFixed(2)}</td>
+                <td style="padding: 8px; border: 1px solid #dee2e6;">
+                  ${comp.temperature < 0.05 ? '📢 Overconfident' : 
+                    comp.temperature < 0.15 ? '✅ Confident' : 
+                    comp.temperature < 0.4 ? '🤔 Moderate' : '🤷 Uncertain'}
+                </td>
+              </tr>
+            `).join('')}
+          </table>
+        </div>
+        
+        <div class="success" style="margin-top: 15px;">
+          <strong>🎯 Temperature Analysis:</strong><br>
+          • <strong>Current setting (τ=${temperature}):</strong> ${temperature < 0.1 ? 'High confidence, sharp decisions' : temperature < 0.3 ? 'Balanced confidence' : 'Low confidence, spread out probabilities'}<br>
+          • <strong>Entropy = ${entropy.toFixed(2)} bits:</strong> ${entropy < 1 ? 'Very focused distribution' : entropy < 2 ? 'Moderately focused' : entropy < 3 ? 'Somewhat spread out' : 'Very uncertain'}<br>
+          • <strong>Why τ=0.07 works:</strong> ${Math.abs(temperature - 0.07) < 0.02 ? 'Perfect balance of confidence and calibration!' : 'Compare with τ=0.07 for optimal balance'}<br><br>
+          
+          <strong>💡 Key Insight:</strong> Temperature doesn't change the <em>ranking</em> of probabilities, only their <em>sharpness</em>. The best similarity (${Math.max(...similarities).toFixed(2)}) always wins, but τ controls by how much!
+        </div>
+      </div>`;
+  }
+}
+
+// Update temperature display when slider moves
+document.addEventListener('DOMContentLoaded', () => {
+  const tempSlider = document.getElementById('tempScaleSlider');
+  if (tempSlider) {
+    tempSlider.addEventListener('input', () => {
+      document.getElementById('tempScaleValue').textContent = tempSlider.value;
+    });
+  }
+});
   </script>
 </body>
 </html>
