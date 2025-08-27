@@ -1,0 +1,2167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vision-Language Models: GPT-4V, Gemini, Claude</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);color:#e0e0e0;line-height:1.6}
+    .container{background:#fff;color:#2d2d2d;border-radius:20px;padding:30px;margin:20px 0;border:1px solid #e0e0e0;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+    .nav-bar{background:#2d2d2d;color:#fff;padding:15px 30px;border-radius:15px;margin:20px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px}
+    .nav-home,.nav-prev,.nav-next{background:#fff;color:#2d2d2d;padding:8px 16px;border-radius:6px;text-decoration:none;font-weight:bold;transition:all .3s}
+    .nav-next{background:#28a745;color:#fff}
+    .nav-home:hover,.nav-prev:hover,.nav-next:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+    .nav-title{font-size:1.2em;font-weight:bold;flex:1;min-width:300px}
+    .step{background:#f8f9fa;border:1px solid #e9ecef;padding:20px;margin:15px 0;border-radius:15px;border-left:4px solid #2d2d2d}
+    .interactive-demo{background:#f8f9fa;border:2px solid #e9ecef;border-radius:15px;padding:25px;margin:20px 0}
+    .demo-title{font-size:1.3em;font-weight:bold;margin-bottom:20px;text-align:center;color:#2d2d2d}
+    .controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin:20px 0}
+    .control-group{display:flex;flex-direction:column;gap:5px}
+    .control-group label{font-weight:bold;font-size:14px;color:#2d2d2d}
+    button{background:#2d2d2d;border:none;color:#fff;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:bold;transition:all .3s;margin:5px}
+    button:hover{background:#1a1a1a;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+    button.primary{background:#28a745}
+    button.primary:hover{background:#218838}
+    input,select,textarea{padding:8px 12px;border:1px solid #dadce0;border-radius:6px;background:#fff;color:#2d2d2d}
+    textarea{min-height:70px;resize:vertical}
+    .math-formula{background:#f8f9fa;border:1px solid #e9ecef;padding:20px;border-radius:8px;margin:15px 0;font-family:'Courier New',monospace;text-align:center;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+    .code-block{background:#2d2d2d;color:#e0e0e0;padding:20px;border-radius:8px;margin:15px 0;font-family:'Courier New',monospace;font-size:14px;overflow:auto;position:relative}
+    .code-header{background:#1a1a1a;color:#28a745;padding:8px 15px;margin:-20px -20px 15px -20px;border-radius:8px 8px 0 0;font-weight:bold;font-size:12px}
+    .copy-button{position:absolute;top:10px;right:10px;background:#28a745;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:10px}
+    .architecture-flow{display:flex;justify-content:space-between;align-items:center;margin:20px 0;padding:20px;background:#fff;border-radius:12px;border:2px solid #e9ecef;flex-wrap:wrap;gap:15px}
+    .arch-component{background:#f8f9fa;border:2px solid #e9ecef;border-radius:8px;padding:15px;text-align:center;min-width:120px;flex:1}
+    .arch-component.vision{border-color:#dc3545}
+    .arch-component.language{border-color:#007bff}
+    .arch-component.fusion{border-color:#28a745}
+    .arch-component.output{border-color:#ffc107}
+    .arch-arrow{font-size:24px;color:#28a745;font-weight:bold}
+    .model-comparison{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin:20px 0}
+    .model-card{background:#fff;border:2px solid #e9ecef;border-radius:12px;padding:20px;transition:all .3s}
+    .model-card:hover{border-color:#28a745;transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.1)}
+    .model-card.selected{border-color:#28a745;background:#d4edda}
+    .model-name{font-size:1.3em;font-weight:bold;margin-bottom:10px;color:#2d2d2d}
+    .model-specs{background:#f8f9fa;padding:12px;border-radius:6px;margin:10px 0;font-size:12px;font-family:'Courier New',monospace}
+    .model-capabilities{margin:15px 0}
+    .capability{display:flex;align-items:center;margin:5px 0;font-size:14px}
+    .capability-icon{margin-right:8px;font-size:16px}
+    .token-flow{display:flex;flex-wrap:wrap;gap:8px;margin:15px 0;padding:15px;background:#f8f9fa;border-radius:8px}
+    .token{padding:8px 12px;background:#e9ecef;border-radius:6px;font-family:'Courier New',monospace;font-size:12px;border:2px solid transparent}
+    .token.text{border-color:#007bff;background:#cce7ff}
+    .token.image{border-color:#dc3545;background:#ffcccc}
+    .token.special{border-color:#28a745;background:#ccffcc}
+    .attention-matrix{background:#fff;border:2px solid #e9ecef;border-radius:8px;padding:15px;margin:15px 0}
+    .matrix-grid{display:grid;gap:2px;margin:10px 0}
+    .matrix-cell{padding:6px;text-align:center;font-size:10px;border-radius:3px;font-weight:bold}
+    .attention-high{background:#dc3545;color:#fff}
+    .attention-medium{background:#ffc107;color:#000}
+    .attention-low{background:#e9ecef;color:#495057}
+    .metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin:20px 0}
+    .metric-card{background:#fff;border:2px solid #e9ecef;border-radius:8px;padding:15px;text-align:center}
+    .metric-value{font-size:1.5em;font-weight:bold;color:#2d2d2d;margin-bottom:5px}
+    .metric-label{font-size:12px;color:#666}
+    .benchmark-table{width:100%;border-collapse:collapse;margin:15px 0;background:#fff;border:1px solid #e9ecef;border-radius:8px;overflow:hidden}
+    .benchmark-table th{background:#2d2d2d;color:#fff;padding:12px;text-align:center;font-weight:bold}
+    .benchmark-table td{padding:12px;text-align:center;border-bottom:1px solid #e9ecef}
+    .score-excellent{background:#d4edda;color:#155724;font-weight:bold}
+    .score-good{background:#d1ecf1;color:#0c5460;font-weight:bold}
+    .score-average{background:#fff3cd;color:#856404;font-weight:bold}
+    .score-poor{background:#f8d7da;color:#721c24;font-weight:bold}
+    .conversation-demo{background:#fff;border:2px solid #e9ecef;border-radius:12px;padding:20px;margin:15px 0}
+    .message{margin:10px 0;padding:15px;border-radius:8px;max-width:80%}
+    .message.user{background:#e3f2fd;margin-left:auto;border-bottom-right-radius:4px}
+    .message.assistant{background:#f3e5f5;margin-right:auto;border-bottom-left-radius:4px}
+    .message.system{background:#fff3e0;margin:10px auto;text-align:center;font-style:italic;max-width:60%}
+    .image-placeholder{width:200px;height:150px;background:linear-gradient(45deg,#e9ecef,#dee2e6);border-radius:8px;display:flex;align-items:center;justify-content:center;margin:10px 0;font-weight:bold;color:#495057}
+    .fusion-strategies{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;margin:20px 0}
+    .fusion-card{background:#fff;border:2px solid #e9ecef;border-radius:8px;padding:15px;cursor:pointer;transition:all .3s}
+    .fusion-card:hover{border-color:#28a745;transform:translateY(-2px)}
+    .fusion-card.selected{border-color:#28a745;background:#d4edda}
+    .fusion-title{font-weight:bold;margin-bottom:8px;color:#2d2d2d}
+    .fusion-description{font-size:13px;color:#666;margin-bottom:8px}
+    .fusion-math{background:#f8f9fa;padding:8px;border-radius:4px;font-size:11px;font-family:'Courier New',monospace}
+    .info{background:#d1ecf1;border-left:4px solid #17a2b8;color:#0c5460;padding:15px;border-radius:8px;margin:15px 0}
+    .success{background:#d4edda;border-left:4px solid #28a745;color:#155724;padding:15px;border-radius:8px;margin:15px 0}
+    .warning{background:#fff3cd;border-left:4px solid #ffc107;color:#856404;padding:15px;border-radius:8px;margin:15px 0}
+    .breakthrough-highlight{background:linear-gradient(135deg,#28a745,#20c997);color:#fff;padding:20px;border-radius:12px;text-align:center;margin:20px 0;font-size:18px;font-weight:bold;box-shadow:0 4px 15px rgba(40,167,69,.3)}
+    .tabs{display:flex;margin-bottom:20px;border-bottom:2px solid #e9ecef}
+    .tab{padding:12px 24px;cursor:pointer;border-bottom:3px solid transparent;font-weight:bold;transition:all .3s}
+    .tab:hover{background:#f8f9fa}
+    .tab.active{border-bottom-color:#28a745;background:#d4edda;color:#155724}
+    .tab-content{display:none}
+    .tab-content.active{display:block}
+    @keyframes pulse{0%{transform:scale(1);opacity:.8}50%{transform:scale(1.05);opacity:1}100%{transform:scale(1);opacity:.8}}
+    .processing-animation{animation:pulse 2s ease-in-out infinite}
+    .timeline{position:relative;margin:20px 0}
+    .timeline-item{display:flex;align-items:center;margin:15px 0;padding:15px;background:#fff;border-radius:8px;border-left:4px solid #28a745}
+    .timeline-date{font-weight:bold;min-width:100px;color:#28a745}
+    .timeline-content{flex:1;margin-left:15px}
+    .capability-matrix{display:grid;grid-template-columns:200px repeat(4,1fr);gap:1px;background:#dee2e6;border-radius:8px;overflow:hidden;margin:20px 0}
+    .capability-header{background:#2d2d2d;color:#fff;padding:12px;font-weight:bold;text-align:center}
+    .capability-cell{background:#fff;padding:10px;text-align:center;font-size:12px}
+    .performance-indicator{display:inline-block;width:12px;height:12px;border-radius:50%;margin:0 2px}
+    .perf-excellent{background:#28a745}
+    .perf-good{background:#17a2b8}
+    .perf-average{background:#ffc107}
+    .perf-poor{background:#dc3545}
+  </style>
+</head>
+<body>
+  <div class="nav-bar">
+    <div class="nav-title">👁️ Vision-Language Models: GPT-4V, Gemini, Claude</div>
+    <a href="index.html" class="nav-home">🏠 Home</a>
+    <a href="clip-architecture.html" class="nav-prev">← CLIP Architecture</a>
+    <a href="vision-language-action.html" class="nav-next">Next: Vision-Language-Action →</a>
+  </div>
+
+  <div class="container">
+    <h1>👁️ Vision-Language Models: The Multimodal AI Revolution</h1>
+    <p>Building on CLIP's foundation, modern <strong>Vision-Language Models (VLMs)</strong> like GPT-4V, Gemini, and Claude have revolutionized how AI systems understand and reason about images. These models don't just classify or retrieve - they <strong>converse, analyze, and reason</strong> about visual content using natural language, enabling applications from document analysis to creative assistance.</p>
+    
+    <div class="breakthrough-highlight">
+      🌟 From CLIP's breakthrough (2021) to conversational vision AI (2023): How joint embeddings evolved into multimodal reasoning systems that can see, understand, and discuss any image!
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🏗️ Architecture Evolution: From CLIP to Conversational AI</h2>
+    <div class="step">
+      <h3>🔄 The Architectural Revolution</h3>
+      <p>While CLIP created a shared embedding space, modern VLMs integrate vision directly into the <strong>language model's token stream</strong>. Instead of separate encoders, images become part of the conversational flow alongside text tokens.</p>
+
+      <div class="architecture-flow">
+        <div class="arch-component vision">
+          <h4>📷 Vision Encoder</h4>
+          <div>ViT or CNN</div>
+          <div style="font-size:12px;margin-top:5px">
+            • Processes image patches<br>
+            • Outputs visual tokens<br>
+            • ~1000 tokens per image
+          </div>
+        </div>
+        
+        <div class="arch-arrow">→</div>
+        
+        <div class="arch-component fusion">
+          <h4>🔗 Vision-Language Fusion</h4>
+          <div>Token Integration</div>
+          <div style="font-size:12px;margin-top:5px">
+            • Visual tokens + text tokens<br>
+            • Cross-modal attention<br>
+            • Unified sequence modeling
+          </div>
+        </div>
+        
+        <div class="arch-arrow">→</div>
+        
+        <div class="arch-component language">
+          <h4>🧠 Language Model</h4>
+          <div>Transformer LLM</div>
+          <div style="font-size:12px;margin-top:5px">
+            • GPT, Gemini, Claude architecture<br>
+            • Processes mixed modality tokens<br>
+            • Generates text responses
+          </div>
+        </div>
+        
+        <div class="arch-arrow">→</div>
+        
+        <div class="arch-component output">
+          <h4>💬 Response Generation</h4>
+          <div>Natural Language</div>
+          <div style="font-size:12px;margin-top:5px">
+            • Contextual understanding<br>
+            • Reasoning and analysis<br>
+            • Conversational responses
+          </div>
+        </div>
+      </div>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🔍 Model Architecture Comparison</div>
+
+        <div class="model-comparison">
+          <div class="model-card" onclick="selectModel('gpt4v', this)">
+            <div class="model-name">🤖 GPT-4V (OpenAI)</div>
+            <div class="model-specs">
+              Architecture: GPT-4 + Vision Encoder<br>
+              Vision: Custom ViT variant<br>
+              Parameters: ~1.8T (estimated)<br>
+              Context: ~128K tokens<br>
+              Training: RLHF + Visual instruction tuning
+            </div>
+            <div class="model-capabilities">
+              <div class="capability">
+                <span class="capability-icon">📊</span>
+                <span>Chart & graph analysis</span>
+              </div>
+              <div class="capability">
+                <span class="capability-icon">📝</span>
+                <span>Document understanding</span>
+              </div>
+              <div class="capability">
+                <span class="capability-icon">🎨</span>
+                <span>Creative visual analysis</span>
+              </div>
+              <div class="capability">
+                <span class="capability-icon">🧮</span>
+                <span>Mathematical reasoning from images</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="model-card" onclick="selectModel('gemini', this)">
+            <div class="model-name">💎 Gemini (Google)</div>
+            <div class="model-specs">
+              Architecture: Multimodal from scratch<br>
+              Vision: Integrated ViT<br>
+              Parameters: Ultra ~540B, Pro ~175B<br>
+              Context: 2M tokens (Gemini 1.5)<br>
+              Training: Joint multimodal pre-training
+            </div>
+            <div class="model-capabilities">
+              <div class="capability">
+                <span class="capability-icon">🎥</span>
+                <span>Long video understanding</span>
+              </div>
+              <div class="capability">
+                <span class="capability-icon">🔢</span>
+                <span>Mathematical problem solving</span>
+              </div>
+              <div class="capability">
+                <span class="capability-icon">💻</span>
+                <span>Code generation from mockups</span>
+              </div>
+              <div class="capability">
+                <span class="capability-icon">📚</span>
+                <span>Multi-page document analysis</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="model-card" onclick="selectModel('claude', this)">
+            <div class="model-name">🤖 Claude (Anthropic)</div>
+            <div class="model-specs">
+              Architecture: Constitutional AI + Vision<br>
+              Vision: ViT-based encoder<br>
+              Parameters: ~175B (estimated)<br>
+              Context: 200K tokens<br>
+              Training: Constitutional AI + Visual RLHF
+            </div>
+            <div class="model-capabilities">
+              <div class="capability">
+                <span class="capability-icon">🔍</span>
+                <span>Detailed visual analysis</span>
+              </div>
+              <div class="capability">
+                <span class="capability-icon">📋</span>
+                <span>Structured data extraction</span>
+              </div>
+              <div class="capability">
+                <span class="capability-icon">🛡️</span>
+                <span>Safe visual content analysis</span>
+              </div>
+              <div class="capability">
+                <span class="capability-icon">💡</span>
+                <span>Educational explanations</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="architectureDetails"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🎯 Key Architectural Differences from CLIP</h3>
+      
+      <div class="warning">
+        <strong>🔄 CLIP vs Modern VLMs:</strong><br><br>
+        
+        <strong>CLIP (2021):</strong><br>
+        • Separate vision + text encoders<br>
+        • Fixed-size embeddings (512D)<br>
+        • Contrastive learning only<br>
+        • Zero-shot classification focus<br><br>
+        
+        <strong>Modern VLMs (2023+):</strong><br>
+        • Vision integrated into LLM token stream<br>
+        • Variable-length visual representations<br>
+        • Instruction tuning + RLHF<br>
+        • Conversational reasoning focus
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🔗 Visual Token Integration: The Technical Core</h2>
+    <div class="step">
+      <h3>🧩 From Pixels to Tokens: The Mathematical Pipeline</h3>
+      <p>The key innovation in modern VLMs is treating <strong>image patches as tokens</strong> that can be processed alongside text tokens in a unified transformer architecture. This enables seamless multimodal reasoning.</p>
+
+      <div class="math-formula">
+        <strong>Visual Token Integration Pipeline:</strong><br><br>
+        
+        <strong>1. Image Patch Extraction:</strong><br>
+        X<sub>img</sub> ∈ ℝ<sup>H×W×C</sup> → {p₁, p₂, ..., p<sub>N</sub>} where N = (H×W)/P²<br>
+        <em>Split image into patches of size P×P (typically 14×14 or 16×16)</em><br><br>
+        
+        <strong>2. Visual Token Encoding:</strong><br>
+        v<sub>i</sub> = Linear(Flatten(p<sub>i</sub>)) + PE<sub>i</sub> ∈ ℝ<sup>d</sup><br>
+        <em>Each patch becomes a d-dimensional token with positional encoding</em><br><br>
+        
+        <strong>3. Token Sequence Construction:</strong><br>
+        Tokens = [v₁, v₂, ..., v<sub>N</sub>, w₁, w₂, ..., w<sub>M</sub>]<br>
+        <em>Concatenate visual tokens with text tokens</em><br><br>
+        
+        <strong>4. Unified Attention:</strong><br>
+        Attention(Q, K, V) where Q, K, V include both visual and text tokens<br>
+        <em>Cross-modal attention enables reasoning across modalities</em>
+      </div>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🎭 Visual Token Visualization</div>
+        <p><strong>Explore how images become token sequences:</strong> See how a 224×224 image gets converted into hundreds of tokens that flow through the language model.</p>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Image Resolution:</label>
+            <select id="imageResolution">
+              <option value="224">224×224 (Standard)</option>
+              <option value="336" selected>336×336 (High-res)</option>
+              <option value="448">448×448 (Ultra-high-res)</option>
+              <option value="512">512×512 (Maximum)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Patch Size:</label>
+            <select id="patchSize">
+              <option value="14" selected>14×14 (GPT-4V style)</option>
+              <option value="16">16×16 (ViT standard)</option>
+              <option value="32">32×32 (Efficient)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Text Input:</label>
+            <textarea id="textInput" rows="3" placeholder="Describe this image in detail">Describe this image in detail</textarea>
+          </div>
+        </div>
+
+        <button onclick="generateTokenSequence()" class="primary">🎭 Generate Token Sequence</button>
+        <div id="tokenVisualization"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>⚡ Fusion Strategies: How Vision and Language Interact</h3>
+      <p>Different VLMs use different strategies to combine visual and textual information. The fusion method dramatically impacts model capabilities and computational efficiency.</p>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🔀 Fusion Strategy Explorer</div>
+
+        <div class="fusion-strategies">
+          <div class="fusion-card" onclick="selectFusion('early', this)">
+            <div class="fusion-title">🔀 Early Fusion</div>
+            <div class="fusion-description">Mix visual and text tokens from the start</div>
+            <div class="fusion-math">
+              Input: [IMG₁, IMG₂, ..., TXT₁, TXT₂, ...]<br>
+              All tokens processed together
+            </div>
+          </div>
+          
+          <div class="fusion-card" onclick="selectFusion('late', this)">
+            <div class="fusion-title">🔚 Late Fusion</div>
+            <div class="fusion-description">Process modalities separately, combine at end</div>
+            <div class="fusion-math">
+              Vision: f_v(IMG) → v_embed<br>
+              Text: f_t(TXT) → t_embed<br>
+              Fusion: g(v_embed, t_embed)
+            </div>
+          </div>
+          
+          <div class="fusion-card" onclick="selectFusion('cross', this)">
+            <div class="fusion-title">🔄 Cross-Attention</div>
+            <div class="fusion-description">Dedicated cross-modal attention layers</div>
+            <div class="fusion-math">
+              Q_text, K_vision, V_vision<br>
+              Attention(Q_t, K_v, V_v)
+            </div>
+          </div>
+          
+          <div class="fusion-card" onclick="selectFusion('adaptive', this)">
+            <div class="fusion-title">🎛️ Adaptive Fusion</div>
+            <div class="fusion-description">Learn when and how to fuse modalities</div>
+            <div class="fusion-math">
+              α = Sigmoid(W[v;t])<br>
+              Output = α*v + (1-α)*t
+            </div>
+          </div>
+        </div>
+
+        <div id="fusionAnalysis"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🧠 Attention Mechanisms: Cross-Modal Understanding</h2>
+    <div class="step">
+      <h3>👁️ How Models "See" and "Understand" Together</h3>
+      <p>The magic of VLMs lies in their attention mechanisms - how they learn to focus on relevant parts of images while processing text, and how visual information influences text generation.</p>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🔍 Cross-Modal Attention Visualizer</div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Query Text:</label>
+            <input type="text" id="queryText" value="What color is the car?" placeholder="Enter your question">
+          </div>
+          <div class="control-group">
+            <label>Image Content:</label>
+            <select id="imageContent">
+              <option value="car" selected>Red car on street</option>
+              <option value="nature">Forest landscape</option>
+              <option value="chart">Business chart</option>
+              <option value="text">Document with text</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Attention Head:</label>
+            <select id="attentionHead">
+              <option value="1">Head 1 (Object focus)</option>
+              <option value="2" selected>Head 2 (Color/texture)</option>
+              <option value="3">Head 3 (Spatial relations)</option>
+              <option value="4">Head 4 (Text reading)</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="visualizeAttention()">🔍 Visualize Cross-Modal Attention</button>
+        <div id="attentionVisualization"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>📊 Attention Pattern Analysis</h3>
+      <div class="math-formula">
+        <strong>Cross-Modal Attention Mathematics:</strong><br><br>
+        
+        <strong>Text-to-Vision Attention:</strong><br>
+        Q<sub>text</sub> = W<sub>Q</sub> × H<sub>text</sub><br>
+        K<sub>vision</sub> = W<sub>K</sub> × H<sub>vision</sub><br>
+        V<sub>vision</sub> = W<sub>V</sub> × H<sub>vision</sub><br><br>
+        
+        <strong>Attention Scores:</strong><br>
+        A<sub>t→v</sub> = Softmax(Q<sub>text</sub> × K<sub>vision</sub><sup>T</sup> / √d)<br><br>
+        
+        <strong>Attended Visual Features:</strong><br>
+        V<sub>attended</sub> = A<sub>t→v</sub> × V<sub>vision</sub><br><br>
+        
+        <strong>Key Insight:</strong> Each text token can attend to different image regions,<br>
+        enabling fine-grained visual reasoning!
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>📊 Performance Benchmarks & Capabilities</h2>
+    <div class="step">
+      <h3>🏆 How Do Modern VLMs Stack Up?</h3>
+      
+      <div class="interactive-demo">
+        <div class="demo-title">📈 VLM Benchmark Comparison</div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Benchmark Category:</label>
+            <select id="benchmarkCategory">
+              <option value="general" selected>General Vision-Language</option>
+              <option value="reasoning">Visual Reasoning</option>
+              <option value="ocr">OCR & Document Understanding</option>
+              <option value="math">Mathematical Reasoning</option>
+              <option value="creative">Creative Tasks</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Evaluation Metric:</label>
+            <select id="evaluationMetric">
+              <option value="accuracy" selected>Accuracy (%)</option>
+              <option value="speed">Speed (tokens/sec)</option>
+              <option value="cost">Cost ($/1K images)</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="updateBenchmarks()">📊 Update Benchmark Comparison</button>
+        <div id="benchmarkResults"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>💪 Capability Deep Dive</h3>
+      <div class="capability-matrix">
+        <div class="capability-header">Capability</div>
+        <div class="capability-header">GPT-4V</div>
+        <div class="capability-header">Gemini Pro</div>
+        <div class="capability-header">Claude 3</div>
+        <div class="capability-header">Notes</div>
+        
+        <div class="capability-cell"><strong>Document Analysis</strong></div>
+        <div class="capability-cell"><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span></div>
+        <div class="capability-cell"><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-good"></span></div>
+        <div class="capability-cell"><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span></div>
+        <div class="capability-cell">All excel at text extraction and layout understanding</div>
+        
+        <div class="capability-cell"><strong>Mathematical Reasoning</strong></div>
+        <div class="capability-cell"><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-good"></span><span class="performance-indicator perf-average"></span></div>
+        <div class="capability-cell"><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-good"></span></div>
+        <div class="capability-cell"><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-good"></span><span class="performance-indicator perf-good"></span></div>
+        <div class="capability-cell">Gemini shows strong math problem solving from images</div>
+        
+        <div class="capability-cell"><strong>Creative Analysis</strong></div>
+        <div class="capability-cell"><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-good"></span></div>
+        <div class="capability-cell"><span class="performance-indicator perf-good"></span><span class="performance-indicator perf-good"></span><span class="performance-indicator perf-average"></span><span class="performance-indicator perf-average"></span></div>
+        <div class="capability-cell"><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span></div>
+        <div class="capability-cell">GPT-4V and Claude excel at creative interpretation</div>
+        
+        <div class="capability-cell"><strong>Code Generation</strong></div>
+        <div class="capability-cell"><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-good"></span><span class="performance-indicator perf-average"></span></div>
+        <div class="capability-cell"><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-good"></span></div>
+        <div class="capability-cell"><span class="performance-indicator perf-good"></span><span class="performance-indicator perf-good"></span><span class="performance-indicator perf-average"></span><span class="performance-indicator perf-average"></span></div>
+        <div class="capability-cell">All can generate code from UI mockups and diagrams</div>
+        
+        <div class="capability-cell"><strong>Safety & Helpfulness</strong></div>
+        <div class="capability-cell"><span class="performance-indicator perf-good"></span><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-good"></span><span class="performance-indicator perf-average"></span></div>
+        <div class="capability-cell"><span class="performance-indicator perf-good"></span><span class="performance-indicator perf-good"></span><span class="performance-indicator perf-average"></span><span class="performance-indicator perf-average"></span></div>
+        <div class="capability-cell"><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span><span class="performance-indicator perf-excellent"></span></div>
+        <div class="capability-cell">Claude's Constitutional AI training shows in safety</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>💻 Implementation & API Usage</h2>
+    <div class="step">
+      <h3>🚀 Practical VLM Integration</h3>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('openai', this)">OpenAI GPT-4V</div>
+        <div class="tab" onclick="switchTab('google', this)">Google Gemini</div>
+        <div class="tab" onclick="switchTab('anthropic', this)">Anthropic Claude</div>
+        <div class="tab" onclick="switchTab('comparison', this)">API Comparison</div>
+      </div>
+
+      <div id="openai" class="tab-content active">
+        <div class="code-block">
+          <div class="code-header">🤖 GPT-4V API Usage (OpenAI)</div>
+          <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>import openai
+import base64
+import requests
+from PIL import Image
+import io
+
+client = openai.OpenAI(api_key="your-api-key")
+
+def encode_image(image_path):
+    """Encode image to base64 for GPT-4V API"""
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
+
+def analyze_image_gpt4v(image_path, prompt="Describe this image in detail"):
+    """
+    Analyze image using GPT-4V
+    """
+    base64_image = encode_image(image_path)
+    
+    response = client.chat.completions.create(
+        model="gpt-4-vision-preview",
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": prompt
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/jpeg;base64,{base64_image}",
+                            "detail": "high"  # "low" | "high" | "auto"
+                        }
+                    }
+                ]
+            }
+        ],
+        max_tokens=1000,
+        temperature=0.0  # Deterministic for analysis tasks
+    )
+    
+    return response.choices[0].message.content
+
+# Advanced usage: Multiple images with conversation
+def multi_image_conversation(image_paths, conversation_history):
+    """
+    Handle multi-image conversation with GPT-4V
+    """
+    messages = []
+    
+    # Add conversation history
+    for msg in conversation_history:
+        messages.append(msg)
+    
+    # Add multiple images to current message
+    content = [{"type": "text", "text": "Compare these images:"}]
+    
+    for image_path in image_paths:
+        base64_image = encode_image(image_path)
+        content.append({
+            "type": "image_url",
+            "image_url": {
+                "url": f"data:image/jpeg;base64,{base64_image}",
+                "detail": "high"
+            }
+        })
+    
+    messages.append({"role": "user", "content": content})
+    
+    response = client.chat.completions.create(
+        model="gpt-4-vision-preview",
+        messages=messages,
+        max_tokens=1500
+    )
+    
+    return response.choices[0].message.content
+
+# Specialized analysis functions
+def extract_text_from_image(image_path):
+    """OCR and document understanding"""
+    return analyze_image_gpt4v(
+        image_path, 
+        "Extract all text from this image and format it properly. "
+        "Maintain the original structure and layout."
+    )
+
+def analyze_chart_or_graph(image_path):
+    """Data visualization analysis"""
+    return analyze_image_gpt4v(
+        image_path,
+        "Analyze this chart or graph. Describe the data trends, "
+        "key insights, and any notable patterns. Provide specific "
+        "numbers where visible."
+    )
+
+def generate_code_from_ui(image_path, framework="React"):
+    """UI mockup to code generation"""
+    return analyze_image_gpt4v(
+        image_path,
+        f"Generate {framework} code for this UI mockup. Include "
+        f"proper styling and component structure. Make it responsive "
+        f"and production-ready."
+    )
+
+# Example usage
+if __name__ == "__main__":
+    # Basic image analysis
+    description = analyze_image_gpt4v("photo.jpg")
+    print("Image description:", description)
+    
+    # OCR example
+    extracted_text = extract_text_from_image("document.jpg")
+    print("Extracted text:", extracted_text)
+    
+    # Multi-image comparison
+    comparison = multi_image_conversation(
+        ["before.jpg", "after.jpg"],
+        [{"role": "system", "content": "You are an expert analyst."}]
+    )
+    print("Comparison:", comparison)
+</pre>
+        </div>
+      </div>
+
+      <div id="google" class="tab-content">
+        <div class="code-block">
+          <div class="code-header">💎 Gemini Vision API Usage (Google)</div>
+          <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>import google.generativeai as genai
+from PIL import Image
+import io
+
+# Configure API
+genai.configure(api_key="your-google-api-key")
+
+def analyze_image_gemini(image_path, prompt="Describe this image"):
+    """
+    Analyze image using Gemini Pro Vision
+    """
+    # Load and prepare image
+    image = Image.open(image_path)
+    
+    # Initialize model
+    model = genai.GenerativeModel('gemini-pro-vision')
+    
+    # Generate response
+    response = model.generate_content([prompt, image])
+    return response.text
+
+def analyze_video_gemini(video_path, prompt="Describe this video"):
+    """
+    Analyze video using Gemini (unique capability)
+    """
+    # Upload video file
+    video_file = genai.upload_file(path=video_path)
+    
+    # Wait for processing
+    while video_file.state.name == "PROCESSING":
+        time.sleep(10)
+        video_file = genai.get_file(video_file.name)
+    
+    model = genai.GenerativeModel('gemini-1.5-pro')
+    response = model.generate_content([prompt, video_file])
+    
+    return response.text
+
+def mathematical_reasoning_from_image(image_path):
+    """
+    Solve math problems from images (Gemini's strength)
+    """
+    prompt = """
+    Look at this mathematical problem in the image. 
+    Solve it step by step, showing your work clearly.
+    If there are graphs or diagrams, interpret them as part of the solution.
+    """
+    
+    return analyze_image_gemini(image_path, prompt)
+
+def long_document_analysis(image_paths):
+    """
+    Analyze multi-page documents (up to 2M tokens context)
+    """
+    model = genai.GenerativeModel('gemini-1.5-pro')
+    
+    # Prepare images
+    images = [Image.open(path) for path in image_paths]
+    
+    prompt = """
+    Analyze this multi-page document. Provide:
+    1. Summary of main topics
+    2. Key data points and statistics  
+    3. Important conclusions or recommendations
+    4. Any action items or next steps mentioned
+    """
+    
+    content = [prompt] + images
+    response = model.generate_content(content)
+    
+    return response.text
+
+def code_generation_from_mockup(image_path, framework="HTML/CSS"):
+    """
+    Generate code from UI mockups
+    """
+    prompt = f"""
+    Generate clean, production-ready {framework} code for this UI mockup.
+    
+    Requirements:
+    - Responsive design
+    - Modern styling
+    - Accessible markup
+    - Clean, commented code
+    - Include hover states and interactions where appropriate
+    """
+    
+    return analyze_image_gemini(image_path, prompt)
+
+# Advanced: Streaming responses for long analysis
+def stream_analysis(image_path, prompt):
+    """
+    Stream response for real-time feedback
+    """
+    image = Image.open(image_path)
+    model = genai.GenerativeModel('gemini-pro-vision')
+    
+    response = model.generate_content([prompt, image], stream=True)
+    
+    full_response = ""
+    for chunk in response:
+        if chunk.text:
+            print(chunk.text, end='')
+            full_response += chunk.text
+    
+    return full_response
+
+# Safety settings for content filtering
+def safe_image_analysis(image_path, prompt):
+    """
+    Analysis with safety controls
+    """
+    safety_settings = [
+        {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+        {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+        {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+        {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"}
+    ]
+    
+    image = Image.open(image_path)
+    model = genai.GenerativeModel('gemini-pro-vision')
+    
+    response = model.generate_content(
+        [prompt, image],
+        safety_settings=safety_settings
+    )
+    
+    return response.text
+
+# Example usage
+if __name__ == "__main__":
+    # Basic analysis
+    result = analyze_image_gemini("chart.jpg", "Explain this business chart")
+    print("Chart analysis:", result)
+    
+    # Math problem solving
+    solution = mathematical_reasoning_from_image("math_problem.jpg")
+    print("Solution:", solution)
+    
+    # Video analysis (unique to Gemini)
+    video_summary = analyze_video_gemini("presentation.mp4", 
+                                         "Summarize the key points from this presentation")
+    print("Video summary:", video_summary)
+</pre>
+        </div>
+      </div>
+
+      <div id="anthropic" class="tab-content">
+        <div class="code-block">
+          <div class="code-header">🤖 Claude Vision API Usage (Anthropic)</div>
+          <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>import anthropic
+import base64
+from typing import List, Dict
+
+client = anthropic.Anthropic(api_key="your-anthropic-api-key")
+
+def encode_image_claude(image_path):
+    """Encode image for Claude API"""
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
+
+def analyze_image_claude(image_path, prompt="Please describe this image"):
+    """
+    Analyze image using Claude 3 (Opus/Sonnet/Haiku)
+    """
+    base64_image = encode_image_claude(image_path)
+    
+    # Determine image type
+    image_type = "image/jpeg"
+    if image_path.lower().endswith('.png'):
+        image_type = "image/png"
+    elif image_path.lower().endswith('.gif'):
+        image_type = "image/gif"
+    elif image_path.lower().endswith('.webp'):
+        image_type = "image/webp"
+    
+    response = client.messages.create(
+        model="claude-3-opus-20240229",  # or "claude-3-sonnet-20240229"
+        max_tokens=1500,
+        temperature=0,
+        messages=[
+            {
+                "role": "user", 
+                "content": [
+                    {
+                        "type": "image",
+                        "source": {
+                            "type": "base64",
+                            "media_type": image_type,
+                            "data": base64_image
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "text": prompt
+                    }
+                ]
+            }
+        ]
+    )
+    
+    return response.content[0].text
+
+def educational_image_explanation(image_path, subject="general"):
+    """
+    Generate educational explanations (Claude's strength)
+    """
+    prompt = f"""
+    Please provide a detailed educational explanation of this image related to {subject}.
+    
+    Structure your response as:
+    1. What you observe
+    2. Key concepts or principles demonstrated
+    3. Educational significance or applications
+    4. Questions this might help students explore
+    
+    Make it suitable for learning and teaching.
+    """
+    
+    return analyze_image_claude(image_path, prompt)
+
+def structured_data_extraction(image_path, format_type="JSON"):
+    """
+    Extract structured data from images (forms, tables, etc.)
+    """
+    prompt = f"""
+    Extract all structured information from this image and format it as {format_type}.
+    
+    For tables: preserve row/column structure
+    For forms: capture field names and values
+    For documents: maintain hierarchical organization
+    
+    Be precise and comprehensive.
+    """
+    
+    return analyze_image_claude(image_path, prompt)
+
+def creative_visual_analysis(image_path):
+    """
+    Creative and artistic analysis (Claude's strength)
+    """
+    prompt = """
+    Provide a thoughtful creative analysis of this image. Consider:
+    
+    - Artistic elements (composition, color, lighting, mood)
+    - Emotional impact and atmosphere
+    - Symbolism or deeper meaning
+    - Cultural or historical context if relevant
+    - Technical aspects of the photography/artwork
+    
+    Write in an engaging, insightful style that would be valuable 
+    for art students or enthusiasts.
+    """
+    
+    return analyze_image_claude(image_path, prompt)
+
+def multi_step_reasoning(image_path, reasoning_type="logical"):
+    """
+    Complex reasoning tasks from visual input
+    """
+    prompt = f"""
+    Analyze this image using step-by-step {reasoning_type} reasoning.
+    
+    Please:
+    1. Observe and describe what you see
+    2. Identify relevant information for analysis
+    3. Apply logical reasoning step by step
+    4. Draw conclusions based on your analysis
+    5. Explain your reasoning process
+    
+    Be thorough and show your work clearly.
+    """
+    
+    return analyze_image_claude(image_path, prompt)
+
+def safety_focused_analysis(image_path):
+    """
+    Analyze images with safety considerations (Claude's constitutional training)
+    """
+    prompt = """
+    Please analyze this image with attention to:
+    
+    1. Content appropriateness and safety considerations
+    2. Factual accuracy of any information shown
+    3. Potential misinterpretations or biases
+    4. Ethical implications if relevant
+    
+    Provide a balanced, thoughtful analysis that considers multiple perspectives.
+    """
+    
+    return analyze_image_claude(image_path, prompt)
+
+def conversation_with_images(image_paths: List[str], conversation_prompt: str):
+    """
+    Multi-image conversation with Claude
+    """
+    content = []
+    
+    # Add all images
+    for image_path in image_paths:
+        base64_image = encode_image_claude(image_path)
+        image_type = "image/jpeg"
+        if image_path.lower().endswith('.png'):
+            image_type = "image/png"
+        
+        content.append({
+            "type": "image",
+            "source": {
+                "type": "base64", 
+                "media_type": image_type,
+                "data": base64_image
+            }
+        })
+    
+    # Add conversation prompt
+    content.append({
+        "type": "text",
+        "text": conversation_prompt
+    })
+    
+    response = client.messages.create(
+        model="claude-3-opus-20240229",
+        max_tokens=2000,
+        messages=[{"role": "user", "content": content}]
+    )
+    
+    return response.content[0].text
+
+def document_qa_system(image_path, questions: List[str]):
+    """
+    Question-answering system for document images
+    """
+    base64_image = encode_image_claude(image_path)
+    
+    questions_text = "\n".join([f"{i+1}. {q}" for i, q in enumerate(questions)])
+    
+    prompt = f"""
+    Please analyze this document image and answer the following questions:
+    
+    {questions_text}
+    
+    For each question, provide:
+    - A direct answer based on the document
+    - The specific location/section where you found the information
+    - Your confidence level in the answer
+    
+    If information isn't available in the document, please state that clearly.
+    """
+    
+    response = client.messages.create(
+        model="claude-3-opus-20240229",
+        max_tokens=2000,
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image",
+                        "source": {
+                            "type": "base64",
+                            "media_type": "image/jpeg",
+                            "data": base64_image
+                        }
+                    },
+                    {
+                        "type": "text", 
+                        "text": prompt
+                    }
+                ]
+            }
+        ]
+    )
+    
+    return response.content[0].text
+
+# Example usage
+if __name__ == "__main__":
+    # Educational explanation
+    explanation = educational_image_explanation("diagram.jpg", "biology")
+    print("Educational explanation:", explanation)
+    
+    # Creative analysis
+    creative_analysis = creative_visual_analysis("artwork.jpg")
+    print("Creative analysis:", creative_analysis)
+    
+    # Multi-image conversation
+    comparison = conversation_with_images(
+        ["chart1.jpg", "chart2.jpg"],
+        "Compare these two charts and highlight the key differences in trends."
+    )
+    print("Chart comparison:", comparison)
+    
+    # Document Q&A
+    answers = document_qa_system("invoice.jpg", [
+        "What is the total amount?",
+        "When is the due date?", 
+        "What company issued this invoice?"
+    ])
+    print("Document Q&A:", answers)
+</pre>
+        </div>
+      </div>
+
+      <div id="comparison" class="tab-content">
+        <div class="benchmark-table">
+          <table>
+            <tr>
+              <th>Feature</th>
+              <th>GPT-4V</th>
+              <th>Gemini Pro</th>
+              <th>Claude 3 Opus</th>
+            </tr>
+            <tr>
+              <td><strong>Max Image Size</strong></td>
+              <td>20MB, 4096×4096</td>
+              <td>4MB, multiple formats</td>
+              <td>5MB, up to 8000×8000</td>
+            </tr>
+            <tr>
+              <td><strong>Supported Formats</strong></td>
+              <td>PNG, JPEG, WEBP, GIF</td>
+              <td>PNG, JPEG, WEBP, HEIC</td>
+              <td>PNG, JPEG, GIF, WEBP</td>
+            </tr>
+            <tr>
+              <td><strong>Batch Processing</strong></td>
+              <td>Multiple images per request</td>
+              <td>Multiple images + video</td>
+              <td>Multiple images per request</td>
+            </tr>
+            <tr>
+              <td><strong>Context Length</strong></td>
+              <td>128K tokens</td>
+              <td>2M tokens (Gemini 1.5)</td>
+              <td>200K tokens</td>
+            </tr>
+            <tr>
+              <td><strong>Pricing (per image)</strong></td>
+              <td>$0.01 (detail=high)</td>
+              <td>$0.0025</td>
+              <td>$0.0048</td>
+            </tr>
+            <tr>
+              <td><strong>Special Features</strong></td>
+              <td>DALL-E integration</td>
+              <td>Video understanding</td>
+              <td>Constitutional AI safety</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="success">
+          <strong>🎯 API Selection Guide:</strong><br><br>
+          
+          <strong>Choose GPT-4V for:</strong><br>
+          • Creative and artistic analysis<br>
+          • Code generation from mockups<br>
+          • Integration with DALL-E workflows<br>
+          • Mature ecosystem and tooling<br><br>
+          
+          <strong>Choose Gemini for:</strong><br>
+          • Video analysis (unique capability)<br>
+          • Mathematical problem solving<br>
+          • Long document processing (2M tokens)<br>
+          • Cost-effective high-volume processing<br><br>
+          
+          <strong>Choose Claude for:</strong><br>
+          • Educational content and explanations<br>
+          • Safety-critical applications<br>
+          • Detailed reasoning and analysis<br>
+          • Constitutional AI alignment benefits
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🚀 Advanced Applications & Use Cases</h2>
+    <div class="step">
+      <h3>🏭 Production VLM Applications</h3>
+      
+      <div class="interactive-demo">
+        <div class="demo-title">💼 VLM Application Showcase</div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Industry Vertical:</label>
+            <select id="industryVertical">
+              <option value="healthcare" selected>Healthcare</option>
+              <option value="education">Education</option>
+              <option value="finance">Finance & Banking</option>
+              <option value="retail">Retail & E-commerce</option>
+              <option value="manufacturing">Manufacturing</option>
+              <option value="media">Media & Entertainment</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Use Case Type:</label>
+            <select id="useCaseType">
+              <option value="analysis" selected>Document/Image Analysis</option>
+              <option value="automation">Process Automation</option>
+              <option value="qa">Quality Assurance</option>
+              <option value="creative">Creative Enhancement</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="showcaseApplications()">🎯 Show Applications</button>
+        <div id="applicationShowcase"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🎯 Real-World Success Stories</h3>
+      
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-date">2023 Q4</div>
+          <div class="timeline-content">
+            <h4>🏥 Medical Imaging Revolution</h4>
+            <p>GPT-4V deployed for radiology report generation, reducing reporting time by 60% while maintaining accuracy. Integration with PACS systems enables real-time image analysis.</p>
+          </div>
+        </div>
+        
+        <div class="timeline-item">
+          <div class="timeline-date">2024 Q1</div>
+          <div class="timeline-content">
+            <h4>📚 Educational Content Creation</h4>
+            <p>Claude 3 powers automated textbook digitization, converting scanned pages to interactive digital content with 98% accuracy in mathematical notation recognition.</p>
+          </div>
+        </div>
+        
+        <div class="timeline-item">
+          <div class="timeline-date">2024 Q2</div>
+          <div class="timeline-content">
+            <h4>🏦 Financial Document Processing</h4>
+            <p>Gemini Pro Vision automates loan application processing, extracting and validating information from complex financial documents, reducing processing time from days to minutes.</p>
+          </div>
+        </div>
+        
+        <div class="timeline-item">
+          <div class="timeline-date">2024 Q3</div>
+          <div class="timeline-content">
+            <h4>🛒 Retail Visual Search</h4>
+            <p>GPT-4V enables "shop the look" functionality, allowing customers to upload photos and find similar products with 95% relevance accuracy across 10M+ product catalogs.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🔮 Future Directions & Emerging Capabilities</h3>
+      <div class="breakthrough-highlight">
+        🌟 Next-Generation VLMs: Multi-step reasoning, video understanding, 3D scene comprehension, and real-time visual interaction!
+      </div>
+
+      <div class="model-comparison">
+        <div class="model-card">
+          <div class="model-name">🎥 Video-Native VLMs</div>
+          <div class="model-specs">
+            • Temporal reasoning across video frames<br>
+            • Action recognition and prediction<br>
+            • Long-form video summarization<br>
+            • Real-time video Q&A
+          </div>
+        </div>
+
+        <div class="model-card">
+          <div class="model-name">🏗️ 3D Scene Understanding</div>
+          <div class="model-specs">
+            • Depth estimation and 3D reconstruction<br>
+            • Spatial reasoning in 3D environments<br>
+            • Augmented reality integration<br>
+            • Robotics and navigation applications
+          </div>
+        </div>
+
+        <div class="model-card">
+          <div class="model-name">⚡ Real-Time Interaction</div>
+          <div class="model-specs">
+            • Live camera feed processing<br>
+            • Interactive visual assistance<br>
+            • Real-time object manipulation<br>
+            • Streaming video analysis
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🔬 Training & Fine-tuning VLMs</h2>
+    <div class="step">
+      <h3>🎓 Instruction Tuning for Vision-Language Tasks</h3>
+      <p>Training modern VLMs requires sophisticated instruction tuning that teaches models to follow visual instructions and provide helpful, accurate responses about images.</p>
+
+      <div class="math-formula">
+        <strong>VLM Training Pipeline:</strong><br><br>
+        
+        <strong>1. Multimodal Pre-training:</strong><br>
+        ℒ<sub>pretrain</sub> = ℒ<sub>LM</sub>(text) + λ<sub>vision</sub>ℒ<sub>vision</sub>(image, text)<br>
+        <em>Joint training on text-only and vision-language data</em><br><br>
+        
+        <strong>2. Instruction Tuning:</strong><br>
+        ℒ<sub>instruction</sub> = -∑ log P(response | instruction, image)<br>
+        <em>Learn to follow visual instructions and provide helpful responses</em><br><br>
+        
+        <strong>3. RLHF (Reinforcement Learning from Human Feedback):</strong><br>
+        ℒ<sub>RLHF</sub> = 𝔼<sub>π</sub>[r(image, instruction, response)] - β KL(π, π<sub>ref</sub>)<br>
+        <em>Optimize for human preferences in visual tasks</em>
+      </div>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🎯 VLM Training Simulator</div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Training Stage:</label>
+            <select id="trainingStage">
+              <option value="pretrain" selected>Pre-training</option>
+              <option value="instruction">Instruction Tuning</option>
+              <option value="rlhf">RLHF</option>
+              <option value="fine-tune">Domain Fine-tuning</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Dataset Type:</label>
+            <select id="datasetType">
+              <option value="general" selected>General Vision-Language</option>
+              <option value="medical">Medical Images</option>
+              <option value="documents">Document Understanding</option>
+              <option value="creative">Creative/Artistic</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Training Scale:</label>
+            <select id="trainingScale">
+              <option value="small">Small (1M examples)</option>
+              <option value="medium" selected>Medium (10M examples)</option>
+              <option value="large">Large (100M+ examples)</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="simulateVLMTraining()">🎓 Simulate Training</button>
+        <div id="trainingSimulation"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>💻 Custom VLM Fine-tuning Code</h3>
+      <div class="code-block">
+        <div class="code-header">🎓 Custom VLM Fine-tuning (PyTorch + Transformers)</div>
+        <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>import torch
+import torch.nn as nn
+from transformers import (
+    LlamaForCausalLM, 
+    LlamaTokenizer,
+    CLIPVisionModel,
+    CLIPImageProcessor,
+    Trainer,
+    TrainingArguments
+)
+from torch.utils.data import Dataset
+from PIL import Image
+import json
+
+class VisionLanguageModel(nn.Module):
+    """
+    Custom Vision-Language Model combining CLIP vision encoder with LLaMA
+    """
+    def __init__(self, llm_model_name="meta-llama/Llama-2-7b-hf"):
+        super().__init__()
+        
+        # Vision encoder (CLIP ViT)
+        self.vision_encoder = CLIPVisionModel.from_pretrained("openai/clip-vit-base-patch32")
+        self.vision_processor = CLIPImageProcessor.from_pretrained("openai/clip-vit-base-patch32")
+        
+        # Language model
+        self.language_model = LlamaForCausalLM.from_pretrained(llm_model_name)
+        self.tokenizer = LlamaTokenizer.from_pretrained(llm_model_name)
+        
+        # Vision-language projection
+        vision_dim = self.vision_encoder.config.hidden_size  # 768 for CLIP ViT-Base
+        llm_dim = self.language_model.config.hidden_size     # 4096 for LLaMA-7B
+        
+        self.vision_projection = nn.Sequential(
+            nn.Linear(vision_dim, llm_dim),
+            nn.GELU(),
+            nn.Linear(llm_dim, llm_dim)
+        )
+        
+        # Special tokens
+        self.tokenizer.add_special_tokens({
+            'pad_token': '[PAD]',
+            'additional_special_tokens': ['<image>', '</image>']
+        })
+        self.language_model.resize_token_embeddings(len(self.tokenizer))
+        
+        # Freeze vision encoder initially
+        for param in self.vision_encoder.parameters():
+            param.requires_grad = False
+    
+    def encode_image(self, images):
+        """Encode images to visual tokens"""
+        with torch.no_grad():
+            vision_outputs = self.vision_encoder(images)
+            image_embeddings = vision_outputs.last_hidden_state
+        
+        # Project to LLM dimension
+        projected_embeddings = self.vision_projection(image_embeddings)
+        return projected_embeddings
+    
+    def forward(self, input_ids, attention_mask, images=None, labels=None):
+        """Forward pass with optional images"""
+        batch_size, seq_len = input_ids.shape
+        
+        # Get text embeddings
+        inputs_embeds = self.language_model.get_input_embeddings()(input_ids)
+        
+        if images is not None:
+            # Encode images
+            image_embeds = self.encode_image(images)  # [batch, num_patches, llm_dim]
+            
+            # Find <image> token positions
+            image_token_id = self.tokenizer.convert_tokens_to_ids('<image>')
+            image_positions = (input_ids == image_token_id)
+            
+            # Replace <image> tokens with actual image embeddings
+            for batch_idx in range(batch_size):
+                img_positions = torch.where(image_positions[batch_idx])[0]
+                if len(img_positions) > 0:
+                    # Replace first image token position with image patches
+                    pos = img_positions[0]
+                    # Insert image patches at the position
+                    inputs_embeds[batch_idx, pos:pos+1] = image_embeds[batch_idx, :1]
+        
+        # Forward through language model
+        outputs = self.language_model(
+            inputs_embeds=inputs_embeds,
+            attention_mask=attention_mask,
+            labels=labels
+        )
+        
+        return outputs
+
+class VisionLanguageDataset(Dataset):
+    """Dataset for vision-language instruction tuning"""
+    
+    def __init__(self, data_path, tokenizer, vision_processor, max_length=2048):
+        with open(data_path, 'r') as f:
+            self.data = json.load(f)
+        
+        self.tokenizer = tokenizer
+        self.vision_processor = vision_processor
+        self.max_length = max_length
+    
+    def __len__(self):
+        return len(self.data)
+    
+    def __getitem__(self, idx):
+        item = self.data[idx]
+        
+        # Load and process image
+        image = Image.open(item['image_path']).convert('RGB')
+        image_tensor = self.vision_processor(image, return_tensors='pt')['pixel_values'][0]
+        
+        # Create instruction-response format
+        instruction = item['instruction']
+        response = item['response']
+        
+        # Format: <image> {instruction} {response}
+        text = f"<image> {instruction} {response}"
+        
+        # Tokenize
+        encoding = self.tokenizer(
+            text,
+            truncation=True,
+            max_length=self.max_length,
+            padding='max_length',
+            return_tensors='pt'
+        )
+        
+        # Create labels (mask instruction part, only train on response)
+        instruction_text = f"<image> {instruction} "
+        instruction_length = len(self.tokenizer.encode(instruction_text, add_special_tokens=False))
+        
+        labels = encoding['input_ids'].clone()
+        labels[0, :instruction_length] = -100  # Ignore instruction tokens in loss
+        
+        return {
+            'input_ids': encoding['input_ids'][0],
+            'attention_mask': encoding['attention_mask'][0],
+            'labels': labels[0],
+            'images': image_tensor
+        }
+
+def train_vlm(model, train_dataset, eval_dataset=None):
+    """Train the Vision-Language Model"""
+    
+    training_args = TrainingArguments(
+        output_dir="./vlm-finetuned",
+        per_device_train_batch_size=4,  # Adjust based on GPU memory
+        per_device_eval_batch_size=4,
+        gradient_accumulation_steps=8,  # Effective batch size: 4*8=32
+        num_train_epochs=3,
+        learning_rate=2e-5,
+        warmup_steps=500,
+        weight_decay=0.01,
+        logging_steps=50,
+        save_steps=1000,
+        eval_steps=1000,
+        evaluation_strategy="steps" if eval_dataset else "no",
+        save_total_limit=3,
+        load_best_model_at_end=True if eval_dataset else False,
+        metric_for_best_model="eval_loss" if eval_dataset else None,
+        fp16=True,  # Mixed precision training
+        dataloader_num_workers=4,
+        remove_unused_columns=False,
+        report_to="wandb",  # Optional: for experiment tracking
+    )
+    
+    # Custom data collator
+    def data_collator(features):
+        batch = {}
+        batch['input_ids'] = torch.stack([f['input_ids'] for f in features])
+        batch['attention_mask'] = torch.stack([f['attention_mask'] for f in features])
+        batch['labels'] = torch.stack([f['labels'] for f in features])
+        batch['images'] = torch.stack([f['images'] for f in features])
+        return batch
+    
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        train_dataset=train_dataset,
+        eval_dataset=eval_dataset,
+        data_collator=data_collator,
+    )
+    
+    # Train the model
+    trainer.train()
+    
+    # Save the final model
+    trainer.save_model()
+    
+    return trainer
+
+def inference_example(model, tokenizer, vision_processor, image_path, instruction):
+    """Run inference with the trained model"""
+    model.eval()
+    
+    # Load and process image
+    image = Image.open(image_path).convert('RGB')
+    image_tensor = vision_processor(image, return_tensors='pt')['pixel_values']
+    
+    # Prepare input
+    text = f"<image> {instruction} "
+    input_ids = tokenizer.encode(text, return_tensors='pt')
+    
+    with torch.no_grad():
+        # Generate response
+        outputs = model.language_model.generate(
+            input_ids=input_ids,
+            images=image_tensor,
+            max_length=512,
+            do_sample=True,
+            temperature=0.7,
+            pad_token_id=tokenizer.pad_token_id,
+            eos_token_id=tokenizer.eos_token_id
+        )
+        
+        # Decode response
+        response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        response = response.replace(text.strip(), "").strip()
+    
+    return response
+
+# Example usage
+if __name__ == "__main__":
+    # Initialize model
+    model = VisionLanguageModel("meta-llama/Llama-2-7b-hf")
+    
+    # Load datasets
+    train_dataset = VisionLanguageDataset(
+        "train_data.json", 
+        model.tokenizer, 
+        model.vision_processor
+    )
+    
+    eval_dataset = VisionLanguageDataset(
+        "eval_data.json",
+        model.tokenizer,
+        model.vision_processor
+    )
+    
+    # Train the model
+    trainer = train_vlm(model, train_dataset, eval_dataset)
+    
+    # Example inference
+    response = inference_example(
+        model, 
+        model.tokenizer, 
+        model.vision_processor,
+        "test_image.jpg", 
+        "What do you see in this image?"
+    )
+    
+    print(f"Model response: {response}")
+</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🎯 Key Takeaways & Future Outlook</h2>
+    <div class="step">
+      <h3>🏆 What We've Learned</h3>
+      <div class="success">
+        <strong>✅ Core VLM Insights Mastered:</strong><br><br>
+        
+        <strong>🏗️ Architectural Evolution:</strong><br>
+        • From CLIP's separate encoders to integrated token streams<br>
+        • Visual tokens flow through language model transformers<br>
+        • Cross-modal attention enables sophisticated reasoning<br><br>
+        
+        <strong>🧮 Mathematical Foundations:</strong><br>
+        • Visual patch tokenization and positional encoding<br>
+        • Fusion strategies: early vs late vs cross-attention<br>
+        • Instruction tuning and RLHF for visual tasks<br><br>
+        
+        <strong>💻 Production Implementation:</strong><br>
+        • API usage patterns for GPT-4V, Gemini, and Claude<br>
+        • Performance benchmarks and capability comparisons<br>
+        • Custom training and fine-tuning strategies<br><br>
+        
+        <strong>🚀 Real-World Applications:</strong><br>
+        • Document analysis and OCR at scale<br>
+        • Medical imaging and healthcare automation<br>
+        • Educational content creation and creative analysis
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🔮 The Future of Vision-Language AI</h3>
+      <div class="breakthrough-highlight">
+        🌟 Next Frontier: Embodied AI agents that can see, reason, and act in the physical world using vision-language understanding!
+      </div>
+
+      <div class="warning">
+        <strong>🚧 Current Limitations & Active Research:</strong><br>
+        • <strong>Spatial reasoning:</strong> Still struggles with complex 3D relationships<br>
+        • <strong>Fine-grained details:</strong> May miss subtle visual elements<br>
+        • <strong>Hallucination:</strong> Can generate plausible but incorrect descriptions<br>
+        • <strong>Computational cost:</strong> High inference costs for complex visual tasks<br>
+        • <strong>Context limitations:</strong> Long visual sequences remain challenging
+      </div>
+
+      <div class="info">
+        <strong>🔬 Emerging Research Directions:</strong><br>
+        • <strong>Video-native architectures:</strong> Models trained end-to-end on video data<br>
+        • <strong>3D scene understanding:</strong> Depth estimation and spatial reasoning<br>
+        • <strong>Multimodal agents:</strong> Systems that can perceive, reason, and act<br>
+        • <strong>Efficient architectures:</strong> Reducing computational costs while maintaining quality<br>
+        • <strong>Grounding in robotics:</strong> Connecting vision-language to physical actions
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>📚 Recommended Next Steps</h3>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-value">🤖</div>
+          <div class="metric-label">Explore VLA Models</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">🧠</div>
+          <div class="metric-label">Study V-JEPA</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">🎨</div>
+          <div class="metric-label">Generative Vision</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">⚡</div>
+          <div class="metric-label">Optimization Techniques</div>
+        </div>
+      </div>
+
+      <div class="success">
+        <strong>🎓 Your Vision-Language Journey:</strong><br>
+        You now understand how CLIP's breakthrough evolved into the conversational AI systems millions use daily. From joint embeddings to unified token streams, from contrastive learning to instruction tuning - you've mastered the mathematical foundations and practical implementation of modern multimodal AI!
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let selectedModel = 'gpt4v';
+    let selectedFusion = 'early';
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      selectModel('gpt4v', document.querySelector('.model-card'));
+      selectFusion('early', document.querySelector('.fusion-card'));
+      generateTokenSequence();
+      visualizeAttention();
+      updateBenchmarks();
+      showcaseApplications();
+      simulateVLMTraining();
+    });
+
+    function selectModel(modelId, element) {
+      selectedModel = modelId;
+      
+      // Update visual selection
+      document.querySelectorAll('.model-card').forEach(card => card.classList.remove('selected'));
+      element.classList.add('selected');
+      
+      // Show detailed architecture information
+      const details = {
+        'gpt4v': {
+          architecture: 'GPT-4 Transformer + Custom Vision Encoder',
+          innovation: 'Seamless integration of vision into conversational AI',
+          strengths: ['Creative visual analysis', 'Code generation', 'Artistic interpretation'],
+          technical: 'Uses custom ViT variant with learned visual tokens that integrate into GPT-4\'s token stream'
+        },
+        'gemini': {
+          architecture: 'Native Multimodal Transformer (Pathways)',
+          innovation: 'Joint training from scratch on multimodal data',
+          strengths: ['Video understanding', 'Mathematical reasoning', 'Long context'],
+          technical: 'Unified architecture processes text, images, and video as equal input modalities'
+        },
+        'claude': {
+          architecture: 'Constitutional AI + Vision Integration',
+          innovation: 'Safety-focused vision-language alignment',
+          strengths: ['Educational explanations', 'Safe content analysis', 'Detailed reasoning'],
+          technical: 'Incorporates Constitutional AI principles into multimodal training pipeline'
+        }
+      };
+
+      const detail = details[modelId];
+      document.getElementById('architectureDetails').innerHTML = `
+        <div class="step" style="margin-top: 20px;">
+          <h4>🔍 ${selectedModel.toUpperCase()} Deep Dive</h4>
+          <div class="info">
+            <strong>Architecture:</strong> ${detail.architecture}<br>
+            <strong>Key Innovation:</strong> ${detail.innovation}<br>
+            <strong>Core Strengths:</strong> ${detail.strengths.join(', ')}<br><br>
+            <strong>Technical Details:</strong> ${detail.technical}
+          </div>
+        </div>`;
+    }
+
+    function generateTokenSequence() {
+      const resolution = parseInt(document.getElementById('imageResolution').value);
+      const patchSize = parseInt(document.getElementById('patchSize').value);
+      const textInput = document.getElementById('textInput').value;
+
+      // Calculate visual tokens
+      const patchesPerSide = resolution / patchSize;
+      const visualTokens = patchesPerSide * patchesPerSide;
+      
+      // Estimate text tokens (rough approximation)
+      const textTokens = Math.ceil(textInput.split(' ').length * 1.3);
+
+      // Generate token visualization
+      let tokenHtml = '<div class="token-flow">';
+      
+      // Special tokens
+      tokenHtml += '<div class="token special">[BOS]</div>';
+      
+      // Visual tokens
+      for (let i = 0; i < Math.min(visualTokens, 20); i++) {
+        tokenHtml += `<div class="token image">IMG_${i}</div>`;
+      }
+      if (visualTokens > 20) {
+        tokenHtml += `<div class="token image">... +${visualTokens - 20}</div>`;
+      }
+      
+      // Text tokens
+      const words = textInput.split(' ');
+      words.forEach((word, i) => {
+        if (i < 15) {
+          tokenHtml += `<div class="token text">${word}</div>`;
+        }
+      });
+      if (words.length > 15) {
+        tokenHtml += `<div class="token text">...</div>`;
+      }
+      
+      tokenHtml += '<div class="token special">[EOS]</div>';
+      tokenHtml += '</div>';
+
+      const visualization = document.getElementById('tokenVisualization');
+      visualization.innerHTML = `
+        <div class="training-simulation">
+          <h4>🎭 Token Sequence Analysis</h4>
+          ${tokenHtml}
+          
+          <div class="metric-grid" style="margin-top: 20px;">
+            <div class="metric-card">
+              <div class="metric-value">${visualTokens}</div>
+              <div class="metric-label">Visual Tokens</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value">${textTokens}</div>
+              <div class="metric-label">Text Tokens</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value">${visualTokens + textTokens + 2}</div>
+              <div class="metric-label">Total Sequence Length</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value">${(resolution * resolution * 3 / 1024 / 1024).toFixed(1)}MB</div>
+              <div class="metric-label">Raw Image Size</div>
+            </div>
+          </div>
+          
+          <div class="info" style="margin-top: 15px;">
+            <strong>💡 Token Insights:</strong><br>
+            • <strong>Visual tokens:</strong> Each ${patchSize}×${patchSize} patch becomes one token<br>
+            • <strong>Sequence length:</strong> ${resolution}×${resolution} image = ${visualTokens} visual tokens<br>
+            • <strong>Processing:</strong> All tokens flow through the same transformer architecture<br>
+            • <strong>Efficiency:</strong> Higher resolution = more tokens = slower inference
+          </div>
+        </div>`;
+    }
+
+    function selectFusion(fusionType, element) {
+      selectedFusion = fusionType;
+      
+      // Update visual selection
+      document.querySelectorAll('.fusion-card').forEach(card => card.classList.remove('selected'));
+      element.classList.add('selected');
+      
+      // Show fusion analysis
+      const fusionDetails = {
+        'early': {
+          pros: ['Simple implementation', 'Maximum cross-modal interaction', 'Unified processing'],
+          cons: ['High computational cost', 'Memory intensive', 'May lose modality-specific features'],
+          use_case: 'Best for tasks requiring tight integration like visual question answering'
+        },
+        'late': {
+          pros: ['Modality-specific optimization', 'Lower computational cost', 'Flexible architecture'],
+          cons: ['Limited cross-modal interaction', 'May miss fine-grained relationships'],
+          use_case: 'Good for tasks with distinct modality processing like image classification with text metadata'
+        },
+        'cross': {
+          pros: ['Balanced approach', 'Controlled interaction', 'Interpretable attention'],
+          cons: ['More complex architecture', 'Moderate computational cost', 'Requires careful design'],
+          use_case: 'Ideal for document understanding and complex visual reasoning'
+        },
+        'adaptive': {
+          pros: ['Dynamic fusion strategy', 'Task-adaptive', 'Potentially optimal performance'],
+          cons: ['Complex training', 'Hard to interpret', 'Computationally expensive'],
+          use_case: 'Research direction for multi-task vision-language systems'
+        }
+      };
+
+      const detail = fusionDetails[fusionType];
+      document.getElementById('fusionAnalysis').innerHTML = `
+        <div class="step" style="margin-top: 20px;">
+          <h4>🔀 ${fusionType.charAt(0).toUpperCase() + fusionType.slice(1)} Fusion Analysis</h4>
+          <div class="success">
+            <strong>✅ Advantages:</strong><br>
+            ${detail.pros.map(pro => `• ${pro}`).join('<br>')}
+          </div>
+          <div class="warning">
+            <strong>⚠️ Trade-offs:</strong><br>
+            ${detail.cons.map(con => `• ${con}`).join('<br>')}
+          </div>
+          <div class="info">
+            <strong>🎯 Best Use Case:</strong><br>
+            ${detail.use_case}
+          </div>
+        </div>`;
+    }
+
+    function visualizeAttention() {
+      const queryText = document.getElementById('queryText').value;
+      const imageContent = document.getElementById('imageContent').value;
+      const attentionHead = document.getElementById('attentionHead').value;
+
+      // Simulate attention patterns based on query and content
+      const attentionPatterns = {
+        '1': [0.8, 0.6, 0.4, 0.2, 0.9, 0.3, 0.1, 0.5], // Object focus
+        '2': [0.3, 0.7, 0.9, 0.5, 0.2, 0.8, 0.4, 0.6], // Color/texture
+        '3': [0.5, 0.2, 0.3, 0.9, 0.6, 0.1, 0.8, 0.4], // Spatial relations
+        '4': [0.1, 0.3, 0.2, 0.4, 0.5, 0.6, 0.9, 0.8]  // Text reading
+      };
+
+      const patterns = attentionPatterns[attentionHead];
+      
+      // Create attention matrix visualization
+      let matrixHtml = '<div class="attention-matrix"><h4>Cross-Modal Attention Matrix</h4>';
+      matrixHtml += '<div class="matrix-grid" style="grid-template-columns: repeat(9, 1fr);">';
+      
+      // Header
+      matrixHtml += '<div class="matrix-cell" style="background: #2d2d2d; color: white; font-weight: bold;">Query\\Image</div>';
+      for (let i = 0; i < 8; i++) {
+        matrixHtml += `<div class="matrix-cell" style="background: #2d2d2d; color: white; font-weight: bold;">Patch ${i+1}</div>`;
+      }
+      
+      // Query words and attention values
+      const queryWords = queryText.split(' ').slice(0, 4); // First 4 words
+      queryWords.forEach((word, wordIdx) => {
+        matrixHtml += `<div class="matrix-cell" style="background: #2d2d2d; color: white; font-weight: bold;">${word}</div>`;
+        patterns.forEach((attention, patchIdx) => {
+          const adjustedAttention = attention * (0.8 + Math.random() * 0.4); // Add some variation
+          const cellClass = adjustedAttention > 0.7 ? 'attention-high' : 
+                           adjustedAttention > 0.4 ? 'attention-medium' : 'attention-low';
+          matrixHtml += `<div class="matrix-cell ${cellClass}">${adjustedAttention.toFixed(2)}</div>`;
+        });
+      });
+      
+      matrixHtml += '</div></div>';
+
+      const visualization = document.getElementById('attentionVisualization');
+      visualization.innerHTML = `
+        <div class="training-simulation">
+          <h4>🔍 Attention Pattern: "${queryText}"</h4>
+          ${matrixHtml}
+          
+          <div class="info" style="margin-top: 15px;">
+            <strong>🧠 Attention Head ${attentionHead} Analysis:</strong><br>
+            ${getAttentionAnalysis(attentionHead, queryText, imageContent)}
+          </div>
+        </div>`;
+    }
+
+    function getAttentionAnalysis(head, query, content) {
+      const analyses = {
+        '1': `<strong>Object Focus Head:</strong> This head specializes in identifying and localizing objects mentioned in the query. High attention on patches containing the main subject.`,
+        '2': `<strong>Color/Texture Head:</strong> Focuses on visual properties like colors, textures, and surface details. Strong attention to patches with distinctive visual features.`,
+        '3': `<strong>Spatial Relations Head:</strong> Analyzes spatial relationships and layout. Attention patterns reflect understanding of "left", "right", "above", "below" concepts.`,
+        '4': `<strong>Text Reading Head:</strong> Specialized for OCR and text understanding within images. Highest attention on patches containing text or text-like patterns.`
+      };
+      return analyses[head];
+    }
+
+    function updateBenchmarks() {
+      const category = document.getElementById('benchmarkCategory').value;
+      const metric = document.getElementById('evaluationMetric').value;
+
+      const benchmarkData = {
+        'general': {
+          'accuracy': { 'GPT-4V': 87.2, 'Gemini Pro': 84.3, 'Claude 3': 86.1 },
+          'speed': { 'GPT-4V': 12, 'Gemini Pro': 18, 'Claude 3': 15 },
+          'cost': { 'GPT-4V': 0.010, 'Gemini Pro': 0.0025, 'Claude 3': 0.0048 }
+        },
+        'reasoning': {
+          'accuracy': { 'GPT-4V': 78.5, 'Gemini Pro': 82.1, 'Claude 3': 79.8 },
+          'speed': { 'GPT-4V': 8, 'Gemini Pro': 12, 'Claude 3': 10 },
+          'cost': { 'GPT-4V': 0.015, 'Gemini Pro': 0.004, 'Claude 3': 0.007 }
+        },
+        'ocr': {
+          'accuracy': { 'GPT-4V': 94.1, 'Gemini Pro': 91.8, 'Claude 3': 95.2 },
+          'speed': { 'GPT-4V': 15, 'Gemini Pro': 22, 'Claude 3': 18 },
+          'cost': { 'GPT-4V': 0.008, 'Gemini Pro': 0.002, 'Claude 3': 0.004 }
+        }
+      };
+
+      const data = benchmarkData[category][metric];
+      const results = document.getElementById('benchmarkResults');
+      
+      let tableHtml = `
+        <table class="benchmark-table">
+          <tr><th>Model</th><th>${metric === 'accuracy' ? 'Accuracy (%)' : metric === 'speed' ? 'Speed (tokens/sec)' : 'Cost ($/1K images)'}</th><th>Ranking</th></tr>`;
+      
+      const sorted = Object.entries(data).sort((a, b) => 
+        metric === 'cost' ? a[1] - b[1] : b[1] - a[1]
+      );
+      
+      sorted.forEach(([model, value], idx) => {
+        const scoreClass = idx === 0 ? 'score-excellent' : idx === 1 ? 'score-good' : 'score-average';
+        const formattedValue = metric === 'accuracy' ? value.toFixed(1) : 
+                              metric === 'cost' ? ' + value.toFixed(4) : 
+                              value.toString();
+        
+        tableHtml += `
+          <tr>
+            <td><strong>${model}</strong></td>
+            <td class="${scoreClass}">${formattedValue}</td>
+            <td>#${idx + 1}</td>
+          </tr>`;
+      });
+      
+      tableHtml += '</table>';
+      
+      results.innerHTML = `
+        <div class="training-simulation">
+          <h4>📊 ${category.charAt(0).toUpperCase() + category.slice(1)} Benchmarks - ${metric.charAt(0).toUpperCase() + metric.slice(1)}</h4>
+          ${tableHtml}
+          <div class="info" style="margin-top: 15px;">
+            <strong>📈 Benchmark Notes:</strong><br>
+            ${getBenchmarkNotes(category, metric)}
+          </div>
+        </div>`;
+    }
+
+    function getBenchmarkNotes(category, metric) {
+      const notes = {
+        'general': {
+          'accuracy': 'Average across MMMU, VQAv2, and TextVQA benchmarks',
+          'speed': 'Tokens generated per second on A100 GPU',
+          'cost': 'Approximate pricing as of 2024, varies by provider'
+        },
+        'reasoning': {
+          'accuracy': 'Performance on visual reasoning tasks (CLEVR, Visual7W)',
+          'speed': 'Complex reasoning requires more computation time',
+          'cost': 'Higher costs due to longer generation sequences'
+        },
+        'ocr': {
+          'accuracy': 'Text extraction and document understanding accuracy',
+          'speed': 'OCR tasks are typically faster than reasoning',
+          'cost': 'Document processing optimized for cost efficiency'
+        }
+      };
+      return notes[category][metric];
+    }
+
+    function showcaseApplications() {
+      const industry = document.getElementById('industryVertical').value;
+      const useCase = document.getElementById('useCaseType').value;
+
+      const applications = {
+        'healthcare': {
+          'analysis': {
+            title: '🏥 Medical Imaging Analysis',
+            description: 'Automated radiology report generation and medical image interpretation',
+            examples: ['X-ray abnormality detection', 'MRI scan analysis', 'Pathology slide examination'],
+            roi: '60% reduction in reporting time, 95% accuracy maintained'
+          },
+          'automation': {
+            title: '🤖 Clinical Workflow Automation', 
+            description: 'Streamline medical record processing and patient data extraction',
+            examples: ['Insurance claim processing', 'Medical form digitization', 'Patient history extraction'],
+            roi: '40% faster claim processing, 99.2% accuracy'
+          }
+        },
+        'education': {
+          'analysis': {
+            title: '📚 Educational Content Analysis',
+            description: 'Automated textbook digitization and learning material creation',
+            examples: ['Mathematical notation recognition', 'Diagram explanation generation', 'Quiz creation from images'],
+            roi: '10x faster content creation, multilingual support'
+          },
+          'creative': {
+            title: '🎨 Interactive Learning Experiences',
+            description: 'AI tutors that can see and understand student work',
+            examples: ['Handwriting analysis', 'Art critique generation', 'Science experiment explanation'],
+            roi: 'Personalized learning at scale, 85% student engagement increase'
+          }
+        }
+      };
+
+      const app = applications[industry][useCase];
+      const showcase = document.getElementById('applicationShowcase');
+      
+      showcase.innerHTML = `
+        <div class="training-simulation">
+          <div class="model-card" style="border-color: #28a745;">
+            <div class="model-name">${app.title}</div>
+            <div style="margin: 15px 0;">${app.description}</div>
+            
+            <div class="model-capabilities">
+              <h5>Key Applications:</h5>
+              ${app.examples.map(example => 
+                `<div class="capability">
+                  <span class="capability-icon">✅</span>
+                  <span>${example}</span>
+                </div>`
+              ).join('')}
+            </div>
+            
+            <div class="success" style="margin-top: 15px;">
+              <strong>🎯 Business Impact:</strong> ${app.roi}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function simulateVLMTraining() {
+      const stage = document.getElementById('trainingStage').value;
+      const dataset = document.getElementById('datasetType').value;
+      const scale = document.getElementById('trainingScale').value;
+
+      const trainingDetails = {
+        'pretrain': {
+          description: 'Large-scale pre-training on diverse image-text pairs',
+          duration: scale === 'large' ? '2-4 weeks' : scale === 'medium' ? '1-2 weeks' : '3-5 days',
+          compute: scale === 'large' ? '1000+ GPUs' : scale === 'medium' ? '100-500 GPUs' : '10-50 GPUs',
+          loss: 'Combined language modeling + contrastive loss',
+          outcome: 'General vision-language understanding capabilities'
+        },
+        'instruction': {
+          description: 'Instruction tuning on curated vision-language tasks',
+          duration: scale === 'large' ? '1-2 weeks' : scale === 'medium' ? '3-5 days' : '1-2 days', 
+          compute: scale === 'large' ? '200-500 GPUs' : scale === 'medium' ? '50-100 GPUs' : '5-20 GPUs',
+          loss: 'Cross-entropy loss on response generation',
+          outcome: 'Ability to follow visual instructions and provide helpful responses'
+        },
+        'rlhf': {
+          description: 'Human feedback optimization for preferred responses',
+          duration: scale === 'large' ? '1 week' : scale === 'medium' ? '2-3 days' : '1 day',
+          compute: scale === 'large' ? '100-200 GPUs' : scale === 'medium' ? '20-50 GPUs' : '5-10 GPUs',
+          loss: 'PPO policy gradient with reward model',
+          outcome: 'Responses aligned with human preferences and safety'
+        }
+      };
+
+      const detail = trainingDetails[stage];
+      const simulation = document.getElementById('trainingSimulation');
+      
+      simulation.innerHTML = `
+        <div class="training-simulation">
+          <div class="processing-animation" style="text-align: center; margin: 20px 0;">
+            <div style="font-size: 2em;">🎓</div>
+            <div style="font-weight: bold;">Simulating ${stage.toUpperCase()} Training...</div>
+          </div>
+          
+          <div class="metric-grid">
+            <div class="metric-card">
+              <div class="metric-value">${detail.duration}</div>
+              <div class="metric-label">Training Duration</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value">${detail.compute}</div>
+              <div class="metric-label">Compute Requirements</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value">${dataset}</div>
+              <div class="metric-label">Dataset Focus</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value">${scale}</div>
+              <div class="metric-label">Training Scale</div>
+            </div>
+          </div>
+          
+          <div class="step">
+            <h4>📋 Training Stage: ${stage.charAt(0).toUpperCase() + stage.slice(1)}</h4>
+            <div class="info">
+              <strong>Process:</strong> ${detail.description}<br>
+              <strong>Loss Function:</strong> ${detail.loss}<br>
+              <strong>Expected Outcome:</strong> ${detail.outcome}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function switchTab(tabName, element) {
+      // Remove active class from all tabs and content
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      // Add active class to clicked tab and corresponding content
+      if (element) element.classList.add('active');
+      const content = document.getElementById(tabName);
+      if (content) content.classList.add('active');
+    }
+
+    function copyCode(button) {
+      const codeBlock = button.nextElementSibling;
+      if (codeBlock && codeBlock.tagName === 'PRE') {
+        const text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          const originalText = button.textContent;
+          button.textContent = '✅ Copied';
+          setTimeout(() => {
+            button.textContent = originalText;
+          }, 2000);
+        });
+      }
+    }
+  </script>
+</body>
+</html>
