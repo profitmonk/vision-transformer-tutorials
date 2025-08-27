@@ -721,12 +721,15 @@
     </div>
   </div>
 
-  <div class="container">
+<div class="container">
     <h2>🚀 Production Optimization & Deployment</h2>
     <div class="step">
       <h3>⚡ Training Efficiency Optimization</h3>
+      <p><strong>The Challenge:</strong> Vision Transformers are memory hungry and computationally expensive. Without optimization, training ViT-Base can easily exceed 24GB GPU memory and take weeks. These techniques help you train larger models on smaller hardware and finish training faster.</p>
+
       <div class="interactive-demo">
         <div class="demo-title">💾 Memory & Speed Optimization Calculator</div>
+        <p><strong>What this does:</strong> Estimates how different optimization techniques affect your GPU memory usage and training speed. Use this to plan your training setup and see what fits on your hardware.</p>
 
         <div class="controls">
           <div class="control-group">
@@ -739,24 +742,38 @@
               <option value="40">40 GB (A100)</option>
               <option value="80">80 GB (A100 80GB)</option>
             </select>
+            <small style="display:block;color:#666;margin-top:3px">Your available GPU memory. Training uses ~80% for model, optimizer, and activations.</small>
           </div>
           <div class="control-group">
             <label>Model Size:</label>
             <select id="optimizationModel">
-              <option value="tiny">ViT-Tiny (5M)</option>
-              <option value="small">ViT-Small (22M)</option>
-              <option value="base" selected>ViT-Base (86M)</option>
-              <option value="large">ViT-Large (307M)</option>
-              <option value="huge">ViT-Huge (632M)</option>
+              <option value="tiny">ViT-Tiny (5M params) - Research/Mobile</option>
+              <option value="small">ViT-Small (22M params) - Efficient</option>
+              <option value="base" selected>ViT-Base (86M params) - Standard</option>
+              <option value="large">ViT-Large (307M params) - High Performance</option>
+              <option value="huge">ViT-Huge (632M params) - Research</option>
             </select>
+            <small style="display:block;color:#666;margin-top:3px">Larger models need more memory but generally achieve better accuracy.</small>
           </div>
           <div class="control-group">
             <label>Optimization Techniques:</label>
-            <div style="display:flex;flex-direction:column;gap:5px;margin-top:5px">
-              <label><input type="checkbox" id="mixedPrecision" checked> Mixed Precision (FP16)</label>
-              <label><input type="checkbox" id="gradientCheckpoint"> Gradient Checkpointing</label>
-              <label><input type="checkbox" id="gradientAccumulation"> Gradient Accumulation</label>
-              <label><input type="checkbox" id="flashAttention"> Flash Attention</label>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+              <label><input type="checkbox" id="mixedPrecision" checked> 
+                <strong>Mixed Precision (FP16)</strong> - Use 16-bit instead of 32-bit numbers
+                <br><small style="color:#666;margin-left:20px">Cuts memory in half, speeds up training ~60%. Minimal accuracy loss on modern GPUs.</small>
+              </label>
+              <label><input type="checkbox" id="gradientCheckpoint"> 
+                <strong>Gradient Checkpointing</strong> - Trade computation for memory
+                <br><small style="color:#666;margin-left:20px">Reduces memory by 70% but makes training 20% slower. Good when memory is the bottleneck.</small>
+              </label>
+              <label><input type="checkbox" id="gradientAccumulation"> 
+                <strong>Gradient Accumulation</strong> - Simulate larger batches
+                <br><small style="color:#666;margin-left:20px">Accumulate gradients over multiple small batches before updating. Enables large effective batch sizes on small GPUs.</small>
+              </label>
+              <label><input type="checkbox" id="flashAttention"> 
+                <strong>Flash Attention</strong> - Optimized attention computation
+                <br><small style="color:#666;margin-left:20px">Reduces attention memory from O(n²) to O(n). Speeds up training ~80% with longer sequences.</small>
+              </label>
             </div>
           </div>
         </div>
@@ -764,8 +781,151 @@
         <button onclick="calculateOptimization()">⚡ Calculate Optimizations</button>
         <div id="optimizationResults"></div>
         <div id="optimizationCode"></div>
+
+        <div class="info" style="margin-top:20px">
+          <strong>🔧 Deep Dive: How These Optimizations Work</strong><br><br>
+          
+          <strong>📊 Mixed Precision (FP16):</strong><br>
+          • <strong>What it does:</strong> Uses 16-bit floating point numbers instead of 32-bit for most operations<br>
+          • <strong>Why it works:</strong> Modern GPUs (V100+) have dedicated FP16 cores that are 2x faster<br>
+          • <strong>Memory savings:</strong> ~50% reduction in model and activation memory<br>
+          • <strong>Trade-offs:</strong> Slightly reduced numerical precision, rare gradient underflow<br>
+          • <strong>Best for:</strong> Almost everyone with modern GPUs - it's nearly free performance<br><br>
+
+          <strong>🔄 Gradient Checkpointing:</strong><br>
+          • <strong>What it does:</strong> Instead of storing all intermediate activations, recompute them during backprop<br>
+          • <strong>Why it works:</strong> Activations take more memory than weights, especially in deep networks<br>
+          • <strong>Memory savings:</strong> ~70% reduction in activation memory (major bottleneck for ViTs)<br>
+          • <strong>Trade-offs:</strong> ~20% slower training due to recomputation<br>
+          • <strong>Best for:</strong> When you're memory-bound but have spare compute cycles<br><br>
+
+          <strong>📈 Gradient Accumulation:</strong><br>
+          • <strong>What it does:</strong> Run multiple small batches, accumulate gradients, then update once<br>
+          • <strong>Why it works:</strong> Simulates large batch training without the memory cost<br>
+          • <strong>Memory savings:</strong> No direct savings, but enables optimal batch sizes<br>
+          • <strong>Trade-offs:</strong> Slightly slower due to more forward passes per update<br>
+          • <strong>Best for:</strong> When optimal batch size exceeds your GPU memory<br><br>
+
+          <strong>⚡ Flash Attention:</strong><br>
+          • <strong>What it does:</strong> Computes attention using tiled, fused operations that never materialize the full attention matrix<br>
+          • <strong>Why it works:</strong> Standard attention requires O(sequence²) memory for the attention matrix<br>
+          • <strong>Memory savings:</strong> Reduces attention memory from O(n²) to O(n) - massive for long sequences<br>
+          • <strong>Trade-offs:</strong> Requires specific hardware support and implementation<br>
+          • <strong>Best for:</strong> High-resolution images (long sequences) or when attention is your memory bottleneck
+        </div>
       </div>
     </div>
+
+    <div class="step">
+      <h3>🔢 Memory Math: Understanding the Numbers</h3>
+      <div class="math-formula">
+        <strong>Total Training Memory = Model + Optimizer + Activations + Gradients</strong><br><br>
+        
+        <strong>Model Memory:</strong> Number of parameters × 4 bytes (FP32) or × 2 bytes (FP16)<br>
+        <em>ViT-Base: 86M params × 4 bytes = 344 MB</em><br><br>
+        
+        <strong>Optimizer Memory (AdamW):</strong> 2× model memory (momentum + variance)<br>
+        <em>ViT-Base: 344 MB × 2 = 688 MB</em><br><br>
+        
+        <strong>Activation Memory:</strong> Batch size × sequence length × hidden dim × layers<br>
+        <em>ViT-Base: 32 batch × 197 patches × 768 dim × 12 layers = ~1.5 GB</em><br><br>
+        
+        <strong>Total for ViT-Base:</strong> 344 + 688 + 1500 = ~2.5 GB baseline
+      </div>
+
+      <div class="warning">
+        <strong>⚠️ Reality Check:</strong> The above is the theoretical minimum. Real training often uses 3-4x more memory due to:
+        <br>• PyTorch overhead and fragmentation
+        <br>• Temporary tensors during forward/backward pass  
+        <br>• Data loading and augmentation buffers
+        <br>• CUDA kernel launches and synchronization
+        <br><br>
+        <strong>Rule of thumb:</strong> Plan for 8-12 GB for ViT-Base training, even with optimizations.
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>📋 Complete Training Code Generation</h3>
+      <div class="interactive-demo">
+        <div class="demo-title">💻 PyTorch + Hugging Face Code Generator</div>
+        <p><strong>What this generates:</strong> Production-ready training code with all selected optimizations properly configured. Copy-paste this into your project and adapt the dataset loading.</p>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Task Type:</label>
+            <select id="codeTaskType">
+              <option value="classification" selected>Image Classification</option>
+              <option value="detection">Object Detection</option>
+              <option value="segmentation">Segmentation</option>
+            </select>
+            <small style="display:block;color:#666;margin-top:3px">Different tasks need different model heads and loss functions.</small>
+          </div>
+          <div class="control-group">
+            <label>Fine-tuning Approach:</label>
+            <select id="finetuneApproach">
+              <option value="full">Full Fine-tuning - Train all parameters</option>
+              <option value="partial" selected>Partial Freezing - Freeze early layers</option>
+              <option value="lora">LoRA - Parameter-efficient adaptation</option>
+              <option value="head-only">Head Only - Just the classifier</option>
+            </select>
+            <small style="display:block;color:#666;margin-top:3px">Choose based on your data size and computational budget.</small>
+          </div>
+          <div class="control-group">
+            <label>Model Variant:</label>
+            <select id="codeModelVariant">
+              <option value="google/vit-base-patch16-224" selected>ViT-Base-16 (224px) - Most common</option>
+              <option value="google/vit-large-patch16-224">ViT-Large-16 (224px) - Higher accuracy</option>
+              <option value="google/vit-base-patch32-224">ViT-Base-32 (224px) - Faster, less memory</option>
+              <option value="facebook/deit-base-distilled-patch16-224">DeiT-Base - Optimized training</option>
+            </select>
+            <small style="display:block;color:#666;margin-top:3px">Different patch sizes and training objectives for different use cases.</small>
+          </div>
+        </div>
+
+        <button onclick="generateCompleteCode()" class="primary">💻 Generate Training Code</button>
+        <div id="generatedCode"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🎯 Production Deployment Best Practices</h3>
+      <div class="success">
+        <strong>✅ Essential Production Checklist:</strong><br><br>
+        
+        <strong>🔧 Optimization:</strong><br>
+        □ Use mixed precision (FP16) for 2x speedup with minimal accuracy loss<br>
+        □ Enable gradient checkpointing if memory-constrained<br>
+        □ Set optimal batch size using gradient accumulation<br>
+        □ Consider Flash Attention for high-resolution images<br><br>
+        
+        <strong>⚡ Performance:</strong><br>
+        □ Benchmark inference speed on target hardware<br>
+        □ Test memory usage under realistic load conditions<br>
+        □ Set up model compilation (torch.compile) for inference speedup<br>
+        □ Consider quantization (INT8) for deployment if accuracy permits<br><br>
+        
+        <strong>🛡️ Reliability:</strong><br>
+        □ Implement proper error handling and fallback mechanisms<br>
+        □ Set up monitoring for memory leaks and performance drift<br>
+        □ Test edge cases: unusual input sizes, corrupted images<br>
+        □ Have rollback plan for model updates<br><br>
+        
+        <strong>📊 Monitoring:</strong><br>
+        □ Track accuracy on holdout validation set over time<br>
+        □ Monitor attention patterns for unexpected changes<br>
+        □ Log inference latency and memory usage<br>
+        □ Set up alerts for performance degradation
+      </div>
+
+      <div class="info">
+        <strong>💡 Pro Tips for ViT Deployment:</strong><br>
+        • <strong>Warmup:</strong> First few inferences are slower due to CUDA initialization<br>
+        • <strong>Batch Processing:</strong> ViTs are more efficient with larger batches than single images<br>
+        • <strong>Input Resolution:</strong> Consider dynamic resolution scaling based on available compute<br>
+        • <strong>Model Versioning:</strong> Use semantic versioning for models and track performance metrics per version
+      </div>
+    </div>
+  </div>
 
     <div class="step">
       <h3>📋 Complete Training Code Generation</h3>
