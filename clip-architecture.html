@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CLIP: Contrastive Vision-Language Learning</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);color:#e0e0e0;line-height:1.6}
+    .container{background:#fff;color:#2d2d2d;border-radius:20px;padding:30px;margin:20px 0;border:1px solid #e0e0e0;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+    .nav-bar{background:#2d2d2d;color:#fff;padding:15px 30px;border-radius:15px;margin:20px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px}
+    .nav-home,.nav-prev,.nav-next{background:#fff;color:#2d2d2d;padding:8px 16px;border-radius:6px;text-decoration:none;font-weight:bold;transition:all .3s}
+    .nav-next{background:#28a745;color:#fff}
+    .nav-home:hover,.nav-prev:hover,.nav-next:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+    .nav-title{font-size:1.2em;font-weight:bold;flex:1;min-width:300px}
+    .step{background:#f8f9fa;border:1px solid #e9ecef;padding:20px;margin:15px 0;border-radius:15px;border-left:4px solid #2d2d2d}
+    .interactive-demo{background:#f8f9fa;border:2px solid #e9ecef;border-radius:15px;padding:25px;margin:20px 0}
+    .demo-title{font-size:1.3em;font-weight:bold;margin-bottom:20px;text-align:center;color:#2d2d2d}
+    .controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin:20px 0}
+    .control-group{display:flex;flex-direction:column;gap:5px}
+    .control-group label{font-weight:bold;font-size:14px;color:#2d2d2d}
+    button{background:#2d2d2d;border:none;color:#fff;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:bold;transition:all .3s;margin:5px}
+    button:hover{background:#1a1a1a;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+    button.primary{background:#28a745}
+    button.primary:hover{background:#218838}
+    input,select,textarea{padding:8px 12px;border:1px solid #dadce0;border-radius:6px;background:#fff;color:#2d2d2d}
+    textarea{min-height:70px;resize:vertical}
+    .math-formula{background:#f8f9fa;border:1px solid #e9ecef;padding:20px;border-radius:8px;margin:15px 0;font-family:'Courier New',monospace;text-align:center;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+    .code-block{background:#2d2d2d;color:#e0e0e0;padding:20px;border-radius:8px;margin:15px 0;font-family:'Courier New',monospace;font-size:14px;overflow:auto;position:relative}
+    .code-header{background:#1a1a1a;color:#28a745;padding:8px 15px;margin:-20px -20px 15px -20px;border-radius:8px 8px 0 0;font-weight:bold;font-size:12px}
+    .copy-button{position:absolute;top:10px;right:10px;background:#28a745;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:10px}
+    .similarity-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:15px 0;padding:15px;background:#fff;border-radius:8px;border:1px solid #dee2e6}
+    .similarity-cell{background:#f8f9fa;border:2px solid #e9ecef;border-radius:8px;padding:10px;text-align:center;font-size:12px;transition:all .3s}
+    .similarity-cell:hover{transform:scale(1.05)}
+    .embedding-space{width:100%;height:400px;background:#fff;border:2px solid #e9ecef;border-radius:8px;margin:15px 0;position:relative;overflow:hidden}
+    .embedding-canvas{width:100%;height:100%}
+    .metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin:20px 0}
+    .metric-card{background:#fff;border:2px solid #e9ecef;border-radius:8px;padding:15px;text-align:center}
+    .metric-value{font-size:1.5em;font-weight:bold;color:#2d2d2d;margin-bottom:5px}
+    .metric-label{font-size:12px;color:#666}
+    .architecture-flow{display:flex;justify-content:space-between;align-items:center;margin:20px 0;padding:20px;background:#fff;border-radius:12px;border:2px solid #e9ecef;flex-wrap:wrap;gap:15px}
+    .arch-component{background:#f8f9fa;border:2px solid #e9ecef;border-radius:8px;padding:15px;text-align:center;min-width:120px;flex:1}
+    .arch-component.vision{border-color:#dc3545}
+    .arch-component.text{border-color:#007bff}
+    .arch-component.shared{border-color:#28a745}
+    .arch-arrow{font-size:24px;color:#28a745;font-weight:bold}
+    .contrastive-matrix{background:#fff;border:2px solid #e9ecef;border-radius:8px;padding:15px;margin:15px 0}
+    .matrix-grid{display:grid;gap:2px;margin:10px 0}
+    .matrix-cell{padding:8px;text-align:center;font-size:12px;border-radius:4px;font-weight:bold}
+    .matrix-positive{background:#d4edda;color:#155724}
+    .matrix-negative{background:#f8d7da;color:#721c24}
+    .matrix-header{background:#e9ecef;color:#495057;font-weight:bold}
+    .training-simulation{background:#fff;border:2px solid #e9ecef;border-radius:8px;padding:20px;margin:15px 0}
+    .loss-chart{width:100%;height:300px;background:#f8f9fa;border:1px solid #dee2e6;border-radius:4px;margin:10px 0}
+    .dataset-preview{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin:20px 0}
+    .dataset-item{background:#f8f9fa;border:1px solid #dee2e6;border-radius:8px;padding:15px}
+    .dataset-image{width:100%;height:120px;background:linear-gradient(45deg,#e9ecef,#dee2e6);border-radius:4px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-weight:bold;color:#495057}
+    .dataset-text{font-size:12px;color:#666;font-style:italic}
+    .info{background:#d1ecf1;border-left:4px solid #17a2b8;color:#0c5460;padding:15px;border-radius:8px;margin:15px 0}
+    .success{background:#d4edda;border-left:4px solid #28a745;color:#155724;padding:15px;border-radius:8px;margin:15px 0}
+    .warning{background:#fff3cd;border-left:4px solid #ffc107;color:#856404;padding:15px;border-radius:8px;margin:15px 0}
+    .breakthrough-highlight{background:linear-gradient(135deg,#28a745,#20c997);color:#fff;padding:20px;border-radius:12px;text-align:center;margin:20px 0;font-size:18px;font-weight:bold;box-shadow:0 4px 15px rgba(40,167,69,.3)}
+    .tabs{display:flex;margin-bottom:20px;border-bottom:2px solid #e9ecef}
+    .tab{padding:12px 24px;cursor:pointer;border-bottom:3px solid transparent;font-weight:bold;transition:all .3s}
+    .tab:hover{background:#f8f9fa}
+    .tab.active{border-bottom-color:#28a745;background:#d4edda;color:#155724}
+    .tab-content{display:none}
+    .tab-content.active{display:block}
+    .zero-shot-demo{background:#fff;border:2px solid #e9ecef;border-radius:12px;padding:20px;margin:15px 0}
+    .class-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:15px 0}
+    .class-option{padding:8px 12px;background:#f8f9fa;border:2px solid #e9ecef;border-radius:6px;cursor:pointer;text-align:center;font-size:12px;transition:all .3s}
+    .class-option:hover{background:#e9ecef}
+    .class-option.selected{background:#d4edda;border-color:#28a745;color:#155724}
+    .progress-bar{width:100%;height:20px;background:#e9ecef;border-radius:10px;overflow:hidden;margin:10px 0}
+    .progress-fill{height:100%;background:linear-gradient(135deg,#28a745,#20c997);transition:width 1s ease;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:bold}
+    @keyframes pulse{0%{transform:scale(1);opacity:.8}50%{transform:scale(1.05);opacity:1}100%{transform:scale(1);opacity:.8}}
+    .training-animation{animation:pulse 2s ease-in-out infinite}
+    .temperature-slider{margin:15px 0}
+    .temperature-display{font-weight:bold;color:#28a745}
+  </style>
+</head>
+<body>
+  <div class="nav-bar">
+    <div class="nav-title">🔗 CLIP: Contrastive Vision-Language Learning</div>
+    <a href="index.html" class="nav-home">🏠 Home</a>
+    <a href="training-finetuning-vits.html" class="nav-prev">← Training ViTs</a>
+    <a href="vision-language-models.html" class="nav-next">Next: Vision-Language Models →</a>
+  </div>
+
+  <div class="container">
+    <h1>🔗 CLIP: Connecting Vision and Language</h1>
+    <p>CLIP (Contrastive Language-Image Pre-training) revolutionized AI by learning to connect images and text in a shared embedding space. Unlike traditional vision models trained on fixed categories, CLIP learns from natural language descriptions, enabling <strong>zero-shot classification</strong>, <strong>image search with text</strong>, and the foundation for modern multimodal AI systems like GPT-4V and DALL-E.</p>
+    
+    <div class="breakthrough-highlight">
+      🏆 CLIP's Revolutionary Impact: First model to achieve human-level performance on ImageNet zero-shot classification using only natural language supervision!
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🏗️ CLIP Architecture: Two Towers, One Goal</h2>
+    <div class="step">
+      <h3>🎯 The Core Architecture</h3>
+      <p>CLIP uses a <strong>"dual encoder"</strong> architecture with separate but parallel processing towers for images and text. Both encoders map their inputs to the same high-dimensional space where similar concepts cluster together.</p>
+
+      <div class="architecture-flow">
+        <div class="arch-component vision">
+          <h4>🖼️ Image Encoder</h4>
+          <div>Vision Transformer</div>
+          <div style="font-size:12px;margin-top:5px">
+            • ViT-B/32, ViT-B/16, or ViT-L/14<br>
+            • ResNet variants also supported<br>
+            • Output: 512D or 768D vector
+          </div>
+        </div>
+        
+        <div class="arch-arrow">→</div>
+        
+        <div class="arch-component shared">
+          <h4>🌐 Shared Space</h4>
+          <div>Joint Embedding</div>
+          <div style="font-size:12px;margin-top:5px">
+            • Same dimensionality<br>
+            • L2 normalized vectors<br>
+            • Cosine similarity
+          </div>
+        </div>
+        
+        <div class="arch-arrow">←</div>
+        
+        <div class="arch-component text">
+          <h4>📝 Text Encoder</h4>
+          <div>Transformer</div>
+          <div style="font-size:12px;margin-top:5px">
+            • 12-layer Transformer<br>
+            • 63M parameters<br>
+            • Output: same 512D/768D
+          </div>
+        </div>
+      </div>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🏗️ Interactive Architecture Explorer</div>
+        
+        <div class="controls">
+          <div class="control-group">
+            <label>CLIP Model Variant:</label>
+            <select id="clipVariant">
+              <option value="vit-b-32" selected>ViT-B/32 (Fastest)</option>
+              <option value="vit-b-16">ViT-B/16 (Balanced)</option>
+              <option value="vit-l-14">ViT-L/14 (Best Quality)</option>
+              <option value="resnet-50">ResNet-50 (Baseline)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Embedding Dimension:</label>
+            <select id="embeddingDim">
+              <option value="512" selected>512D (Standard)</option>
+              <option value="768">768D (Large)</option>
+              <option value="1024">1024D (Huge)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Analysis Type:</label>
+            <select id="analysisType">
+              <option value="parameters" selected>Parameter Count</option>
+              <option value="memory">Memory Usage</option>
+              <option value="speed">Inference Speed</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="analyzeArchitecture()">🔍 Analyze Architecture</button>
+        <div id="architectureAnalysis"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🧮 Mathematical Foundation: Joint Embedding Space</h3>
+      
+      <div class="math-formula">
+        <strong>CLIP's Core Mathematical Operations:</strong><br><br>
+        
+        <strong>1. Encoding:</strong><br>
+        I = f<sub>image</sub>(x<sub>img</sub>) ∈ ℝ<sup>d</sup> &nbsp;&nbsp;&nbsp; T = f<sub>text</sub>(x<sub>txt</sub>) ∈ ℝ<sup>d</sup><br><br>
+        
+        <strong>2. Normalization:</strong><br>
+        Î = I / ||I||<sub>2</sub> &nbsp;&nbsp;&nbsp; T̂ = T / ||T||<sub>2</sub><br><br>
+        
+        <strong>3. Similarity:</strong><br>
+        s<sub>ij</sub> = Î<sub>i</sub> · T̂<sub>j</sub> = cos(θ<sub>ij</sub>)<br><br>
+        
+        <strong>4. Temperature Scaling:</strong><br>
+        logit<sub>ij</sub> = s<sub>ij</sub> / τ
+      </div>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🌡️ Temperature Scaling Interactive Demo</div>
+        <p><strong>What it does:</strong> Temperature (τ) controls how "sharp" or "soft" the similarity distributions become. Lower temperature = more confident predictions, higher temperature = more uniform distributions.</p>
+
+        <div class="temperature-slider">
+          <label>Temperature (τ): <span id="temperatureValue" class="temperature-display">0.07</span></label>
+          <input type="range" id="temperatureSlider" min="0.01" max="0.5" value="0.07" step="0.01">
+        </div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Base Similarities (before temperature):</label>
+            <input type="text" id="baseSimilarities" value="0.8, 0.3, 0.1, -0.2, -0.5" placeholder="comma-separated values">
+          </div>
+        </div>
+
+        <button onclick="demonstrateTemperature()">🌡️ Apply Temperature Scaling</button>
+        <div id="temperatureDemo"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🎯 Contrastive Learning: The Training Magic</h2>
+    <div class="step">
+      <h3>📊 InfoNCE Loss: Learning Through Contrast</h3>
+      <p>CLIP learns by seeing <strong>millions of (image, text) pairs</strong> from the internet and learning to maximize similarity between correct pairs while minimizing similarity between incorrect pairs. This creates a rich, semantic embedding space.</p>
+
+      <div class="math-formula">
+        <strong>InfoNCE Loss Function:</strong><br><br>
+        
+        ℓ<sub>i→t</sub> = -log( exp(s<sub>ii</sub>/τ) / ∑<sub>j=1</sub><sup>N</sup> exp(s<sub>ij</sub>/τ) )<br><br>
+        
+        ℓ<sub>t→i</sub> = -log( exp(s<sub>ii</sub>/τ) / ∑<sub>j=1</sub><sup>N</sup> exp(s<sub>ji</sub>/τ) )<br><br>
+        
+        <strong>Total Loss:</strong> ℓ = (ℓ<sub>i→t</sub> + ℓ<sub>t→i</sub>) / 2<br><br>
+        
+        Where:<br>
+        • s<sub>ij</sub> = cosine similarity between image i and text j<br>
+        • τ = learned temperature parameter (typically ~0.07)<br>
+        • N = batch size (CLIP uses very large batches: 32,768!)
+      </div>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🎓 Contrastive Learning Simulator</div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Batch Size:</label>
+            <select id="batchSize">
+              <option value="4">4 (Demo)</option>
+              <option value="8" selected>8 (Small)</option>
+              <option value="16">16 (Medium)</option>
+              <option value="32">32 (Large)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Positive Pair Similarity:</label>
+            <input type="range" id="positiveSim" min="0.1" max="1.0" value="0.8" step="0.1">
+            <span id="positiveSimValue">0.8</span>
+          </div>
+          <div class="control-group">
+            <label>Negative Pair Similarity:</label>
+            <input type="range" id="negativeSim" min="-0.5" max="0.5" value="0.1" step="0.1">
+            <span id="negativeSimValue">0.1</span>
+          </div>
+          <div class="control-group">
+            <label>Temperature:</label>
+            <input type="range" id="contrastiveTemp" min="0.01" max="0.2" value="0.07" step="0.01">
+            <span id="contrastiveTempValue">0.07</span>
+          </div>
+        </div>
+
+        <button onclick="simulateContrastiveLearning()">🎯 Simulate Contrastive Training</button>
+        <div id="contrastiveDemo"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🌐 The Training Data: Learning from the Web</h3>
+      <p>CLIP was trained on <strong>400 million (image, text) pairs</strong> collected from the internet. This massive, diverse dataset is key to CLIP's remarkable generalization abilities.</p>
+
+      <div class="dataset-preview">
+        <div class="dataset-item">
+          <div class="dataset-image">🐕 Dog Photo</div>
+          <div class="dataset-text">"A golden retriever playing fetch in a park"</div>
+        </div>
+        <div class="dataset-item">
+          <div class="dataset-image">🏔️ Landscape</div>
+          <div class="dataset-text">"Snow-capped mountains reflected in a crystal clear lake"</div>
+        </div>
+        <div class="dataset-item">
+          <div class="dataset-image">🍕 Food</div>
+          <div class="dataset-text">"Delicious pepperoni pizza with melted cheese"</div>
+        </div>
+        <div class="dataset-item">
+          <div class="dataset-image">🚗 Vehicle</div>
+          <div class="dataset-text">"Red sports car parked on a city street"</div>
+        </div>
+      </div>
+
+      <div class="info">
+        <strong>🌍 Dataset Scale & Diversity:</strong><br>
+        • <strong>400M image-text pairs</strong> from the web (vs ImageNet's 1.3M labeled images)<br>
+        • <strong>Natural language supervision</strong> instead of fixed categories<br>
+        • <strong>Incredible diversity:</strong> Art, photos, memes, diagrams, charts, screenshots<br>
+        • <strong>Multiple languages</strong> though primarily English<br>
+        • <strong>No manual labeling</strong> - uses existing alt-text and captions
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>⚡ Zero-Shot Classification: The Superpower</h2>
+    <div class="step">
+      <h3>🎯 How Zero-Shot Works</h3>
+      <p>CLIP can classify images into categories it has never explicitly seen during training. Instead of learning fixed categories, it learned the <strong>relationship between visual concepts and language</strong>. Give it any text description, and it can find matching images!</p>
+
+      <div class="math-formula">
+        <strong>Zero-Shot Classification Process:</strong><br><br>
+        
+        <strong>1. Create text prompts:</strong><br>
+        "A photo of a {class}" for each possible class<br><br>
+        
+        <strong>2. Encode image and all text prompts:</strong><br>
+        I = f<sub>image</sub>(x), &nbsp; T<sub>k</sub> = f<sub>text</sub>("A photo of a {class_k}")<br><br>
+        
+        <strong>3. Calculate similarities:</strong><br>
+        p(y=k|x) = exp(cos(I, T<sub>k</sub>)/τ) / ∑<sub>j</sub> exp(cos(I, T<sub>j</sub>)/τ)<br><br>
+        
+        <strong>4. Predict highest similarity class</strong>
+      </div>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🔮 Zero-Shot Classification Demo</div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Select Test Image:</label>
+            <select id="testImage">
+              <option value="dog" selected>🐕 Golden Retriever</option>
+              <option value="cat">🐱 Siamese Cat</option>
+              <option value="car">🚗 Red Sports Car</option>
+              <option value="plane">✈️ Commercial Airplane</option>
+              <option value="flower">🌸 Cherry Blossom</option>
+              <option value="food">🍕 Pepperoni Pizza</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Prompt Template:</label>
+            <select id="promptTemplate">
+              <option value="photo" selected>A photo of a {class}</option>
+              <option value="picture">A picture of a {class}</option>
+              <option value="image">An image of a {class}</option>
+              <option value="drawing">A drawing of a {class}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="class-options" id="classOptions">
+          <div class="class-option" onclick="toggleClass(this)">dog</div>
+          <div class="class-option" onclick="toggleClass(this)">cat</div>
+          <div class="class-option" onclick="toggleClass(this)">car</div>
+          <div class="class-option" onclick="toggleClass(this)">airplane</div>
+          <div class="class-option" onclick="toggleClass(this)">flower</div>
+          <div class="class-option" onclick="toggleClass(this)">pizza</div>
+          <div class="class-option" onclick="toggleClass(this)">bird</div>
+          <div class="class-option" onclick="toggleClass(this)">tree</div>
+        </div>
+
+        <button onclick="performZeroShot()" class="primary">🔮 Perform Zero-Shot Classification</button>
+        <div id="zeroShotResults"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>📊 CLIP's Remarkable Performance</h3>
+      <p>CLIP achieved unprecedented zero-shot performance, often matching or exceeding supervised models trained specifically on target datasets.</p>
+
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-value">76.2%</div>
+          <div class="metric-label">ImageNet Zero-Shot Top-1</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">95.0%</div>
+          <div class="metric-label">ImageNet Zero-Shot Top-5</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">88.8%</div>
+          <div class="metric-label">CIFAR-10 Zero-Shot</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">400M</div>
+          <div class="metric-label">Training Pairs</div>
+        </div>
+      </div>
+
+      <div class="success">
+        <strong>🏆 CLIP's Breakthrough Achievements:</strong><br>
+        • <strong>Human-level ImageNet performance</strong> without seeing ImageNet training data<br>
+        • <strong>Generalizes across domains</strong> - medical images, satellite imagery, art<br>
+        • <strong>Robust to distribution shift</strong> - performs well on different image styles<br>
+        • <strong>Interpretable failures</strong> - when wrong, the mistakes make sense<br>
+        • <strong>Multilingual capabilities</strong> - works with text in multiple languages
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🔍 Embedding Space Visualization</h2>
+    <div class="step">
+      <h3>🌌 Exploring the Joint Embedding Space</h3>
+      <p>CLIP creates a rich embedding space where semantically similar images and text cluster together. This space is the foundation for all of CLIP's capabilities.</p>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🗺️ Interactive Embedding Space Explorer</div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Visualization Mode:</label>
+            <select id="vizMode">
+              <option value="semantic" selected>Semantic Clusters</option>
+              <option value="similarity">Similarity Heatmap</option>
+              <option value="nearest">Nearest Neighbors</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Query Type:</label>
+            <select id="queryType">
+              <option value="image" selected>Image Query</option>
+              <option value="text">Text Query</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Query:</label>
+            <select id="queryContent">
+              <option value="dog" selected>Dog</option>
+              <option value="cat">Cat</option>
+              <option value="car">Car</option>
+              <option value="landscape">Landscape</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="visualizeEmbedding()">🗺️ Visualize Embedding Space</button>
+        <div class="embedding-space">
+          <canvas id="embeddingCanvas" class="embedding-canvas"></canvas>
+        </div>
+        <div id="embeddingAnalysis"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🛠️ Implementation & Code Examples</h2>
+    <div class="step">
+      <h3>💻 Using CLIP with OpenAI's API</h3>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('basic', this)">Basic Usage</div>
+        <div class="tab" onclick="switchTab('zeroshot', this)">Zero-Shot</div>
+        <div class="tab" onclick="switchTab('similarity', this)">Similarity Search</div>
+        <div class="tab" onclick="switchTab('custom', this)">Custom Training</div>
+      </div>
+
+      <div id="basic" class="tab-content active">
+        <div class="code-block">
+          <div class="code-header">🚀 Basic CLIP Usage (OpenAI API)</div>
+          <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>import torch
+import clip
+from PIL import Image
+
+# Load model and preprocessing
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model, preprocess = clip.load("ViT-B/32", device=device)
+
+# Load and preprocess image
+image = preprocess(Image.open("photo.jpg")).unsqueeze(0).to(device)
+
+# Tokenize text
+text = clip.tokenize(["a dog", "a cat", "a car"]).to(device)
+
+# Get features
+with torch.no_grad():
+    image_features = model.encode_image(image)
+    text_features = model.encode_text(text)
+    
+    # Normalize features
+    image_features /= image_features.norm(dim=-1, keepdim=True)
+    text_features /= text_features.norm(dim=-1, keepdim=True)
+    
+    # Calculate similarities
+    similarities = (image_features @ text_features.T).squeeze(0)
+    probs = similarities.softmax(dim=-1)
+    
+print(f"Probabilities: {probs}")
+for i, text_input in enumerate(["a dog", "a cat", "a car"]):
+    print(f"{text_input}: {probs[i].item():.3f}")
+</pre>
+        </div>
+      </div>
+
+      <div id="zeroshot" class="tab-content">
+        <div class="code-block">
+          <div class="code-header">🔮 Zero-Shot Classification</div>
+          <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>import torch
+import clip
+from PIL import Image
+import numpy as np
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model, preprocess = clip.load("ViT-B/32", device=device)
+
+def zero_shot_classify(image_path, classes, template="A photo of a {}"):
+    """
+    Perform zero-shot classification on an image
+    """
+    # Load and preprocess image
+    image = preprocess(Image.open(image_path)).unsqueeze(0).to(device)
+    
+    # Create text prompts for each class
+    text_prompts = [template.format(cls) for cls in classes]
+    text = clip.tokenize(text_prompts).to(device)
+    
+    with torch.no_grad():
+        # Get features
+        image_features = model.encode_image(image)
+        text_features = model.encode_text(text)
+        
+        # Normalize
+        image_features /= image_features.norm(dim=-1, keepdim=True)
+        text_features /= text_features.norm(dim=-1, keepdim=True)
+        
+        # Calculate similarities and probabilities
+        similarities = (image_features @ text_features.T).squeeze(0)
+        probs = similarities.softmax(dim=-1)
+    
+    # Return results
+    results = []
+    for i, cls in enumerate(classes):
+        results.append({
+            'class': cls,
+            'probability': probs[i].item(),
+            'similarity': similarities[i].item()
+        })
+    
+    return sorted(results, key=lambda x: x['probability'], reverse=True)
+
+# Example usage
+classes = ['dog', 'cat', 'bird', 'car', 'airplane', 'ship']
+results = zero_shot_classify('test_image.jpg', classes)
+
+print("Zero-shot classification results:")
+for result in results:
+    print(f"{result['class']}: {result['probability']:.3f}")
+</pre>
+        </div>
+      </div>
+
+      <div id="similarity" class="tab-content">
+        <div class="code-block">
+          <div class="code-header">🔍 Image-Text Similarity Search</div>
+          <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>import torch
+import clip
+from PIL import Image
+import os
+from pathlib import Path
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model, preprocess = clip.load("ViT-B/32", device=device)
+
+class CLIPSearchEngine:
+    def __init__(self, image_dir):
+        self.image_dir = Path(image_dir)
+        self.image_features = []
+        self.image_paths = []
+        self.build_index()
+    
+    def build_index(self):
+        """Build searchable index of image features"""
+        print("Building CLIP index...")
+        
+        for img_path in self.image_dir.glob("*.jpg"):
+            try:
+                image = preprocess(Image.open(img_path)).unsqueeze(0).to(device)
+                
+                with torch.no_grad():
+                    features = model.encode_image(image)
+                    features /= features.norm(dim=-1, keepdim=True)
+                
+                self.image_features.append(features.cpu())
+                self.image_paths.append(img_path)
+            except Exception as e:
+                print(f"Error processing {img_path}: {e}")
+        
+        self.image_features = torch.cat(self.image_features, dim=0)
+        print(f"Indexed {len(self.image_paths)} images")
+    
+    def search(self, query_text, top_k=5):
+        """Search for images matching text query"""
+        # Encode query text
+        text = clip.tokenize([query_text]).to(device)
+        
+        with torch.no_grad():
+            text_features = model.encode_text(text)
+            text_features /= text_features.norm(dim=-1, keepdim=True)
+        
+        # Calculate similarities
+        similarities = (self.image_features @ text_features.T).squeeze()
+        top_indices = similarities.topk(top_k).indices
+        
+        results = []
+        for idx in top_indices:
+            results.append({
+                'path': self.image_paths[idx],
+                'similarity': similarities[idx].item()
+            })
+        
+        return results
+
+# Example usage
+search_engine = CLIPSearchEngine("./image_database/")
+
+# Search for images
+results = search_engine.search("a beautiful sunset over mountains", top_k=10)
+print("Search results:")
+for result in results:
+    print(f"{result['path']}: {result['similarity']:.3f}")
+</pre>
+        </div>
+      </div>
+
+      <div id="custom" class="tab-content">
+        <div class="code-block">
+          <div class="code-header">🎓 Custom CLIP Training (Simplified)</div>
+          <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.data import DataLoader
+import clip
+
+class CLIPLoss(nn.Module):
+    def __init__(self, temperature=0.07):
+        super().__init__()
+        self.temperature = temperature
+    
+    def forward(self, image_features, text_features):
+        # Normalize features
+        image_features = F.normalize(image_features, dim=1)
+        text_features = F.normalize(text_features, dim=1)
+        
+        # Calculate similarity matrix
+        similarities = torch.matmul(image_features, text_features.T) / self.temperature
+        
+        # Create labels (diagonal matrix)
+        batch_size = similarities.size(0)
+        labels = torch.arange(batch_size).to(similarities.device)
+        
+        # Calculate contrastive losses
+        loss_img_to_text = F.cross_entropy(similarities, labels)
+        loss_text_to_img = F.cross_entropy(similarities.T, labels)
+        
+        return (loss_img_to_text + loss_text_to_img) / 2
+
+def train_clip_epoch(model, dataloader, optimizer, criterion, device):
+    model.train()
+    total_loss = 0
+    
+    for batch_idx, (images, texts) in enumerate(dataloader):
+        images, texts = images.to(device), texts.to(device)
+        
+        # Forward pass
+        image_features = model.encode_image(images)
+        text_features = model.encode_text(texts)
+        
+        # Calculate loss
+        loss = criterion(image_features, text_features)
+        
+        # Backward pass
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        
+        total_loss += loss.item()
+        
+        if batch_idx % 100 == 0:
+            print(f'Batch {batch_idx}, Loss: {loss.item():.4f}')
+    
+    return total_loss / len(dataloader)
+
+# Training setup
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model, preprocess = clip.load("ViT-B/32", device=device)
+criterion = CLIPLoss(temperature=0.07)
+optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5, weight_decay=0.1)
+
+# Note: You'll need to implement your own dataset class
+# that returns (image, text) pairs
+# train_dataset = CustomCLIPDataset(...)
+# train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
+
+print("🚀 CLIP training setup complete!")
+print("Remember: CLIP training requires massive datasets (400M+ pairs)")
+print("Consider fine-tuning on smaller domain-specific datasets instead")
+</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🎯 Production Deployment Tips</h3>
+      <div class="success">
+        <strong>✅ CLIP Production Best Practices:</strong><br><br>
+        
+        <strong>🔧 Model Selection:</strong><br>
+        • <strong>ViT-B/32:</strong> Fastest inference, good for real-time applications<br>
+        • <strong>ViT-B/16:</strong> Best balance of speed and accuracy<br>
+        • <strong>ViT-L/14:</strong> Highest quality, use for offline processing<br><br>
+        
+        <strong>⚡ Performance Optimization:</strong><br>
+        • Cache text embeddings for repeated queries<br>
+        • Batch process images when possible<br>
+        • Use mixed precision (FP16) for 2x speedup<br>
+        • Consider ONNX conversion for deployment<br><br>
+        
+        <strong>🎯 Application Patterns:</strong><br>
+        • <strong>Image Search:</strong> Encode images once, search with text queries<br>
+        • <strong>Content Moderation:</strong> Zero-shot classification for inappropriate content<br>
+        • <strong>Product Matching:</strong> Find visually similar products<br>
+        • <strong>Creative Tools:</strong> Foundation for text-to-image generation
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🔬 Advanced Topics & Research Insights</h2>
+    <div class="step">
+      <h3>🧠 What Makes CLIP Work So Well?</h3>
+      <div class="warning">
+        <strong>🔍 Key Research Insights:</strong><br>
+        • <strong>Scale is crucial:</strong> Performance scales log-linearly with dataset size<br>
+        • <strong>Natural language supervision:</strong> Web text is incredibly rich and diverse<br>
+        • <strong>Contrastive learning:</strong> More efficient than predicting exact text<br>
+        • <strong>Temperature parameter:</strong> Critical for training stability and performance<br>
+        • <strong>Prompt engineering matters:</strong> "A photo of a [class]" works better than just "[class]"
+      </div>
+
+      <div class="info">
+        <strong>🎭 CLIP's Limitations:</strong><br>
+        • <strong>Compositional reasoning:</strong> Struggles with complex spatial relationships<br>
+        • <strong>Fine-grained classification:</strong> Difficulty with very similar classes<br>
+        • <strong>Counting:</strong> Cannot reliably count objects in images<br>
+        • <strong>Text reading:</strong> Limited OCR capabilities<br>
+        • <strong>Abstract concepts:</strong> Works best with concrete, visual concepts
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🚀 CLIP's Impact on AI</h3>
+      <div class="breakthrough-highlight">
+        🌟 CLIP sparked the multimodal AI revolution: GPT-4V, DALL-E 2/3, Stable Diffusion, and countless applications all build on CLIP's foundation!
+      </div>
+
+      <div class="success">
+        <strong>🏆 Revolutionary Applications Enabled by CLIP:</strong><br>
+        • <strong>Text-to-Image Generation:</strong> DALL-E, Stable Diffusion, Midjourney<br>
+        • <strong>Vision-Language Models:</strong> GPT-4V, Flamingo, BLIP<br>
+        • <strong>Image Editing:</strong> CLIPDraw, StyleCLIP, semantic image editing<br>
+        • <strong>Robotics:</strong> CLIPort for language-guided robot manipulation<br>
+        • <strong>3D Understanding:</strong> CLIP-guided NeRF, 3D shape retrieval<br>
+        • <strong>Video Understanding:</strong> VideoCLIP, ActionCLIP for video analysis
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let activeTab = 'basic';
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeCharts();
+      setupEventListeners();
+      analyzeArchitecture();
+      demonstrateTemperature();
+      simulateContrastiveLearning();
+      visualizeEmbedding();
+      performZeroShot();
+    });
+
+    function setupEventListeners() {
+      // Temperature slider
+      const tempSlider = document.getElementById('temperatureSlider');
+      if (tempSlider) {
+        tempSlider.addEventListener('input', () => {
+          document.getElementById('temperatureValue').textContent = tempSlider.value;
+        });
+      }
+
+      // Contrastive learning sliders
+      const posSlider = document.getElementById('positiveSim');
+      const negSlider = document.getElementById('negativeSim');
+      const ctempSlider = document.getElementById('contrastiveTemp');
+      
+      if (posSlider) {
+        posSlider.addEventListener('input', () => {
+          document.getElementById('positiveSimValue').textContent = posSlider.value;
+        });
+      }
+      if (negSlider) {
+        negSlider.addEventListener('input', () => {
+          document.getElementById('negativeSimValue').textContent = negSlider.value;
+        });
+      }
+      if (ctempSlider) {
+        ctempSlider.addEventListener('input', () => {
+          document.getElementById('contrastiveTempValue').textContent = ctempSlider.value;
+        });
+      }
+    }
+
+    function initializeCharts() {
+      const canvas = document.getElementById('embeddingCanvas');
+      if (canvas) {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+      }
+    }
+
+    function analyzeArchitecture() {
+      const variant = document.getElementById('clipVariant')?.value || 'vit-b-32';
+      const embeddingDim = document.getElementById('embeddingDim')?.value || '512';
+      const analysisType = document.getElementById('analysisType')?.value || 'parameters';
+
+      const specs = {
+        'vit-b-32': { params: 151, flops: 4.4, memory: 2.5, speed: 100 },
+        'vit-b-16': { params: 149, flops: 17.6, memory: 3.2, speed: 40 },
+        'vit-l-14': { params: 427, flops: 81.1, memory: 8.7, speed: 15 },
+        'resnet-50': { params: 102, flops: 4.1, memory: 2.1, speed: 120 }
+      };
+
+      const spec = specs[variant];
+      const analysis = document.getElementById('architectureAnalysis');
+      
+      if (analysis) {
+        let content = `
+          <div class="metric-grid">
+            <div class="metric-card">
+              <div class="metric-value">${spec.params}M</div>
+              <div class="metric-label">Total Parameters</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value">${embeddingDim}D</div>
+              <div class="metric-label">Embedding Dimension</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value">${spec.flops}G</div>
+              <div class="metric-label">FLOPs per Image</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value">${spec.speed}</div>
+              <div class="metric-label">Images/Second (A100)</div>
+            </div>
+          </div>`;
+
+        if (analysisType === 'parameters') {
+          content += `
+            <div class="info">
+              <strong>📊 Parameter Breakdown:</strong><br>
+              • <strong>Vision Encoder:</strong> ~${Math.round(spec.params * 0.6)}M parameters<br>
+              • <strong>Text Encoder:</strong> ~${Math.round(spec.params * 0.4)}M parameters<br>
+              • <strong>Projection Layers:</strong> Minimal (~1M parameters)<br>
+              • <strong>Trade-offs:</strong> ${variant.includes('32') ? 'Faster but lower resolution patches' : variant.includes('16') ? 'Balanced resolution and speed' : 'Highest quality, slowest inference'}
+            </div>`;
+        }
+        
+        analysis.innerHTML = content;
+      }
+    }
+
+    function demonstrateTemperature() {
+      const temperature = parseFloat(document.getElementById('temperatureSlider')?.value || '0.07');
+      const baseSims = document.getElementById('baseSimilarities')?.value || '0.8, 0.3, 0.1, -0.2, -0.5';
+      
+      const similarities = baseSims.split(',').map(x => parseFloat(x.trim()));
+      const scaledSims = similarities.map(s => s / temperature);
+      const softmax = scaledSims.map(s => Math.exp(s));
+      const sumExp = softmax.reduce((a, b) => a + b, 0);
+      const probabilities = softmax.map(s => s / sumExp);
+
+      const demo = document.getElementById('temperatureDemo');
+      if (demo) {
+        demo.innerHTML = `
+          <div class="metric-grid">
+            <div class="metric-card">
+              <div class="metric-value">${temperature}</div>
+              <div class="metric-label">Temperature (τ)</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value">${Math.max(...probabilities).toFixed(3)}</div>
+              <div class="metric-label">Max Probability</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value">${(-probabilities.reduce((sum, p) => sum + p * Math.log(p), 0)).toFixed(2)}</div>
+              <div class="metric-label">Entropy</div>
+            </div>
+          </div>
+          <div class="info">
+            <strong>📊 Before/After Temperature Scaling:</strong><br>
+            ${similarities.map((sim, i) => 
+              `• Similarity ${i+1}: ${sim.toFixed(2)} → Probability: ${probabilities[i].toFixed(3)}`
+            ).join('<br>')}
+            <br><br>
+            <strong>💡 Effect:</strong> ${temperature < 0.1 ? 'Low temperature makes predictions more confident/peaked' : 'High temperature makes predictions more uniform/uncertain'}
+          </div>`;
+      }
+    }
+
+    function simulateContrastiveLearning() {
+      const batchSize = parseInt(document.getElementById('batchSize')?.value || '8');
+      const positiveSim = parseFloat(document.getElementById('positiveSim')?.value || '0.8');
+      const negativeSim = parseFloat(document.getElementById('negativeSim')?.value || '0.1');
+      const temperature = parseFloat(document.getElementById('contrastiveTemp')?.value || '0.07');
+
+      // Create similarity matrix
+      const matrix = [];
+      for (let i = 0; i < batchSize; i++) {
+        const row = [];
+        for (let j = 0; j < batchSize; j++) {
+          if (i === j) {
+            row.push(positiveSim + (Math.random() - 0.5) * 0.1); // positive pairs
+          } else {
+            row.push(negativeSim + (Math.random() - 0.5) * 0.2); // negative pairs
+          }
+        }
+        matrix.push(row);
+      }
+
+      // Calculate InfoNCE loss
+      let totalLoss = 0;
+      for (let i = 0; i < batchSize; i++) {
+        const numerator = Math.exp(matrix[i][i] / temperature);
+        const denominator = matrix[i].reduce((sum, sim) => sum + Math.exp(sim / temperature), 0);
+        totalLoss += -Math.log(numerator / denominator);
+      }
+      totalLoss /= batchSize;
+
+      const demo = document.getElementById('contrastiveDemo');
+      if (demo) {
+        // Create similarity matrix visualization
+        let matrixHtml = `<div class="contrastive-matrix">
+          <h4>Similarity Matrix (${batchSize}×${batchSize})</h4>
+          <div class="matrix-grid" style="grid-template-columns: repeat(${batchSize + 1}, 1fr);">
+            <div class="matrix-header">I\\T</div>`;
+        
+        // Header row
+        for (let j = 0; j < batchSize; j++) {
+          matrixHtml += `<div class="matrix-header">T${j}</div>`;
+        }
+        
+        // Data rows
+        for (let i = 0; i < batchSize; i++) {
+          matrixHtml += `<div class="matrix-header">I${i}</div>`;
+          for (let j = 0; j < batchSize; j++) {
+            const value = matrix[i][j];
+            const cellClass = i === j ? 'matrix-positive' : 'matrix-negative';
+            matrixHtml += `<div class="matrix-cell ${cellClass}">${value.toFixed(2)}</div>`;
+          }
+        }
+        
+        matrixHtml += '</div></div>';
+
+        demo.innerHTML = matrixHtml + `
+          <div class="metric-grid">
+            <div class="metric-card">
+              <div class="metric-value">${totalLoss.toFixed(3)}</div>
+              <div class="metric-label">InfoNCE Loss</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value">${positiveSim.toFixed(2)}</div>
+              <div class="metric-label">Positive Similarity</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value">${negativeSim.toFixed(2)}</div>
+              <div class="metric-label">Negative Similarity</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value">${temperature}</div>
+              <div class="metric-label">Temperature</div>
+            </div>
+          </div>
+          <div class="info">
+            <strong>🎯 Contrastive Learning Insights:</strong><br>
+            • <strong>Green diagonal:</strong> Correct image-text pairs (maximize these)<br>
+            • <strong>Red off-diagonal:</strong> Incorrect pairs (minimize these)<br>
+            • <strong>Loss interpretation:</strong> ${totalLoss < 1 ? 'Good separation between positive/negative pairs' : 'Need better separation - increase positive similarity or decrease negative'}<br>
+            • <strong>Large batch benefits:</strong> More negative examples per positive pair
+          </div>`;
+      }
+    }
+
+    function toggleClass(element) {
+      element.classList.toggle('selected');
+    }
+
+    function performZeroShot() {
+      const testImage = document.getElementById('testImage')?.value || 'dog';
+      const promptTemplate = document.getElementById('promptTemplate')?.value || 'photo';
+      const selectedClasses = Array.from(document.querySelectorAll('.class-option.selected')).map(el => el.textContent);
+      
+      if (selectedClasses.length === 0) {
+        // Auto-select some classes for demo
+        const defaultClasses = ['dog', 'cat', 'car', 'airplane'];
+        document.querySelectorAll('.class-option').forEach(el => {
+          if (defaultClasses.includes(el.textContent)) {
+            el.classList.add('selected');
+          }
+        });
+        performZeroShot();
+        return;
+      }
+
+      // Simulate CLIP similarities (in reality these would come from the model)
+      const groundTruth = {
+        'dog': { dog: 0.9, cat: 0.3, car: 0.1, airplane: 0.05, flower: 0.1, pizza: 0.1 },
+        'cat': { cat: 0.85, dog: 0.4, car: 0.1, airplane: 0.05, flower: 0.15, pizza: 0.1 },
+        'car': { car: 0.9, airplane: 0.2, dog: 0.05, cat: 0.05, flower: 0.1, pizza: 0.1 },
+        'plane': { airplane: 0.9, car: 0.3, dog: 0.05, cat: 0.05, flower: 0.1, pizza: 0.1 },
+        'flower': { flower: 0.9, dog: 0.1, cat: 0.1, car: 0.05, airplane: 0.05, pizza: 0.1 },
+        'food': { pizza: 0.9, flower: 0.1, dog: 0.1, cat: 0.1, car: 0.05, airplane: 0.05 }
+      };
+
+      const baseSims = groundTruth[testImage] || groundTruth['dog'];
+      const similarities = selectedClasses.map(cls => baseSims[cls] || 0.1);
+      
+      // Add some noise and template effect
+      const templateBoost = {
+        'photo': 1.0,
+        'picture': 0.95,
+        'image': 0.9,
+        'drawing': 0.7
+      };
+      
+      const adjustedSims = similarities.map(s => s * (templateBoost[promptTemplate] || 1.0) + (Math.random() - 0.5) * 0.1);
+      
+      // Softmax to get probabilities
+      const expSims = adjustedSims.map(s => Math.exp(s / 0.07));
+      const sumExp = expSims.reduce((a, b) => a + b, 0);
+      const probabilities = expSims.map(e => e / sumExp);
+
+      const results = selectedClasses.map((cls, i) => ({
+        class: cls,
+        similarity: adjustedSims[i],
+        probability: probabilities[i]
+      })).sort((a, b) => b.probability - a.probability);
+
+      const resultsDiv = document.getElementById('zeroShotResults');
+      if (resultsDiv) {
+        let html = `
+          <div class="zero-shot-demo">
+            <h4>🔮 Zero-Shot Classification Results</h4>
+            <p><strong>Test Image:</strong> ${testImage} | <strong>Prompt:</strong> "${promptTemplate.replace('{}', '{class}')}"</p>`;
+
+        results.forEach((result, i) => {
+          const barWidth = result.probability * 100;
+          const isCorrect = result.class === testImage || (testImage === 'food' && result.class === 'pizza') || (testImage === 'plane' && result.class === 'airplane');
+          html += `
+            <div style="margin: 10px 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <span style="font-weight: bold; color: ${isCorrect ? '#28a745' : '#2d2d2d'}">${i + 1}. ${result.class}</span>
+                <span>${(result.probability * 100).toFixed(1)}%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${barWidth}%; background: ${isCorrect ? '#28a745' : '#6c757d'}">
+                  ${barWidth > 20 ? (result.probability * 100).toFixed(1) + '%' : ''}
+                </div>
+              </div>
+            </div>`;
+        });
+
+        html += `
+            <div class="success" style="margin-top: 20px;">
+              <strong>✅ Zero-Shot Success:</strong> ${results[0].class === testImage || (testImage === 'food' && results[0].class === 'pizza') || (testImage === 'plane' && results[0].class === 'airplane') ? 'Correct classification!' : 'Misclassification - but note the reasoning pattern'}
+              <br><strong>Top prediction confidence:</strong> ${(results[0].probability * 100).toFixed(1)}%
+            </div>
+          </div>`;
+
+        resultsDiv.innerHTML = html;
+      }
+    }
+
+    function visualizeEmbedding() {
+      const canvas = document.getElementById('embeddingCanvas');
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext('2d');
+      const width = canvas.width;
+      const height = canvas.height;
+
+      // Clear canvas
+      ctx.fillStyle = '#f8f9fa';
+      ctx.fillRect(0, 0, width, height);
+
+      // Generate sample embeddings for visualization
+      const concepts = [
+        { name: 'dog', type: 'animal', x: width * 0.3, y: height * 0.3, color: '#dc3545' },
+        { name: 'cat', type: 'animal', x: width * 0.4, y: height * 0.35, color: '#dc3545' },
+        { name: 'bird', type: 'animal', x: width * 0.35, y: height * 0.25, color: '#dc3545' },
+        { name: 'car', type: 'vehicle', x: width * 0.7, y: height * 0.6, color: '#007bff' },
+        { name: 'truck', type: 'vehicle', x: width * 0.75, y: height * 0.65, color: '#007bff' },
+        { name: 'airplane', type: 'vehicle', x: width * 0.8, y: height * 0.55, color: '#007bff' },
+        { name: 'rose', type: 'plant', x: width * 0.2, y: height * 0.7, color: '#28a745' },
+        { name: 'tree', type: 'plant', x: width * 0.25, y: height * 0.75, color: '#28a745' },
+        { name: 'flower', type: 'plant', x: width * 0.15, y: height * 0.65, color: '#28a745' },
+      ];
+
+      // Draw concept clusters
+      concepts.forEach(concept => {
+        // Draw concept circle
+        ctx.fillStyle = concept.color;
+        ctx.beginPath();
+        ctx.arc(concept.x, concept.y, 8, 0, 2 * Math.PI);
+        ctx.fill();
+
+        // Draw label
+        ctx.fillStyle = '#2d2d2d';
+        ctx.font = '12px Arial';
+        ctx.fillText(concept.name, concept.x + 12, concept.y + 4);
+      });
+
+      // Draw cluster boundaries
+      const clusters = {
+        'animal': { x: width * 0.35, y: height * 0.3, radius: 80, color: '#dc354540' },
+        'vehicle': { x: width * 0.75, y: height * 0.6, radius: 70, color: '#007bff40' },
+        'plant': { x: width * 0.2, y: height * 0.7, radius: 60, color: '#28a74540' }
+      };
+
+      Object.values(clusters).forEach(cluster => {
+        ctx.strokeStyle = cluster.color;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.arc(cluster.x, cluster.y, cluster.radius, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      });
+
+      // Add title and axes labels
+      ctx.fillStyle = '#2d2d2d';
+      ctx.font = 'bold 16px Arial';
+      ctx.fillText('CLIP Embedding Space (2D Projection)', 10, 25);
+      
+      ctx.font = '12px Arial';
+      ctx.fillText('Dimension 1', width - 80, height - 10);
+      ctx.save();
+      ctx.translate(15, height - 50);
+      ctx.rotate(-Math.PI/2);
+      ctx.fillText('Dimension 2', 0, 0);
+      ctx.restore();
+
+      // Update analysis
+      const analysis = document.getElementById('embeddingAnalysis');
+      if (analysis) {
+        analysis.innerHTML = `
+          <div class="info">
+            <strong>🗺️ Embedding Space Insights:</strong><br>
+            • <strong>Semantic Clustering:</strong> Similar concepts naturally group together<br>
+            • <strong>Cross-Modal Alignment:</strong> Text "dog" and dog images occupy same space<br>
+            • <strong>Hierarchical Structure:</strong> Animals, vehicles, plants form distinct clusters<br>
+            • <strong>Compositional Properties:</strong> "Small dog" would lie between dog cluster and size concepts<br><br>
+            <strong>💡 This 2D projection shows how CLIP's 512D space organizes knowledge semantically!</strong>
+          </div>`;
+      }
+    }
+
+    function switchTab(tabName, element) {
+      // Remove active class from all tabs and content
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      // Add active class to clicked tab and corresponding content
+      if (element) element.classList.add('active');
+      const content = document.getElementById(tabName);
+      if (content) content.classList.add('active');
+      
+      activeTab = tabName;
+    }
+
+    function copyCode(button) {
+      const codeBlock = button.nextElementSibling;
+      if (codeBlock && codeBlock.tagName === 'PRE') {
+        const text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          const originalText = button.textContent;
+          button.textContent = '✅ Copied';
+          setTimeout(() => {
+            button.textContent = originalText;
+          }, 2000);
+        });
+      }
+    }
+  </script>
+</body>
+</html>
