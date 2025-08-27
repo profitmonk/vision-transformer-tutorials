@@ -484,23 +484,47 @@
   <div class="container">
     <h2>🎯 Contrastive Learning: The Training Magic</h2>
     <div class="step">
-      <h3>📊 InfoNCE Loss: Learning Through Contrast</h3>
-      <p>CLIP learns by seeing <strong>millions of (image, text) pairs</strong> from the internet and learning to maximize similarity between correct pairs while minimizing similarity between incorrect pairs. This creates a rich, semantic embedding space.</p>
-
-      <div class="math-formula">
-        <strong>InfoNCE Loss Function:</strong><br><br>
-        
-        ℓ<sub>i→t</sub> = -log( exp(s<sub>ii</sub>/τ) / ∑<sub>j=1</sub><sup>N</sup> exp(s<sub>ij</sub>/τ) )<br><br>
-        
-        ℓ<sub>t→i</sub> = -log( exp(s<sub>ii</sub>/τ) / ∑<sub>j=1</sub><sup>N</sup> exp(s<sub>ji</sub>/τ) )<br><br>
-        
-        <strong>Total Loss:</strong> ℓ = (ℓ<sub>i→t</sub> + ℓ<sub>t→i</sub>) / 2<br><br>
-        
-        Where:<br>
-        • s<sub>ij</sub> = cosine similarity between image i and text j<br>
-        • τ = learned temperature parameter (typically ~0.07)<br>
-        • N = batch size (CLIP uses very large batches: 32,768!)
-      </div>
+          <h3>📊 InfoNCE Loss: Learning Through Contrast</h3>
+          <p>CLIP learns by seeing <strong>millions of (image, text) pairs</strong> from the internet and learning to maximize similarity between correct pairs while minimizing similarity between incorrect pairs. This creates a rich, semantic embedding space.</p>
+    
+          <div class="info">
+            <strong>🔍 InfoNCE Full Form:</strong><br>
+            <strong>Info</strong>rmation <strong>N</strong>oise <strong>C</strong>ontrastive <strong>E</strong>stimation<br><br>
+            • <strong>Information:</strong> Maximizes mutual information between matched image-text pairs<br>
+            • <strong>Noise:</strong> Uses negative/incorrect examples as "noise" to create contrast<br>
+            • <strong>Contrastive:</strong> Learns by comparing positive pairs vs negative pairs<br>
+            • <strong>Estimation:</strong> Approximates the true relationship through sampling<br><br>
+            <strong>💡 The Core Idea:</strong> Learn by distinguishing correct matches from incorrect ones - like a multiple choice test where each image has thousands of possible text answers!
+          </div>
+    
+          <div class="math-formula">
+            <strong>InfoNCE Loss Function:</strong><br><br>
+            
+            ℓ<sub>i→t</sub> = -log( exp(s<sub>ii</sub>/τ) / ∑<sub>j=1</sub><sup>N</sup> exp(s<sub>ij</sub>/τ) )<br><br>
+            
+            ℓ<sub>t→i</sub> = -log( exp(s<sub>ii</sub>/τ) / ∑<sub>j=1</sub><sup>N</sup> exp(s<sub>ji</sub>/τ) )<br><br>
+            
+            <strong>Total Loss:</strong> ℓ = (ℓ<sub>i→t</sub> + ℓ<sub>t→i</sub>) / 2<br><br>
+            
+            <strong>🧮 Formula Breakdown:</strong><br>
+            • <strong>Numerator:</strong> exp(s<sub>ii</sub>/τ) = strength of correct match (maximize this!)<br>
+            • <strong>Denominator:</strong> ∑ exp(s<sub>ij</sub>/τ) = sum over ALL possible matches (minimize incorrect ones)<br>
+            • <strong>Division:</strong> Creates probability "How likely is the correct match?"<br>
+            • <strong>Negative log:</strong> High probability → low loss (good!), Low probability → high loss (bad!)<br><br>
+            
+            Where:<br>
+            • s<sub>ij</sub> = cosine similarity between image i and text j<br>
+            • τ = temperature parameter (~0.07 makes model decisive)<br>
+            • N = batch size (CLIP uses 32,768 = millions of negative examples!)
+          </div>
+    
+          <div class="warning">
+            <strong>🎯 Why Two Directions Matter:</strong><br>
+            • <strong>ℓ<sub>i→t</sub> (Image→Text):</strong> "Given this image, find the correct text description"<br>
+            • <strong>ℓ<sub>t→i</sub> (Text→Image):</strong> "Given this text, find the matching image"<br>
+            • <strong>Both must work:</strong> Ensures bidirectional search and zero-shot classification<br>
+            • <strong>Symmetry:</strong> Image-to-text and text-to-image become equally strong
+          </div>
 
       <div class="interactive-demo">
         <div class="demo-title">🎓 Contrastive Learning Simulator</div>
