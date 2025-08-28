@@ -1773,7 +1773,770 @@ print("🔧 Full control over model, data, and infrastructure")
       </div>
     </div>
   </div>
+<!-- Add this section after the "Attention Mechanisms" section and before "Performance Benchmarks" -->
 
+<div class="container">
+  <h2>🛡️ Constitutional AI for Vision-Language Models</h2>
+  <div class="step">
+    <h3>⚖️ What is Constitutional AI?</h3>
+    <p>Constitutional AI (CAI) is a training methodology that teaches AI systems to follow a set of principles (a "constitution") and <strong>self-correct their behavior</strong>. Instead of relying entirely on human feedback, models learn to critique and improve their own responses based on explicit moral and behavioral guidelines.</p>
+
+    <div class="breakthrough-highlight">
+      🌟 Key Insight: Rather than "What do humans prefer?", Constitutional AI asks "What principles should guide AI behavior?" and teaches models to apply those principles consistently.
+    </div>
+
+    <div class="interactive-demo">
+      <div class="demo-title">🏛️ Constitutional AI Foundation</div>
+      
+      <div class="tabs">
+        <div class="tab active" onclick="switchCAITab('basics', this)">🏗️ CAI Basics</div>
+        <div class="tab" onclick="switchCAITab('process', this)">🔄 Training Process</div>
+        <div class="tab" onclick="switchCAITab('principles', this)">📜 Constitution</div>
+        <div class="tab" onclick="switchCAITab('comparison', this)">⚖️ CAI vs RLHF</div>
+      </div>
+
+      <div id="basics" class="tab-content active">
+        <div class="math-formula">
+          <strong>Traditional RLHF Problem:</strong><br><br>
+          Human Feedback: "This response is better" → ❓ <em>But why?</em><br><br>
+          
+          <strong>Constitutional AI Solution:</strong><br><br>
+          Constitution: "Be helpful, harmless, and honest"<br>
+          Model learns: <em>How</em> to evaluate responses against principles<br>
+          Self-correction: Model improves its own outputs
+        </div>
+        
+        <div class="architecture-flow">
+          <div class="arch-component vision">
+            <h4>📜 Constitution</h4>
+            <div>Written Principles</div>
+            <div style="font-size:12px;margin-top:5px">
+              • Be helpful & educational<br>
+              • Avoid harm & bias<br>
+              • Respect privacy & safety
+            </div>
+          </div>
+          
+          <div class="arch-arrow">→</div>
+          
+          <div class="arch-component fusion">
+            <h4>🤖 AI Self-Critique</h4>
+            <div>Evaluate Own Response</div>
+            <div style="font-size:12px;margin-top:5px">
+              • Apply principles<br>
+              • Identify issues<br>
+              • Generate improvements
+            </div>
+          </div>
+          
+          <div class="arch-arrow">→</div>
+          
+          <div class="arch-component output">
+            <h4>✨ Improved Response</h4>
+            <div>Self-Corrected Output</div>
+            <div style="font-size:12px;margin-top:5px">
+              • Better aligned<br>
+              • More helpful<br>
+              • Safer & more educational
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="process" class="tab-content">
+        <div class="step">
+          <h4>🔄 Constitutional AI Training Process</h4>
+          
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-date">Step 1</div>
+              <div class="timeline-content">
+                <h5>📝 Initial Response Generation</h5>
+                <p>Model generates initial response to prompt using standard training</p>
+              </div>
+            </div>
+            
+            <div class="timeline-item">
+              <div class="timeline-date">Step 2</div>
+              <div class="timeline-content">
+                <h5>🔍 Constitutional Critique</h5>
+                <p>Model evaluates its own response against constitutional principles</p>
+              </div>
+            </div>
+            
+            <div class="timeline-item">
+              <div class="timeline-date">Step 3</div>
+              <div class="timeline-content">
+                <h5>✏️ Self-Revision</h5>
+                <p>Model generates improved response based on its self-critique</p>
+              </div>
+            </div>
+            
+            <div class="timeline-item">
+              <div class="timeline-date">Step 4</div>
+              <div class="timeline-content">
+                <h5>📈 Reinforcement Learning</h5>
+                <p>Model learns from its own improved responses via RL</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="principles" class="tab-content">
+        <div class="step">
+          <h4>📜 Example Constitutional Principles</h4>
+          
+          <div style="display: grid; gap: 15px; margin: 20px 0;">
+            <div style="background: #d4edda; padding: 15px; border-radius: 8px; border-left: 4px solid #28a745;">
+              <strong>🎯 Helpfulness Principles</strong><br>
+              • "Choose the response that is most helpful and educational"<br>
+              • "Provide specific, actionable information when appropriate"<br>
+              • "Acknowledge uncertainty rather than guessing"
+            </div>
+            
+            <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107;">
+              <strong>🛡️ Harmlessness Principles</strong><br>
+              • "Avoid content that could be used to harm others"<br>
+              • "Don't provide information for illegal activities"<br>
+              • "Be especially careful with content involving minors"
+            </div>
+            
+            <div style="background: #d1ecf1; padding: 15px; border-radius: 8px; border-left: 4px solid #17a2b8;">
+              <strong>💎 Honesty Principles</strong><br>
+              • "Be truthful and accurate in your responses"<br>
+              • "Admit when you don't know something"<br>
+              • "Correct mistakes when identified"
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="comparison" class="tab-content">
+        <table class="benchmark-table">
+          <tr>
+            <th>Aspect</th>
+            <th>Traditional RLHF</th>
+            <th>Constitutional AI</th>
+          </tr>
+          <tr>
+            <td><strong>Feedback Source</strong></td>
+            <td>Human preferences</td>
+            <td>AI self-evaluation + principles</td>
+          </tr>
+          <tr>
+            <td><strong>Scalability</strong></td>
+            <td>Limited by human bandwidth</td>
+            <td>Scales with model capability</td>
+          </tr>
+          <tr>
+            <td><strong>Consistency</strong></td>
+            <td>Variable human judgment</td>
+            <td>Consistent principle application</td>
+          </tr>
+          <tr>
+            <td><strong>Transparency</strong></td>
+            <td>Opaque human preferences</td>
+            <td>Explicit written principles</td>
+          </tr>
+          <tr>
+            <td><strong>Cost</strong></td>
+            <td>High (human labor)</td>
+            <td>Lower (automated)</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <h3>👁️ Constitutional AI for Vision: The Complexity Explosion</h3>
+    <p>Applying Constitutional AI to VLMs introduces <strong>multimodal challenges</strong> that don't exist in text-only systems. The model must evaluate both visual content and its textual responses about that content.</p>
+
+    <div class="interactive-demo">
+      <div class="demo-title">🔍 VLM Constitutional Challenge Explorer</div>
+
+      <div class="controls">
+        <div class="control-group">
+          <label>Challenge Type:</label>
+          <select id="challengeType">
+            <option value="hallucination" selected>Visual Hallucination</option>
+            <option value="privacy">Privacy & Identification</option>
+            <option value="bias">Cultural Bias</option>
+            <option value="medical">Medical/Safety Claims</option>
+            <option value="accuracy">Factual Accuracy</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label>Model Scenario:</label>
+          <select id="modelScenario">
+            <option value="before" selected>Before Constitutional Training</option>
+            <option value="critique">During Self-Critique</option>
+            <option value="after">After Constitutional Training</option>
+          </select>
+        </div>
+      </div>
+
+      <button onclick="demonstrateConstitutionalChallenge()" class="primary">🎭 Show Constitutional AI in Action</button>
+      <div id="constitutionalDemo"></div>
+    </div>
+  </div>
+
+  <div class="step">
+    <h3>🔬 VLM Constitutional Training Pipeline</h3>
+    
+    <div class="math-formula">
+      <strong>VLM Constitutional AI Training Mathematics:</strong><br><br>
+      
+      <strong>Phase 1 - Supervised Constitutional Learning:</strong><br>
+      ℒ<sub>SL</sub> = -𝔼<sub>(img,txt,y)</sub>[log P(y<sub>revised</sub> | img, txt, critique(y<sub>initial</sub>))]<br>
+      <em>Train on self-revised responses based on constitutional critique</em><br><br>
+      
+      <strong>Phase 2 - Constitutional RL:</strong><br>
+      ℒ<sub>CAI</sub> = 𝔼<sub>π</sub>[R<sub>constitutional</sub>(img, txt, response)] - β KL(π, π<sub>SL</sub>)<br>
+      <em>Where R<sub>constitutional</sub> = Constitutional_Judge(img, txt, response)</em><br><br>
+      
+      <strong>Constitutional Reward Model:</strong><br>
+      R<sub>constitutional</sub> = α·R<sub>visual_accuracy</sub> + β·R<sub>safety</sub> + γ·R<sub>helpfulness</sub><br>
+      <em>Multi-objective optimization across constitutional principles</em>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">🛡️ VLM Constitutional Training Implementation</div>
+      <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>class VLMConstitutionalTrainer:
+    def __init__(self, vlm_model, constitution):
+        self.vlm = vlm_model
+        self.constitution = constitution
+        
+        # Visual safety classifiers
+        self.visual_safety_classifier = self._build_safety_classifier()
+        self.privacy_detector = self._build_privacy_detector()
+        
+        # Constitutional reward models
+        self.visual_accuracy_judge = self._build_accuracy_judge()
+        self.helpfulness_judge = self._build_helpfulness_judge()
+        
+    def constitutional_training_step(self, image, prompt):
+        """Single constitutional training step"""
+        
+        # 1. Generate initial response
+        initial_response = self.vlm.generate(image, prompt)
+        
+        # 2. Multi-dimensional constitutional critique
+        critique = self.comprehensive_critique(image, prompt, initial_response)
+        
+        # 3. Self-revision based on critique
+        revision_prompt = f"""
+        Based on this critique of my response:
+        {critique}
+        
+        Please provide an improved response to: {prompt}
+        [Image shown]
+        
+        Focus on being more accurate, helpful, and safe.
+        """
+        
+        revised_response = self.vlm.generate(image, revision_prompt)
+        
+        # 4. Constitutional reward calculation
+        reward = self.calculate_constitutional_reward(
+            image, prompt, revised_response
+        )
+        
+        return {
+            'initial': initial_response,
+            'critique': critique,
+            'revised': revised_response,
+            'reward': reward
+        }
+    
+    def comprehensive_critique(self, image, prompt, response):
+        """Multi-faceted constitutional critique for VLMs"""
+        
+        # Visual accuracy critique
+        visual_critique = self._critique_visual_accuracy(image, response)
+        
+        # Safety critique
+        safety_critique = self._critique_safety(image, prompt, response)
+        
+        # Helpfulness critique
+        help_critique = self._critique_helpfulness(prompt, response)
+        
+        # Privacy critique
+        privacy_critique = self._critique_privacy(image, response)
+        
+        return {
+            'visual_accuracy': visual_critique,
+            'safety': safety_critique,
+            'helpfulness': help_critique,
+            'privacy': privacy_critique
+        }
+    
+    def _critique_visual_accuracy(self, image, response):
+        """Evaluate factual accuracy of visual descriptions"""
+        accuracy_prompt = f"""
+        Constitutional Principle: "Describe only what you can actually see"
+        
+        My response: {response}
+        
+        Critique questions:
+        1. Did I describe anything not visible in the image?
+        2. Did I miss important visual details?
+        3. Did I make unsupported inferences?
+        4. How can I improve factual accuracy?
+        """
+        
+        return self.vlm.generate(image, accuracy_prompt)
+    
+    def _critique_safety(self, image, prompt, response):
+        """Evaluate safety implications"""
+        safety_prompt = f"""
+        Constitutional Principles: 
+        - "Avoid content that could cause harm"
+        - "Don't identify private individuals"
+        - "Don't provide medical diagnoses"
+        
+        Original question: {prompt}
+        My response: {response}
+        
+        Safety evaluation:
+        1. Could my response cause harm if followed?
+        2. Did I identify someone who should remain private?
+        3. Did I provide medical advice inappropriately?
+        4. How can I be more responsible?
+        """
+        
+        return self.vlm.generate(image, safety_prompt)
+    
+    def _critique_helpfulness(self, prompt, response):
+        """Evaluate educational value and helpfulness"""
+        help_prompt = f"""
+        Constitutional Principle: "Be maximally helpful and educational"
+        
+        User question: {prompt}
+        My response: {response}
+        
+        Helpfulness evaluation:
+        1. Did I directly address the user's question?
+        2. Could I provide more educational context?
+        3. Is my response at the appropriate detail level?
+        4. How can I be more useful?
+        """
+        
+        return self.vlm.generate(None, help_prompt)  # Text-only critique
+    
+    def calculate_constitutional_reward(self, image, prompt, response):
+        """Calculate multi-dimensional constitutional reward"""
+        
+        # Component rewards
+        accuracy_reward = self.visual_accuracy_judge(image, response)
+        safety_reward = self.safety_judge(image, prompt, response)
+        helpfulness_reward = self.helpfulness_judge(prompt, response)
+        
+        # Weighted combination (adjust weights based on application)
+        total_reward = (
+            0.4 * accuracy_reward +      # Visual accuracy is critical
+            0.35 * safety_reward +       # Safety is paramount
+            0.25 * helpfulness_reward    # Helpfulness completes the picture
+        )
+        
+        return total_reward
+
+# Example usage in training loop
+trainer = VLMConstitutionalTrainer(vlm_model, CLAUDE_CONSTITUTION)
+
+for epoch in range(num_epochs):
+    for batch in constitutional_training_data:
+        for image, prompt in batch:
+            result = trainer.constitutional_training_step(image, prompt)
+            
+            # Train model on constitutionally-improved responses
+            loss = compute_loss(result['revised'], target_response)
+            
+            # Add constitutional reward to loss
+            total_loss = loss - lambda_constitutional * result['reward']
+            total_loss.backward()
+</pre>
+    </div>
+  </div>
+
+  <div class="step">
+    <h3>👁️ VLM-Specific Constitutional Challenges</h3>
+    <p>Vision-Language Models face unique constitutional challenges that don't exist in text-only systems. These require specialized principles and training approaches.</p>
+
+    <div class="interactive-demo">
+      <div class="demo-title">🎯 VLM Constitutional Challenges</div>
+
+      <div class="controls">
+        <div class="control-group">
+          <label>Challenge Category:</label>
+          <select id="vlmChallenge">
+            <option value="hallucination" selected>Visual Hallucination</option>
+            <option value="privacy">Privacy & Face Recognition</option>
+            <option value="medical">Medical Image Analysis</option>
+            <option value="bias">Cultural & Social Bias</option>
+            <option value="misinformation">Visual Misinformation</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label>Constitutional Response:</label>
+          <select id="constitutionalApproach">
+            <option value="prevention" selected>Prevention Strategy</option>
+            <option value="detection">Detection Method</option>
+            <option value="correction">Correction Process</option>
+          </select>
+        </div>
+      </div>
+
+      <button onclick="exploreVLMChallenge()" class="primary">🔍 Explore Constitutional Solution</button>
+      <div id="vlmChallengeResults"></div>
+    </div>
+  </div>
+
+  <div class="step">
+    <h3>🛡️ Constitutional AI in Production VLMs</h3>
+    
+    <div class="model-comparison">
+      <div class="model-card" onclick="selectConstitutionalModel('claude', this)">
+        <div class="model-name">🤖 Claude's Constitutional Vision</div>
+        <div class="model-specs">
+          <strong>Approach:</strong> Built-in safety at architecture level<br>
+          <strong>Training:</strong> Constitutional principles from initialization<br>
+          <strong>Safety Features:</strong> Visual content filtering, privacy protection<br>
+          <strong>Self-Correction:</strong> Real-time constitutional evaluation<br>
+          <strong>Transparency:</strong> Explicit about constitutional reasoning
+        </div>
+      </div>
+
+      <div class="model-card" onclick="selectConstitutionalModel('gpt4v', this)">
+        <div class="model-name">🤖 GPT-4V's Safety Approach</div>
+        <div class="model-specs">
+          <strong>Approach:</strong> Post-hoc safety filtering + RLHF<br>
+          <strong>Training:</strong> Traditional RLHF with safety considerations<br>
+          <strong>Safety Features:</strong> Content policy enforcement, usage monitoring<br>
+          <strong>Self-Correction:</strong> Limited constitutional self-awareness<br>
+          <strong>Transparency:</strong> Minimal insight into safety mechanisms
+        </div>
+      </div>
+
+      <div class="model-card" onclick="selectConstitutionalModel('gemini', this)">
+        <div class="model-name">💎 Gemini's Responsible AI</div>
+        <div class="model-specs">
+          <strong>Approach:</strong> Multi-layered safety + constitutional elements<br>
+          <strong>Training:</strong> Responsible AI principles integrated<br>
+          <strong>Safety Features:</strong> Advanced harm detection, cultural sensitivity<br>
+          <strong>Self-Correction:</strong> Emerging constitutional capabilities<br>
+          <strong>Transparency:</strong> Detailed safety documentation
+        </div>
+      </div>
+    </div>
+
+    <div id="constitutionalModelAnalysis"></div>
+  </div>
+
+  <div class="step">
+    <h3>🎭 Interactive Constitutional AI Demo</h3>
+    
+    <div class="interactive-demo">
+      <div class="demo-title">🎬 Constitutional AI Self-Correction Simulation</div>
+      <p>See how Constitutional AI helps VLMs self-correct problematic responses in real-time.</p>
+
+      <div class="controls">
+        <div class="control-group">
+          <label>Scenario Type:</label>
+          <select id="scenarioType">
+            <option value="hallucination" selected>Hallucination Correction</option>
+            <option value="privacy">Privacy Protection</option>
+            <option value="bias">Bias Mitigation</option>
+            <option value="educational">Educational Enhancement</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label>Image Context:</label>
+          <select id="imageContext">
+            <option value="people" selected>People in photo</option>
+            <option value="medical">Medical-related image</option>
+            <option value="document">Document/text image</option>
+            <option value="artwork">Artwork/creative content</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label>User Question:</label>
+          <textarea id="userQuestion" rows="2" placeholder="Enter a user question about the image">Who is this person and what's their medical condition?</textarea>
+        </div>
+      </div>
+
+      <button onclick="simulateConstitutionalCorrection()" class="primary">🎭 Simulate Constitutional Self-Correction</button>
+      <div id="constitutionalSimulation"></div>
+    </div>
+  </div>
+
+  <div class="step">
+    <h3>⚙️ Implementation: Building Constitutional VLMs</h3>
+    
+    <div class="code-block">
+      <div class="code-header">🛡️ Constitutional VLM Implementation</div>
+      <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>class ConstitutionalVLM(nn.Module):
+    """Vision-Language Model with Constitutional AI training"""
+    
+    def __init__(self, base_vlm, constitution_config):
+        super().__init__()
+        self.base_vlm = base_vlm
+        self.constitution = constitution_config
+        
+        # Constitutional components
+        self.visual_safety_classifier = VisualSafetyClassifier()
+        self.constitutional_judge = ConstitutionalJudge(constitution_config)
+        self.self_critique_module = SelfCritiqueModule()
+        
+    def forward_with_constitution(self, image, prompt):
+        """Generate response with constitutional self-correction"""
+        
+        # Step 1: Initial safety check
+        safety_score = self.visual_safety_classifier(image)
+        if safety_score < self.constitution.safety_threshold:
+            return "I can't analyze this image due to safety guidelines."
+        
+        # Step 2: Generate initial response
+        initial_response = self.base_vlm.generate(image, prompt)
+        
+        # Step 3: Constitutional self-critique
+        critique = self.self_critique_module(
+            image, prompt, initial_response, self.constitution
+        )
+        
+        # Step 4: Decide if revision needed
+        if critique.needs_revision:
+            # Generate constitutionally-improved response
+            revised_response = self.generate_revision(
+                image, prompt, initial_response, critique
+            )
+            
+            # Verify improvement
+            improvement_score = self.constitutional_judge(
+                image, prompt, revised_response
+            )
+            
+            if improvement_score > critique.initial_score:
+                return revised_response
+        
+        return initial_response
+    
+    def generate_revision(self, image, prompt, initial_response, critique):
+        """Generate improved response based on constitutional critique"""
+        
+        revision_prompt = f"""
+        Constitutional Principles: {self.constitution.principles}
+        
+        Original question: {prompt}
+        My initial response: {initial_response}
+        
+        Constitutional critique: {critique.feedback}
+        
+        Please provide an improved response that:
+        1. Addresses the critique points
+        2. Better follows constitutional principles  
+        3. Maintains helpfulness while improving safety/accuracy
+        
+        Improved response:
+        """
+        
+        return self.base_vlm.generate(image, revision_prompt)
+
+class VisualSafetyClassifier(nn.Module):
+    """Classify visual content for safety"""
+    
+    def __init__(self):
+        super().__init__()
+        self.clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+        
+        # Safety classification head
+        self.safety_classifier = nn.Sequential(
+            nn.Linear(512, 256),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(256, 4)  # safe, concerning, unsafe, unknown
+        )
+    
+    def forward(self, image):
+        # Extract visual features
+        with torch.no_grad():
+            image_features = self.clip_model.get_image_features(image)
+        
+        # Classify safety level
+        safety_logits = self.safety_classifier(image_features)
+        safety_probs = torch.softmax(safety_logits, dim=-1)
+        
+        return safety_probs[:, 0]  # Return "safe" probability
+
+class SelfCritiqueModule(nn.Module):
+    """Generate constitutional critiques of VLM responses"""
+    
+    def __init__(self):
+        super().__init__()
+        
+    def forward(self, image, prompt, response, constitution):
+        """Generate comprehensive constitutional critique"""
+        
+        critique_prompts = {
+            'visual_accuracy': f"""
+            Constitutional Principle: "Describe only what you can see"
+            
+            Image: [shown]
+            My response: {response}
+            
+            Visual accuracy critique:
+            - What did I describe that isn't actually visible?
+            - What important details did I miss?
+            - Where did I make unsupported inferences?
+            - Rate accuracy: 1-10
+            """,
+            
+            'safety': f"""
+            Constitutional Principles: {constitution.safety_principles}
+            
+            User question: {prompt}
+            Image: [shown]
+            My response: {response}
+            
+            Safety critique:
+            - Could my response cause harm if followed?
+            - Did I identify someone inappropriately?
+            - Did I provide dangerous advice?
+            - Rate safety: 1-10
+            """,
+            
+            'helpfulness': f"""
+            Constitutional Principle: "Be maximally helpful and educational"
+            
+            Question: {prompt}  
+            My response: {response}
+            
+            Helpfulness critique:
+            - Did I fully address the user's question?
+            - Could I provide more educational value?
+            - Is my response appropriately detailed?
+            - Rate helpfulness: 1-10
+            """
+        }
+        
+        critiques = {}
+        for aspect, prompt_text in critique_prompts.items():
+            if aspect == 'helpfulness':
+                # Text-only critique for helpfulness
+                critiques[aspect] = self.generate_critique(None, prompt_text)
+            else:
+                # Include image for visual critiques
+                critiques[aspect] = self.generate_critique(image, prompt_text)
+        
+        return self.synthesize_critiques(critiques)
+
+# Constitutional training configuration
+CLAUDE_VISUAL_CONSTITUTION = {
+    'safety_principles': [
+        "Protect individual privacy - don't identify people",
+        "Avoid medical diagnoses or health advice from images", 
+        "Be culturally sensitive and avoid stereotyping",
+        "Don't assist with potentially illegal activities"
+    ],
+    'accuracy_principles': [
+        "Describe only what is clearly visible",
+        "Express uncertainty about unclear visual elements",
+        "Distinguish observation from inference",
+        "Acknowledge limitations of visual analysis"
+    ],
+    'helpfulness_principles': [
+        "Provide educational context when appropriate",
+        "Explain visual concepts clearly",
+        "Offer practical insights about what you observe",
+        "Help users understand complex visual information"
+    ]
+}
+
+# Usage example
+constitutional_vlm = ConstitutionalVLM(
+    base_vlm=your_vlm_model,
+    constitution_config=CLAUDE_VISUAL_CONSTITUTION
+)
+
+# Generate constitutionally-aligned response
+response = constitutional_vlm.forward_with_constitution(image, user_prompt)
+</pre>
+    </div>
+  </div>
+
+  <div class="step">
+    <h3>📊 Constitutional AI Benefits for VLMs</h3>
+    
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-value">↓78%</div>
+        <div class="metric-label">Harmful Outputs</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">↓65%</div>
+        <div class="metric-label">Visual Hallucinations</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">↑45%</div>
+        <div class="metric-label">Educational Value</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">↑89%</div>
+        <div class="metric-label">User Trust</div>
+      </div>
+    </div>
+
+    <div class="success">
+      <strong>✅ Constitutional AI Advantages for VLMs:</strong><br><br>
+      
+      <strong>🎯 Improved Safety:</strong><br>
+      • Proactive identification of problematic visual content<br>
+      • Self-correction of inappropriate responses<br>
+      • Privacy protection through constitutional principles<br><br>
+      
+      <strong>📈 Better Performance:</strong><br>
+      • Reduced hallucinations through self-critique<br>
+      • More accurate visual descriptions<br>
+      • Higher educational value in responses<br><br>
+      
+      <strong>🔧 Practical Benefits:</strong><br>
+      • Fewer human reviewers needed for safety<br>
+      • More consistent behavior across diverse visual content<br>
+      • Easier to audit and understand model decisions<br>
+      • Adaptable principles for different use cases
+    </div>
+  </div>
+
+  <div class="step">
+    <h3>🔮 Future Directions: Advanced Constitutional VLMs</h3>
+    
+    <div class="warning">
+      <strong>🚀 Emerging Developments:</strong><br><br>
+      
+      <strong>🧠 Multi-Step Constitutional Reasoning:</strong><br>
+      • VLMs that reason through multiple constitutional principles<br>
+      • Chain-of-thought constitutional evaluation<br>
+      • Dynamic principle weighting based on context<br><br>
+      
+      <strong>🔄 Adaptive Constitutions:</strong><br>
+      • Principles that evolve based on cultural context<br>
+      • Domain-specific constitutional training<br>
+      • User-customizable ethical guidelines<br><br>
+      
+      <strong>🌐 Multimodal Constitutional Training:</strong><br>
+      • Joint constitutional training across vision, language, and action<br>
+      • Constitutional principles for robotics and embodied AI<br>
+      • Cross-modal ethical reasoning capabilities
+    </div>
+
+    <div class="breakthrough-highlight">
+      🌟 The Future: Constitutional AI will enable VLMs to be reliable partners in high-stakes applications like medical diagnosis, legal analysis, and educational content creation!
+    </div>
+  </div>
+</div>
   <div class="container">
     <h2>📊 Performance Benchmarks & Capabilities</h2>
     <div class="step">
@@ -3809,13 +4572,451 @@ function switchOpenSourceTab(tabName, element) {
   if (content) content.classList.add('active');
 }
 
+// Constitutional AI JavaScript Functions
+// Add these to your existing <script> section
+
+// Global variables for Constitutional AI section
+let selectedConstitutionalModel = 'claude';
+let activeCAITab = 'basics';
+
+// Switch Constitutional AI tabs
+function switchCAITab(tabName, element) {
+  activeCAITab = tabName;
+  
+  // Remove active class from all CAI tabs and content
+  document.querySelectorAll('#constitutional-ai .tab').forEach(tab => tab.classList.remove('active'));
+  document.querySelectorAll('#constitutional-ai .tab-content').forEach(content => content.classList.remove('active'));
+  
+  // Add active class to clicked tab and corresponding content
+  if (element) element.classList.add('active');
+  const content = document.getElementById(tabName);
+  if (content) content.classList.add('active');
+}
+
+// Demonstrate constitutional challenges and solutions
+function demonstrateConstitutionalChallenge() {
+  const challengeType = document.getElementById('challengeType').value;
+  const modelScenario = document.getElementById('modelScenario').value;
+  
+  const challenges = {
+    'hallucination': {
+      'before': {
+        scenario: 'Model sees image of a park',
+        response: 'I can see a beautiful park with several people playing frisbee, a dog running around, and children on swings. There\'s also a food truck and live music performance happening.',
+        issues: ['Describes details not actually visible', 'Makes assumptions about activities', 'Adds non-existent elements']
+      },
+      'critique': {
+        scenario: 'Constitutional self-critique process',
+        response: 'Let me evaluate my response: Did I describe anything not visible? Yes - I mentioned frisbee, dog, swings, food truck, and music without clear visual evidence. I should only describe what I can actually see.',
+        issues: ['Identifies specific hallucinations', 'Recognizes inference vs observation problem', 'Plans more accurate approach']
+      },
+      'after': {
+        scenario: 'Constitutionally-corrected response',
+        response: 'I can see a green outdoor space with trees and what appears to be several people in the distance. The lighting suggests it\'s daytime. I can\'t make out specific activities or details from this image.',
+        issues: ['Only describes clearly visible elements', 'Acknowledges visual limitations', 'Maintains helpfulness without hallucinating']
+      }
+    },
+    'privacy': {
+      'before': {
+        scenario: 'Image contains a person\'s face',
+        response: 'This appears to be John Smith from the marketing department. Based on his expression, he seems stressed about the upcoming project deadline.',
+        issues: ['Identifies private individual', 'Makes personal inferences', 'Violates privacy principles']
+      },
+      'critique': {
+        scenario: 'Privacy-focused constitutional critique',
+        response: 'Constitutional violation detected: I shouldn\'t identify individuals or make personal inferences. Even if I recognize someone, I should protect their privacy.',
+        issues: ['Recognizes privacy violation', 'Identifies inappropriate personal inferences', 'Applies constitutional privacy principles']
+      },
+      'after': {
+        scenario: 'Privacy-protected response',
+        response: 'I can see a person in what appears to be an office or work environment. I don\'t identify individuals in images to protect privacy. If you have questions about the setting or context, I\'d be happy to help with those aspects.',
+        issues: ['Protects individual privacy', 'Still provides helpful information', 'Explains constitutional reasoning']
+      }
+    },
+    'bias': {
+      'before': {
+        scenario: 'Image of person in cultural dress',
+        response: 'This person is probably from a developing country based on their traditional clothing. They likely work in agriculture or manual labor.',
+        issues: ['Makes stereotypical assumptions', 'Links clothing to economic status', 'Reinforces cultural biases']
+      },
+      'critique': {
+        scenario: 'Bias detection and correction',
+        response: 'I made harmful assumptions linking traditional clothing to economic development and occupation. This reinforces stereotypes and isn\'t based on visual evidence.',
+        issues: ['Identifies stereotypical reasoning', 'Recognizes lack of visual evidence', 'Acknowledges potential harm']
+      },
+      'after': {
+        scenario: 'Culturally sensitive response',
+        response: 'I can see a person wearing what appears to be traditional or cultural clothing with beautiful patterns and colors. Cultural dress represents rich traditions and heritage across many societies.',
+        issues: ['Focuses on observable details', 'Provides positive cultural context', 'Avoids harmful assumptions']
+      }
+    }
+  };
+
+  const challenge = challenges[challengeType];
+  const scenario = challenge[modelScenario];
+  
+  const demo = document.getElementById('constitutionalDemo');
+  demo.innerHTML = `
+    <div class="training-simulation">
+      <div class="conversation-demo">
+        <div class="message user">
+          <div class="image-placeholder">📸 [${scenario.scenario}]</div>
+          "Analyze this image."
+        </div>
+        
+        <div class="message assistant ${modelScenario === 'before' ? '' : modelScenario === 'critique' ? 'system' : ''}">
+          ${scenario.response}
+        </div>
+      </div>
+      
+      <div class="step" style="margin-top: 20px;">
+        <h4>🔍 Constitutional Analysis: ${challengeType.charAt(0).toUpperCase() + challengeType.slice(1)} - ${modelScenario.charAt(0).toUpperCase() + modelScenario.slice(1)}</h4>
+        
+        <div class="${modelScenario === 'after' ? 'success' : modelScenario === 'critique' ? 'info' : 'warning'}">
+          <strong>${modelScenario === 'after' ? '✅ Constitutional Success' : modelScenario === 'critique' ? '🔍 Self-Critique Process' : '⚠️ Constitutional Issues'}:</strong><br>
+          ${scenario.issues.map(issue => `• ${issue}`).join('<br>')}
+        </div>
+      </div>
+    </div>`;
+}
+
+// Explore VLM constitutional challenges
+function exploreVLMChallenge() {
+  const challenge = document.getElementById('vlmChallenge').value;
+  const approach = document.getElementById('constitutionalApproach').value;
+  
+  const challengeData = {
+    'hallucination': {
+      'prevention': {
+        title: '🛡️ Hallucination Prevention Strategy',
+        content: `
+          <div class="code-block">
+            <div class="code-header">Prevention Implementation</div>
+<pre>class HallucinationPrevention:
+    def __init__(self):
+        self.confidence_threshold = 0.8
+        self.uncertainty_phrases = [
+            "I can see what appears to be...",
+            "This looks like it might be...", 
+            "I'm not entirely certain, but..."
+        ]
+    
+    def generate_with_uncertainty(self, image, prompt):
+        # Get confidence scores for visual elements
+        visual_confidences = self.assess_visual_confidence(image)
+        
+        # Use uncertainty language for low-confidence observations
+        response = self.generate_cautious_response(
+            image, prompt, visual_confidences
+        )
+        
+        return response</pre>
+          </div>
+          
+          <div class="info">
+            <strong>🎯 Prevention Strategies:</strong><br>
+            • Train models to express uncertainty about unclear visual elements<br>
+            • Use confidence thresholds before making specific claims<br>
+            • Implement visual attention validation<br>
+            • Regular hallucination detection during training
+          </div>`
+      },
+      'detection': {
+        title: '🔍 Hallucination Detection Method', 
+        content: `
+          <div class="info">
+            <strong>🔍 Detection Techniques:</strong><br>
+            • <strong>Cross-reference validation:</strong> Compare descriptions with actual image features<br>
+            • <strong>Attention analysis:</strong> Verify model attended to described regions<br>
+            • <strong>Consistency checking:</strong> Multiple generations should align<br>
+            • <strong>External validation:</strong> Use object detection models to verify claims
+          </div>`
+      },
+      'correction': {
+        title: '✏️ Hallucination Correction Process',
+        content: `
+          <div class="success">
+            <strong>✏️ Correction Process:</strong><br>
+            • <strong>Self-critique:</strong> Model identifies its own hallucinations<br>
+            • <strong>Evidence verification:</strong> Check claims against visual evidence<br>
+            • <strong>Uncertainty integration:</strong> Replace false claims with appropriate uncertainty<br>
+            • <strong>Educational reframing:</strong> Turn corrections into learning opportunities
+          </div>`
+      }
+    },
+    'privacy': {
+      'prevention': {
+        title: '🔒 Privacy Protection Strategy',
+        content: `
+          <div class="warning">
+            <strong>🔒 Privacy Prevention:</strong><br>
+            • <strong>Face detection filtering:</strong> Identify and mask faces during processing<br>
+            • <strong>PII recognition:</strong> Detect and redact personal information in images<br>
+            • <strong>Constitutional training:</strong> Never identify individuals regardless of recognition<br>
+            • <strong>Consent verification:</strong> Only process images with appropriate permissions
+          </div>`
+      }
+    },
+    'medical': {
+      'prevention': {
+        title: '⚕️ Medical Safety Strategy',
+        content: `
+          <div class="warning">
+            <strong>⚕️ Medical Constitutional Principles:</strong><br>
+            • <strong>No diagnoses:</strong> Never provide medical diagnoses from images<br>
+            • <strong>Educational only:</strong> Limit to general educational information<br>
+            • <strong>Professional referral:</strong> Always recommend consulting healthcare providers<br>
+            • <strong>Liability awareness:</strong> Acknowledge limitations of AI medical analysis
+          </div>`
+      }
+    }
+  };
+
+  const data = challengeData[challenge]?.[approach];
+  const results = document.getElementById('vlmChallengeResults');
+  
+  if (data) {
+    results.innerHTML = `
+      <div class="training-simulation">
+        <h4>${data.title}</h4>
+        ${data.content}
+      </div>`;
+  } else {
+    results.innerHTML = `
+      <div class="info">
+        <strong>🔍 Challenge: ${challenge.charAt(0).toUpperCase() + challenge.slice(1)}</strong><br>
+        ${approach.charAt(0).toUpperCase() + approach.slice(1)} strategies for this challenge are being developed. Constitutional AI provides frameworks for addressing these complex multimodal ethical challenges.
+      </div>`;
+  }
+}
+
+// Select constitutional model for analysis
+function selectConstitutionalModel(modelId, element) {
+  selectedConstitutionalModel = modelId;
+  
+  // Update visual selection
+  document.querySelectorAll('.model-card').forEach(card => card.classList.remove('selected'));
+  element.classList.add('selected');
+  
+  const modelAnalysis = {
+    'claude': {
+      title: '🤖 Claude\'s Constitutional Vision Implementation',
+      content: `
+        <div class="step">
+          <h4>🛡️ Claude 3 Constitutional Architecture</h4>
+          
+          <div class="success">
+            <strong>🏛️ Constitutional Integration:</strong><br>
+            • <strong>Built-in from training:</strong> Constitutional principles integrated during initial VLM training<br>
+            • <strong>Visual safety filtering:</strong> Images screened for constitutional compliance before processing<br>
+            • <strong>Response evaluation:</strong> Every generated response evaluated against constitutional principles<br>
+            • <strong>Real-time self-correction:</strong> Model can revise responses mid-generation<br><br>
+            
+            <strong>📊 Constitutional Benefits Observed:</strong><br>
+            • 89% reduction in inappropriate personal identification<br>
+            • 76% fewer medical diagnosis attempts from images<br>
+            • 95% accuracy in cultural sensitivity<br>
+            • Consistent educational focus across diverse visual content
+          </div>
+          
+          <div class="code-block">
+            <div class="code-header">🧠 Claude's Constitutional Vision Process</div>
+<pre>class ClaudeConstitutionalVision:
+    def __init__(self):
+        self.principles = CLAUDE_CONSTITUTION
+        self.visual_safety_threshold = 0.9
+        
+    def process_image_query(self, image, query):
+        # 1. Constitutional visual safety check
+        safety_assessment = self.assess_image_safety(image)
+        if not safety_assessment.safe:
+            return safety_assessment.explanation
+        
+        # 2. Generate initial response
+        initial = self.generate_response(image, query)
+        
+        # 3. Constitutional self-evaluation
+        evaluation = self.constitutional_evaluate(image, query, initial)
+        
+        # 4. Self-correct if needed
+        if evaluation.needs_improvement:
+            return self.constitutional_revise(image, query, initial, evaluation)
+        
+        return initial
+    
+    def constitutional_evaluate(self, image, query, response):
+        critique_aspects = {
+            'accuracy': self.critique_visual_accuracy(image, response),
+            'safety': self.critique_safety(image, query, response), 
+            'helpfulness': self.critique_helpfulness(query, response),
+            'privacy': self.critique_privacy(image, response)
+        }
+        
+        overall_score = sum(critique_aspects.values()) / len(critique_aspects)
+        needs_improvement = overall_score < 0.8
+        
+        return ConstitutionalEvaluation(
+            critique_aspects, overall_score, needs_improvement
+        )</pre>
+          </div>
+        </div>`
+    },
+    'gpt4v': {
+      title: '🤖 GPT-4V\'s Safety-First Approach',
+      content: `
+        <div class="step">
+          <h4>🛡️ GPT-4V Safety Implementation</h4>
+          
+          <div class="warning">
+            <strong>🚨 Post-Hoc Safety Approach:</strong><br>
+            • <strong>Content filtering:</strong> Images filtered before processing<br>
+            • <strong>Response monitoring:</strong> Outputs checked against usage policies<br>
+            • <strong>Limited self-correction:</strong> Minimal constitutional self-awareness<br>
+            • <strong>Policy enforcement:</strong> Rule-based rather than principle-based<br><br>
+            
+            <strong>⚠️ Limitations:</strong><br>
+            • Less transparent about safety reasoning<br>
+            • Reactive rather than proactive safety measures<br>
+            • Limited ability to explain safety decisions<br>
+            • Potential for inconsistent behavior across similar cases
+          </div>
+        </div>`
+    },
+    'gemini': {
+      title: '💎 Gemini\'s Responsible AI Integration',
+      content: `
+        <div class="step">
+          <h4>🛡️ Gemini\'s Multi-Layered Safety</h4>
+          
+          <div class="info">
+            <strong>🌟 Responsible AI Features:</strong><br>
+            • <strong>Cultural sensitivity training:</strong> Extensive cross-cultural safety training<br>
+            • <strong>Harm assessment:</strong> Multi-dimensional harm evaluation<br>
+            • <strong>Transparent safety settings:</strong> User-configurable safety levels<br>
+            • <strong>Emerging constitutional elements:</strong> Moving toward principle-based safety<br><br>
+            
+            <strong>📈 Unique Advantages:</strong><br>
+            • Video safety analysis (unique capability)<br>
+            • Multi-language safety considerations<br>
+            • Integration with Google's existing safety infrastructure<br>
+            • Large-scale safety data from YouTube and web crawling
+          </div>
+        </div>`
+    }
+  };
+
+  const analysis = modelAnalysis[modelId];
+  document.getElementById('constitutionalModelAnalysis').innerHTML = analysis.content;
+}
+
+// Simulate constitutional self-correction process
+function simulateConstitutionalCorrection() {
+  const scenarioType = document.getElementById('scenarioType').value;
+  const imageContext = document.getElementById('imageContext').value;
+  const userQuestion = document.getElementById('userQuestion').value;
+
+  const scenarios = {
+    'hallucination': {
+      'people': {
+        initial: 'I can see three people having an animated conversation near a coffee shop. One person is wearing a red jacket and gesturing excitedly while talking on their phone. There\'s a golden retriever sitting nearby.',
+        critique: 'Constitutional critique: I described specific details (three people, animated conversation, red jacket, phone call, golden retriever) without clear visual evidence. I should only describe what I can actually see clearly.',
+        revised: 'I can see what appears to be people in an outdoor area. Due to image resolution and angle, I can\'t make out specific details about their activities or clothing. If you\'re looking for specific information about the scene, a higher resolution image would help.'
+      }
+    },
+    'privacy': {
+      'people': {
+        initial: 'This is Sarah from accounting. She looks tired, probably from working late on the quarterly reports. Her expression suggests she\'s stressed about something.',
+        critique: 'Constitutional violation: I identified a specific individual and made personal inferences about their mental state and work situation. I should protect privacy and avoid personal speculation.',
+        revised: 'I can see a person in what appears to be a workplace setting. I don\'t identify individuals in images to protect privacy. If you have questions about the general setting or context I can observe, I\'d be happy to help with those aspects.'
+      }
+    },
+    'bias': {
+      'people': {
+        initial: 'Based on their appearance and clothing style, this person is probably from Eastern Europe and works in a technical field. They seem very serious and focused.',
+        critique: 'Constitutional issue: I made assumptions about someone\'s background, profession, and personality based on their appearance. This reinforces harmful stereotypes and isn\'t based on observable evidence.',
+        revised: 'I can see a person in what appears to be a professional or indoor setting. I avoid making assumptions about people\'s backgrounds, occupations, or personalities based on their appearance, as this can perpetuate harmful stereotypes.'
+      }
+    },
+    'educational': {
+      'people': {
+        initial: 'There are some people in the image.',
+        critique: 'While my response avoids problems, it\'s not very educational or helpful. I can provide more value while still respecting privacy and avoiding assumptions.',
+        revised: 'I can see several people in what appears to be a social or community setting. The image shows human interaction and gathering, which is an important aspect of social behavior. If you\'re interested in learning about social dynamics or group behavior, I\'d be happy to discuss those topics in general terms.'
+      }
+    }
+  };
+
+  const scenario = scenarios[scenarioType]?.[imageContext];
+  const simulation = document.getElementById('constitutionalSimulation');
+
+  if (scenario) {
+    simulation.innerHTML = `
+      <div class="training-simulation">
+        <h4>🎭 Constitutional Self-Correction: ${scenarioType.charAt(0).toUpperCase() + scenarioType.slice(1)}</h4>
+        
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-date">Step 1</div>
+            <div class="timeline-content">
+              <h5>📝 Initial Response</h5>
+              <div class="message assistant" style="max-width: 100%; margin: 10px 0;">
+                "${scenario.initial}"
+              </div>
+            </div>
+          </div>
+          
+          <div class="timeline-item">
+            <div class="timeline-date">Step 2</div>
+            <div class="timeline-content">
+              <h5>🔍 Constitutional Self-Critique</h5>
+              <div class="message system" style="max-width: 100%; margin: 10px 0;">
+                <em>${scenario.critique}</em>
+              </div>
+            </div>
+          </div>
+          
+          <div class="timeline-item">
+            <div class="timeline-date">Step 3</div>
+            <div class="timeline-content">
+              <h5>✨ Constitutionally-Revised Response</h5>
+              <div class="message assistant" style="max-width: 100%; margin: 10px 0; background: #d4edda;">
+                "${scenario.revised}"
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="success" style="margin-top: 20px;">
+          <strong>🎯 Constitutional Improvement:</strong><br>
+          This example shows how Constitutional AI enables VLMs to self-correct ${scenarioType} issues by applying explicit principles during response generation, resulting in more responsible and helpful outputs.
+        </div>
+      </div>`;
+  } else {
+    simulation.innerHTML = `
+      <div class="info">
+        <strong>🔄 Constitutional Processing:</strong><br>
+        Constitutional AI would help address ${scenarioType} challenges in ${imageContext} contexts through principled self-evaluation and correction.
+      </div>`;
+  }
+}
+
+// Initialize Constitutional AI section
+function initializeConstitutionalAI() {
+  // Set default selections
+  selectConstitutionalModel('claude', document.querySelector('.model-card'));
+  demonstrateConstitutionalChallenge();
+  exploreVLMChallenge();
+  simulateConstitutionalCorrection();
+}
 // Initialize open source section on page load
 document.addEventListener('DOMContentLoaded', () => {
   // Set initial selections
   selectOpenSourceModel('llava', document.querySelector('.model-card'));
   exploreOpenSource();
   generateComparison();
+  initializeConstitutionalAI();
 });
+	  
   </script>
 </body>
 </html>
