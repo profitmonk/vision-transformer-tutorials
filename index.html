@@ -52,6 +52,16 @@
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
         
+        .tutorial-card.new {
+            border: 2px solid #28a745;
+            box-shadow: 0 4px 20px rgba(40, 167, 69, 0.15);
+        }
+
+        .tutorial-card.new:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 30px rgba(40, 167, 69, 0.25);
+        }
+        
         .tutorial-title {
             font-size: 1.3em;
             font-weight: bold;
@@ -169,16 +179,18 @@
         }
         
         .new-badge {
-            background: #fd7e14;
+            background: linear-gradient(135deg, #28a745, #20c997);
             color: white;
-            padding: 4px 8px;
+            padding: 4px 12px;
             border-radius: 12px;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: bold;
             text-transform: uppercase;
             position: absolute;
             top: 15px;
             right: 15px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            animation: pulse 2s ease-in-out infinite;
         }
         
         .coming-soon-badge {
@@ -192,6 +204,12 @@
             position: absolute;
             top: 15px;
             right: 15px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.9; }
         }
         
         .section-header {
@@ -321,13 +339,50 @@
             font-size: 12px;
             opacity: 0.9;
         }
+
+        .breakthrough-highlight {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 30px 0;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .breakthrough-highlight a {
+            color: white;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+
+        .breakthrough-highlight a:hover {
+            text-decoration: none;
+        }
+
+        .tutorial-category {
+            margin: 40px 0;
+        }
+
+        .category-description {
+            font-size: 1.1em;
+            color: #495057;
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 30px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="hero">
             <h1>👁️ Vision Transformer Architecture Tutorials</h1>
-            <p>Master Vision Transformers through hands-on visualizations, mathematical deep dives, and real-world architecture analysis. From ViT fundamentals to multimodal models with complete training guidance.</p>
+            <p>Master Vision Transformers through hands-on visualizations, mathematical deep dives, and real-world architecture analysis. From ViT fundamentals to state-of-the-art multimodal models and embodied robotics AI.</p>
             
             <a href="https://github.com/yourusername/vision-transformer-tutorials" class="github-link">
                 📂 View on GitHub
@@ -345,7 +400,7 @@
                 Master transformers across all modalities with our comprehensive tutorial series
             </div>
             <a href="https://profitmonk.github.io/visual-ai-tutorials/" class="ecosystem-link">
-                🔤 Text Transformers & Fine-tuning
+                📚 Text Transformers & Fine-tuning
             </a>
             <a href="#" class="ecosystem-link" style="background: #28a745;">
                 👁️ Vision Transformers (You are here)
@@ -354,6 +409,17 @@
                 🎵 Audio Transformers (Coming Soon)
             </a>
         </div>
+    </div>
+
+    <!-- NEW: Robotics Revolution Highlight -->
+    <div class="breakthrough-highlight">
+        🤖 <strong>NEW: The Robotics AI Revolution is Here!</strong> 🤖<br>
+        Discover how open source Vision-Language-Action models are democratizing robotics! 
+        OpenVLA beats Google's RT-2-X • Train robots on consumer hardware • Deploy with Jetson Thor
+        <br><br>
+        <a href="vision-language-action.html">
+            🚀 Explore VLA Fundamentals →
+        </a>
     </div>
     
     <div class="container">
@@ -417,7 +483,7 @@
             
             <a href="training-finetuning-vits.html" class="tutorial-link">
                 <div class="tutorial-card">
-                    <div class="new-badge">New</div>
+                    <div class="complete-badge">Complete</div>
                     <div class="tutorial-title">🎓 Training & Fine-tuning ViTs</div>
                     <div class="tutorial-description">
                         Practical guide to training Vision Transformers. DeiT recipe, data augmentation, transfer learning, evaluation metrics, and production optimization strategies.
@@ -450,44 +516,85 @@
                 </div>
             </a>
             
-            <a href="#" class="tutorial-link">
-                <div class="tutorial-card coming-soon">
-                    <div class="coming-soon-badge">Coming Soon</div>
+            <a href="vision-language-models.html" class="tutorial-link">
+                <div class="tutorial-card">
+                    <div class="complete-badge">Complete</div>
                     <div class="tutorial-title">👁️ Vision-Language Models: GPT-4V, Gemini, Claude</div>
                     <div class="tutorial-description">
-                        Architecture analysis of modern VLMs. Cross-modal attention, visual token integration, instruction tuning for vision, and comparative analysis of production models.
+                        Architecture analysis of modern VLMs with Constitutional AI integration. Cross-modal attention, visual token integration, instruction tuning, and open source alternatives like LLaVA.
                     </div>
                     <div class="tutorial-concepts">
-                        Cross-modal attention • Visual tokens • Instruction tuning • Production VLMs
+                        Cross-modal attention • Visual tokens • Constitutional AI • Production VLMs • Open source
                     </div>
                 </div>
             </a>
+        </div>
+    </div>
+
+    <!-- NEW SECTION: Embodied AI & Physical Intelligence -->
+    <div class="container">
+        <div class="tutorial-category">
+            <div class="section-header">
+                <div class="section-title">🤖 Embodied AI & Physical Intelligence</div>
+                <div class="section-description">
+                    Discover how AI moves beyond understanding images to controlling robots in the real world. 
+                    From action tokenization to production robotics deployment - the open source revolution!
+                </div>
+            </div>
             
-            <a href="#" class="tutorial-link">
-                <div class="tutorial-card coming-soon">
-                    <div class="coming-soon-badge">Coming Soon</div>
-                    <div class="tutorial-title">🤖 Vision-Language-Action Models (VLAs)</div>
-                    <div class="tutorial-description">
-                        From pixels to robot actions. Embodied AI architectures, action token encoding, multi-task learning, and analysis of RT-1, RT-2, and PaLM-E robotics models.
+            <div class="tutorial-grid">
+                <a href="vision-language-action.html" class="tutorial-link">
+                    <div class="tutorial-card new">
+                        <div class="new-badge">🆕 NEW</div>
+                        <div class="tutorial-title">🤖 Vision-Language-Action Fundamentals</div>
+                        <div class="tutorial-description">
+                            The robotics revolution explained! From understanding images to controlling robots. Learn action tokenization, cross-embodiment learning, and how OpenVLA beats Google's RT-2-X with 7x fewer parameters.
+                        </div>
+                        <div class="tutorial-concepts">
+                            Embodied AI • Action tokenization • OpenVLA vs RT-2 • Robot control • Cross-embodiment
+                        </div>
                     </div>
-                    <div class="tutorial-concepts">
-                        Embodied AI • Action encoding • Multi-task learning • Robotics transformers
+                </a>
+
+                <a href="training-deploying-vlas.html" class="tutorial-link">
+                    <div class="tutorial-card new">
+                        <div class="new-badge">🆕 NEW</div>
+                        <div class="tutorial-title">🛠️ Training & Deploying VLAs</div>
+                        <div class="tutorial-description">
+                            Complete guide to building production VLA systems. Train OpenVLA, SmolVLA, GR00T models. Deploy on Jetson Thor edge AI. Real robot integration with working code examples.
+                        </div>
+                        <div class="tutorial-concepts">
+                            Robot training • Jetson Thor • Edge AI deployment • Production robotics • NVIDIA GR00T
+                        </div>
                     </div>
-                </div>
-            </a>
-            
-            <a href="#" class="tutorial-link">
-                <div class="tutorial-card coming-soon">
-                    <div class="coming-soon-badge">Coming Soon</div>
-                    <div class="tutorial-title">🧠 V-JEPA: Video Joint Embedding Predictive Architecture</div>
-                    <div class="tutorial-description">
-                        Meta's breakthrough in video understanding. World model learning, predictive vs generative approaches, emergent capabilities, and efficiency analysis.
+                </a>
+
+                <a href="advanced-vla-robotics.html" class="tutorial-link">
+                    <div class="tutorial-card new">
+                        <div class="new-badge">🆕 NEW</div>
+                        <div class="tutorial-title">🚀 Advanced VLA & Future Robotics</div>
+                        <div class="tutorial-description">
+                            Cutting-edge VLA research and the path to AGI. Multi-agent robotics, constitutional AI for physical safety, world model integration, and how embodied intelligence leads to general AI.
+                        </div>
+                        <div class="tutorial-concepts">
+                            Multi-agent systems • Robot safety • Constitutional AI • AGI pathways • World models
+                        </div>
                     </div>
-                    <div class="tutorial-concepts">
-                        World models • Predictive learning • Video understanding • Emergent capabilities
+                </a>
+
+                <a href="#" class="tutorial-link">
+                    <div class="tutorial-card coming-soon">
+                        <div class="coming-soon-badge">Coming Soon</div>
+                        <div class="tutorial-title">🧠 V-JEPA: Video Joint Embedding Predictive Architecture</div>
+                        <div class="tutorial-description">
+                            Meta's breakthrough in video understanding and world modeling for predictive AI. Essential for robot planning, world model learning, and next-generation VLA systems.
+                        </div>
+                        <div class="tutorial-concepts">
+                            World models • Predictive learning • Video understanding • Robot planning • V-JEPA
+                        </div>
                     </div>
-                </div>
-            </a>
+                </a>
+            </div>
         </div>
     </div>
     
@@ -604,6 +711,7 @@
         <div class="learning-path">
             <div class="path-title">🎓 Recommended Learning Path</div>
             
+            <h3 style="margin: 25px 0 15px 0; opacity: 0.9;">Phase 1: Foundation (Essential for Everyone)</h3>
             <div class="path-steps">
                 <div class="path-step">
                     <div class="step-number">1</div>
@@ -630,10 +738,86 @@
                     <div class="step-title">🎓 Training & Fine-tuning</div>
                     <div class="step-description">Practical implementation</div>
                 </div>
+            </div>
+
+            <h3 style="margin: 25px 0 15px 0; opacity: 0.9;">Phase 2: Vision-Language Integration</h3>
+            <div class="path-steps">
                 <div class="path-step">
                     <div class="step-number">6</div>
-                    <div class="step-title">🔗 CLIP & Beyond</div>
-                    <div class="step-description">Multimodal applications</div>
+                    <div class="step-title">🔗 CLIP Architecture</div>
+                    <div class="step-description">Vision-language connections</div>
+                </div>
+                <div class="path-step">
+                    <div class="step-number">7</div>
+                    <div class="step-title">👁️ Modern VLMs</div>
+                    <div class="step-description">GPT-4V, Gemini, Claude analysis</div>
+                </div>
+            </div>
+
+            <h3 style="margin: 25px 0 15px 0; opacity: 0.9; color: #ffeb3b;">🆕 Phase 3: Embodied AI & Physical Intelligence</h3>
+            <div class="path-steps">
+                <div class="path-step" style="background: rgba(255, 235, 59, 0.2);">
+                    <div class="step-number">8</div>
+                    <div class="step-title">🤖 VLA Fundamentals</div>
+                    <div class="step-description">The robotics revolution</div>
+                </div>
+                <div class="path-step" style="background: rgba(255, 235, 59, 0.2);">
+                    <div class="step-number">9</div>
+                    <div class="step-title">🛠️ Training & Deploying VLAs</div>
+                    <div class="step-description">Production implementation</div>
+                </div>
+                <div class="path-step" style="background: rgba(255, 235, 59, 0.2);">
+                    <div class="step-number">10</div>
+                    <div class="step-title">🚀 Advanced VLA & Future</div>
+                    <div class="step-description">Research & AGI pathways</div>
+                </div>
+                <div class="path-step" style="background: rgba(255, 235, 59, 0.2);">
+                    <div class="step-number">11</div>
+                    <div class="step-title">🧠 V-JEPA World Models</div>
+                    <div class="step-description">Predictive robot control</div>
+                </div>
+            </div>
+
+            <h3 style="margin: 25px 0 15px 0; opacity: 0.9;">Phase 4: Generative Applications</h3>
+            <div class="path-steps">
+                <div class="path-step">
+                    <div class="step-number">12</div>
+                    <div class="step-title">🎨 Generative Vision</div>
+                    <div class="step-description">DALL-E and text-to-image</div>
+                </div>
+                <div class="path-step">
+                    <div class="step-number">13</div>
+                    <div class="step-title">🌊 Diffusion Transformers</div>
+                    <div class="step-description">DiT and advanced generation</div>
+                </div>
+                <div class="path-step">
+                    <div class="step-number">14</div>
+                    <div class="step-title">📹 Video Transformers</div>
+                    <div class="step-description">Temporal modeling</div>
+                </div>
+            </div>
+
+            <h3 style="margin: 25px 0 15px 0; opacity: 0.9;">Phase 5: Advanced & Production</h3>
+            <div class="path-steps">
+                <div class="path-step">
+                    <div class="step-number">15</div>
+                    <div class="step-title">⚡ Optimization</div>
+                    <div class="step-description">Production deployment</div>
+                </div>
+                <div class="path-step">
+                    <div class="step-number">16</div>
+                    <div class="step-title">🔬 Interpretability</div>
+                    <div class="step-description">Understanding behavior</div>
+                </div>
+                <div class="path-step">
+                    <div class="step-number">17</div>
+                    <div class="step-title">🌟 Self-Supervised</div>
+                    <div class="step-description">Learning without labels</div>
+                </div>
+                <div class="path-step">
+                    <div class="step-number">18</div>
+                    <div class="step-title">🏭 Production Systems</div>
+                    <div class="step-description">Real-world case studies</div>
                 </div>
             </div>
         </div>
@@ -664,7 +848,7 @@
             <div class="feature">
                 <div class="feature-icon">📊</div>
                 <div class="feature-title">Production Models</div>
-                <div>Real specifications from GPT-4V, Gemini, Claude</div>
+                <div>Real specs from GPT-4V, Gemini, Claude, OpenVLA, GR00T</div>
             </div>
             
             <div class="feature">
@@ -674,9 +858,9 @@
             </div>
             
             <div class="feature">
-                <div class="feature-icon">🎓</div>
-                <div class="feature-title">Training Guidance</div>
-                <div>Complete recipes for training and fine-tuning</div>
+                <div class="feature-icon">🤖</div>
+                <div class="feature-title">Robot Integration</div>
+                <div>Live code for deploying models on real robots</div>
             </div>
         </div>
     </div>
@@ -687,9 +871,11 @@
             <li><strong>Computer Vision Engineers</strong> learning transformer architectures for vision</li>
             <li><strong>AI/ML Researchers</strong> studying multimodal and generative models</li>
             <li><strong>Robotics Engineers</strong> working with vision-language-action models</li>
+            <li><strong>Embodied AI Researchers</strong> building foundation models for physical intelligence</li>
             <li><strong>Students</strong> in computer vision and deep learning courses</li>
             <li><strong>Developers</strong> building applications with GPT-4V, Gemini, or Claude</li>
             <li><strong>ML Engineers</strong> training and deploying vision transformers in production</li>
+            <li><strong>Startup Founders</strong> building robotics companies with limited resources</li>
             <li><strong>Anyone curious</strong> about how modern AI "sees" and processes images</li>
         </ul>
     </div>
@@ -703,11 +889,12 @@
             <li><strong>GitHub Pages ready</strong> - Deploy with zero configuration</li>
             <li><strong>Production model data</strong> - Real specifications and benchmarks</li>
             <li><strong>Training simulators</strong> - Hyperparameter configuration and cost estimation</li>
+            <li><strong>Robot control examples</strong> - Live VLA deployment code</li>
         </ul>
     </div>
     
     <div class="container" style="text-align: center;">
-        <h2>⭐ Star this repository if these tutorials help you master Vision Transformers!</h2>
+        <h2>⭐ Star this repository if these tutorials help you master Vision Transformers and embodied AI!</h2>
         
         <a href="https://github.com/yourusername/vision-transformer-tutorials" class="github-link">
             🚀 Get Started Now
@@ -718,6 +905,10 @@
             📚 <a href="https://profitmonk.github.io/visual-ai-tutorials/" style="color: #6f42c1;">Text Transformers & Fine-tuning</a> • 
             👁️ Vision Transformers • 
             🎵 Audio Transformers (Coming Soon)
+        </p>
+        
+        <p style="margin-top: 20px; color: #999; font-style: italic;">
+            Building the future of AI education, one tutorial at a time 🎓
         </p>
     </div>
 </body>
