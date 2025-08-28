@@ -124,7 +124,7 @@
 
   <div class="container">
     <h2>🏗️ Architecture Evolution: From CLIP to Conversational AI</h2>
-    <div class="step">
+<div class="step">
       <h3>🔄 The Architectural Revolution</h3>
       <p>While CLIP created a shared embedding space, modern VLMs integrate vision directly into the <strong>language model's token stream</strong>. Instead of separate encoders, images become part of the conversational flow alongside text tokens.</p>
 
@@ -177,99 +177,652 @@
       </div>
 
       <div class="interactive-demo">
-        <div class="demo-title">🔍 Model Architecture Comparison</div>
+        <div class="demo-title">🔍 Detailed Architecture Analysis</div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Analysis Focus:</label>
+            <select id="analysisLevel">
+              <option value="architecture" selected>Architecture Details</option>
+              <option value="dimensions">Dimension Alignment</option>
+              <option value="training-data">Training Data Sources</option>
+              <option value="tokens">Token Processing</option>
+              <option value="attention">Attention Mechanisms</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Technical Detail Level:</label>
+            <select id="detailLevel">
+              <option value="high" selected>High (Mathematical)</option>
+              <option value="medium">Medium (Conceptual)</option>
+              <option value="practical">Practical (Implementation)</option>
+            </select>
+          </div>
+        </div>
 
         <div class="model-comparison">
           <div class="model-card" onclick="selectModel('gpt4v', this)">
             <div class="model-name">🤖 GPT-4V (OpenAI)</div>
             <div class="model-specs">
-              Architecture: GPT-4 + Vision Encoder<br>
-              Vision: Custom ViT variant<br>
-              Parameters: ~1.8T (estimated)<br>
-              Context: ~128K tokens<br>
-              Training: RLHF + Visual instruction tuning
-            </div>
-            <div class="model-capabilities">
-              <div class="capability">
-                <span class="capability-icon">📊</span>
-                <span>Chart & graph analysis</span>
-              </div>
-              <div class="capability">
-                <span class="capability-icon">📝</span>
-                <span>Document understanding</span>
-              </div>
-              <div class="capability">
-                <span class="capability-icon">🎨</span>
-                <span>Creative visual analysis</span>
-              </div>
-              <div class="capability">
-                <span class="capability-icon">🧮</span>
-                <span>Mathematical reasoning from images</span>
-              </div>
+              <strong>Core Architecture:</strong> GPT-4 Transformer + Custom Vision Encoder<br>
+              <strong>Vision Component:</strong> Modified ViT-G/14 (1.3B params)<br>
+              <strong>Language Model:</strong> GPT-4 (~1.36T params)<br>
+              <strong>Dimension Strategy:</strong> Vision 1280D → Projection → Language 12,288D<br>
+              <strong>Context Window:</strong> 128K tokens (includes ~1,700 visual tokens)<br>
+              <strong>Vision Resolution:</strong> Up to 2048×2048 (adaptive tiling)<br>
+              <strong>Training Data:</strong> ~10B image-text pairs (estimated)<br>
+              <strong>Integration:</strong> Learned projection + cross-attention layers
             </div>
           </div>
 
           <div class="model-card" onclick="selectModel('gemini', this)">
-            <div class="model-name">💎 Gemini (Google)</div>
+            <div class="model-name">💎 Gemini Ultra (Google)</div>
             <div class="model-specs">
-              Architecture: Multimodal from scratch<br>
-              Vision: Integrated ViT<br>
-              Parameters: Ultra ~540B, Pro ~175B<br>
-              Context: 2M tokens (Gemini 1.5)<br>
-              Training: Joint multimodal pre-training
-            </div>
-            <div class="model-capabilities">
-              <div class="capability">
-                <span class="capability-icon">🎥</span>
-                <span>Long video understanding</span>
-              </div>
-              <div class="capability">
-                <span class="capability-icon">🔢</span>
-                <span>Mathematical problem solving</span>
-              </div>
-              <div class="capability">
-                <span class="capability-icon">💻</span>
-                <span>Code generation from mockups</span>
-              </div>
-              <div class="capability">
-                <span class="capability-icon">📚</span>
-                <span>Multi-page document analysis</span>
-              </div>
+              <strong>Core Architecture:</strong> Native multimodal Pathways Transformer<br>
+              <strong>Vision Component:</strong> Integrated ViT-22B with temporal modeling<br>
+              <strong>Language Model:</strong> PaLM-2 derivative (~540B params unified)<br>
+              <strong>Dimension Strategy:</strong> Unified 2048D across all modalities<br>
+              <strong>Context Window:</strong> 2M tokens (multimodal context mixing)<br>
+              <strong>Vision Resolution:</strong> Up to 4096×4096 + video frames<br>
+              <strong>Training Data:</strong> ~100B+ multimodal examples (web + YouTube)<br>
+              <strong>Integration:</strong> Native joint training from initialization
             </div>
           </div>
 
           <div class="model-card" onclick="selectModel('claude', this)">
-            <div class="model-name">🤖 Claude (Anthropic)</div>
+            <div class="model-name">🤖 Claude 3 Opus (Anthropic)</div>
             <div class="model-specs">
-              Architecture: Constitutional AI + Vision<br>
-              Vision: ViT-based encoder<br>
-              Parameters: ~175B (estimated)<br>
-              Context: 200K tokens<br>
-              Training: Constitutional AI + Visual RLHF
-            </div>
-            <div class="model-capabilities">
-              <div class="capability">
-                <span class="capability-icon">🔍</span>
-                <span>Detailed visual analysis</span>
-              </div>
-              <div class="capability">
-                <span class="capability-icon">📋</span>
-                <span>Structured data extraction</span>
-              </div>
-              <div class="capability">
-                <span class="capability-icon">🛡️</span>
-                <span>Safe visual content analysis</span>
-              </div>
-              <div class="capability">
-                <span class="capability-icon">💡</span>
-                <span>Educational explanations</span>
-              </div>
+              <strong>Core Architecture:</strong> Constitutional AI Transformer + Vision Module<br>
+              <strong>Vision Component:</strong> ViT-L/14 with constitutional alignment<br>
+              <strong>Language Model:</strong> Claude 3 transformer (~175B params)<br>
+              <strong>Dimension Strategy:</strong> Vision 1024D → Projection → Language 4096D<br>
+              <strong>Context Window:</strong> 200K tokens (optimized for documents)<br>
+              <strong>Vision Resolution:</strong> Up to 8000×8000 (document focus)<br>
+              <strong>Training Data:</strong> ~5B filtered, high-quality pairs<br>
+              <strong>Integration:</strong> Constitutional safety-aware fusion
             </div>
           </div>
         </div>
 
         <div id="architectureDetails"></div>
       </div>
+    </div>
+
+    <script>
+      // Enhanced selectModel function with complete architecture details
+      function selectModel(modelId, element) {
+        selectedModel = modelId;
+        
+        // Update visual selection
+        document.querySelectorAll('.model-card').forEach(card => card.classList.remove('selected'));
+        element.classList.add('selected');
+        
+        // Show detailed architecture information based on analysis level
+        const analysisLevel = document.getElementById('analysisLevel')?.value || 'architecture';
+        const detailLevel = document.getElementById('detailLevel')?.value || 'high';
+        
+        const architectureDetails = {
+          'gpt4v': {
+            architecture: {
+              high: `
+                <div class="step">
+                  <h4>🔍 GPT-4V Architecture Deep Dive</h4>
+                  
+                  <div class="math-formula">
+                    <strong>GPT-4V Processing Pipeline:</strong><br><br>
+                    
+                    <strong>1. Vision Tokenization:</strong><br>
+                    Image(H×W×3) → Patches(N×P²×3) → ViT → Visual_Tokens(N×1280)<br>
+                    Where N ≈ 1700 tokens for high-res images<br><br>
+                    
+                    <strong>2. Projection to LLM Space:</strong><br>
+                    V_projected = MLP(V_visual) ∈ ℝ^(N×12288)<br>
+                    MLP: 1280 → 4096 → 12288 (with GELU activation)<br><br>
+                    
+                    <strong>3. Token Stream Integration:</strong><br>
+                    Sequence = [V_1, V_2, ..., V_1700, T_1, T_2, ..., T_M]<br>
+                    Total length ≤ 128K tokens<br><br>
+                    
+                    <strong>4. Cross-Modal Processing:</strong><br>
+                    Attention(Q, K, V) where Q, K, V span visual + text tokens
+                  </div>
+                  
+                  <div class="architecture-flow" style="flex-direction: column;">
+                    <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px;">
+                      <div class="arch-component vision">
+                        <h5>📷 Custom ViT-G/14</h5>
+                        <div style="font-size: 11px;">
+                          • Parameters: 1.3B<br>
+                          • Layers: 40<br>
+                          • Hidden size: 1280<br>
+                          • Attention heads: 16<br>
+                          • Patch size: 14×14<br>
+                          • Max resolution: 2048px
+                        </div>
+                      </div>
+                      <div class="arch-arrow">→</div>
+                      <div class="arch-component fusion">
+                        <h5>🔗 Vision Projector</h5>
+                        <div style="font-size: 11px;">
+                          • Input: 1280D<br>
+                          • Hidden: 4096D<br>
+                          • Output: 12,288D<br>
+                          • Params: ~52M<br>
+                          • Activation: GELU<br>
+                          • Dropout: 0.1
+                        </div>
+                      </div>
+                      <div class="arch-arrow">→</div>
+                      <div class="arch-component language">
+                        <h5>🧠 GPT-4 Transformer</h5>
+                        <div style="font-size: 11px;">
+                          • Parameters: 1.36T<br>
+                          • Layers: 120 (estimated)<br>
+                          • Hidden size: 12,288<br>
+                          • Attention heads: 128<br>
+                          • Feed-forward: 49,152<br>
+                          • Context: 128K tokens
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>`
+            },
+            dimensions: {
+              high: `
+                <div class="step">
+                  <h4>📐 GPT-4V Dimension Alignment Strategy</h4>
+                  
+                  <div class="math-formula">
+                    <strong>The Dimension Mismatch Problem:</strong><br><br>
+                    Vision Encoder Output: V ∈ ℝ^(N×1280)<br>
+                    Language Model Expected: T ∈ ℝ^(M×12288)<br>
+                    <strong>Challenge:</strong> 1280 ≠ 12,288 dimensions!<br><br>
+                    
+                    <strong>GPT-4V Solution - Learned Projection:</strong><br>
+                    Projection: f: ℝ^1280 → ℝ^12288<br>
+                    Implementation: f(v) = GELU(Linear₂(GELU(Linear₁(v))))<br>
+                    Where: Linear₁: 1280→4096, Linear₂: 4096→12288<br><br>
+                    
+                    <strong>Why This Works:</strong><br>
+                    • Preserves visual information richness<br>
+                    • Learns optimal mapping during training<br>
+                    • Allows independent vision/language optimization
+                  </div>
+                  
+                  <div class="code-block">
+                    <div class="code-header">💻 GPT-4V-Style Dimension Alignment</div>
+                    <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>class VisionProjector(nn.Module):
+    def __init__(self, vision_dim=1280, language_dim=12288, hidden_dim=4096):
+        super().__init__()
+        self.projector = nn.Sequential(
+            nn.Linear(vision_dim, hidden_dim),
+            nn.GELU(),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_dim, language_dim),
+            nn.GELU(),
+            nn.Dropout(0.1)
+        )
+    
+    def forward(self, vision_features):
+        # vision_features: [batch, num_patches, 1280]
+        # output: [batch, num_patches, 12288] - ready for GPT-4
+        return self.projector(vision_features)
+
+# Usage in forward pass
+vision_output = clip_vision_encoder(image)  # [B, 257, 1280]
+vision_tokens = vision_projector(vision_output[:, 1:])  # Remove CLS, project patches
+
+# Now compatible with GPT-4 text tokens (12,288D)
+text_embeddings = gpt4_embeddings(text_tokens)  # [B, seq_len, 12288]
+mixed_sequence = torch.cat([vision_tokens, text_embeddings], dim=1)
+</pre>
+                  </div>
+                  
+                  <div class="warning">
+                    <strong>⚠️ Projection Trade-offs:</strong><br>
+                    • <strong>Parameters:</strong> Adds ~52M trainable parameters<br>
+                    • <strong>Information bottleneck:</strong> Could lose visual details<br>
+                    • <strong>Training complexity:</strong> Must learn optimal mapping<br>
+                    • <strong>Memory overhead:</strong> Extra computation and storage<br><br>
+                    
+                    <strong>✅ Benefits:</strong><br>
+                    • Uses proven pre-trained components (CLIP + GPT-4)<br>
+                    • Flexible - can swap vision/language components<br>
+                    • Optimal dimensions for each modality<br>
+                    • Easier debugging and analysis
+                  </div>
+                </div>`
+            },
+            'training-data': {
+              high: `
+                <div class="step">
+                  <h4>📊 GPT-4V Training Data Composition (Estimated)</h4>
+                  
+                  <div class="metric-grid">
+                    <div class="metric-card">
+                      <div class="metric-value">~10B</div>
+                      <div class="metric-label">Total Image-Text Pairs</div>
+                    </div>
+                    <div class="metric-card">
+                      <div class="metric-value">🔒</div>
+                      <div class="metric-label">Transparency Level</div>
+                    </div>
+                    <div class="metric-card">
+                      <div class="metric-value">$100M+</div>
+                      <div class="metric-label">Estimated Training Cost</div>
+                    </div>
+                    <div class="metric-card">
+                      <div class="metric-value">Mixed</div>
+                      <div class="metric-label">Copyright Status</div>
+                    </div>
+                  </div>
+                  
+                  <div style="display: grid; gap: 15px; margin: 20px 0;">
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #dc3545;">
+                      <strong>🌐 Web-Crawled Data (~70%)</strong><br>
+                      • CommonCrawl image-text pairs<br>
+                      • Social media with alt-text (Twitter, Reddit)<br>
+                      • News websites with captions<br>
+                      • E-commerce product descriptions<br>
+                      • Wikipedia images with context
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #007bff;">
+                      <strong>📚 Licensed & Academic (~15%)</strong><br>
+                      • Academic papers and figures<br>
+                      • Licensed stock photography<br>
+                      • Educational content partnerships<br>
+                      • Museum and gallery collections<br>
+                      • Government and public domain data
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #28a745;">
+                      <strong>🎯 Instruction-Tuned (~10%)</strong><br>
+                      • Human-annotated visual QA<br>
+                      • RLHF preference data<br>
+                      • Safety-filtered examples<br>
+                      • Chain-of-thought visual reasoning<br>
+                      • Conversation-style image discussions
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107;">
+                      <strong>🤖 Synthetic & Generated (~5%)</strong><br>
+                      • DALL-E generated training pairs<br>
+                      • Programmatically created diagrams<br>
+                      • Augmented existing datasets<br>
+                      • Simulated environments<br>
+                      • AI-generated educational content
+                    </div>
+                  </div>
+                  
+                  <div class="warning">
+                    <strong>🚨 GPT-4V Training Data Concerns:</strong><br>
+                    • <strong>Copyright Issues:</strong> Extensive use of web-scraped content without explicit permission<br>
+                    • <strong>Artist Concerns:</strong> Training on copyrighted artwork and photography<br>
+                    • <strong>Transparency Gap:</strong> OpenAI provides minimal details about data sources<br>
+                    • <strong>Legal Challenges:</strong> Multiple ongoing lawsuits over training data usage<br>
+                    • <strong>Bias Potential:</strong> Web data inherits internet biases and representation issues
+                  </div>
+                </div>`
+            },
+            tokens: {
+              high: `
+                <div class="step">
+                  <h4>🎭 GPT-4V Token Processing Strategy</h4>
+                  <div class="token-flow">
+                    <div class="token special">[IMG_START]</div>
+                    <div class="token image">patch_0_0</div>
+                    <div class="token image">patch_0_1</div>
+                    <div class="token image">...</div>
+                    <div class="token image">patch_23_23</div>
+                    <div class="token special">[IMG_END]</div>
+                    <div class="token text">Describe</div>
+                    <div class="token text">this</div>
+                    <div class="token text">image</div>
+                  </div>
+                  
+                  <div class="info">
+                    <strong>🎯 Token Strategy:</strong><br>
+                    • High-res images: Up to 1,700 visual tokens<br>
+                    • Adaptive tokenization: More tokens for complex regions<br>
+                    • Special boundary tokens: [IMG_START] and [IMG_END]<br>
+                    • Position encoding: Both spatial (2D) and sequence (1D) positions
+                  </div>
+                </div>`
+            }
+          },
+          'gemini': {
+            dimensions: {
+              high: `
+                <div class="step">
+                  <h4>📐 Gemini's Unified Dimension Strategy</h4>
+                  
+                  <div class="math-formula">
+                    <strong>Native Multimodal Architecture:</strong><br><br>
+                    
+                    <strong>All Modality Tokens:</strong> d_model = 2048<br>
+                    Text_tokens ∈ ℝ^(M×2048)<br>
+                    Image_tokens ∈ ℝ^(N×2048)<br>
+                    Video_tokens ∈ ℝ^(T×N×2048)<br>
+                    Audio_tokens ∈ ℝ^(L×2048)<br><br>
+                    
+                    <strong>No Projection Needed:</strong><br>
+                    Mixed_Sequence = [t₁, t₂, v₁, v₂, ..., v_N, t₃, t₄]<br>
+                    All tokens have identical dimensionality<br><br>
+                    
+                    <strong>Unified Attention:</strong><br>
+                    A = Softmax((QK^T)/√2048)<br>
+                    Where Q, K, V can be ANY modality combination
+                  </div>
+                  
+                  <div class="code-block">
+                    <div class="code-header">💻 Gemini-Style Unified Processing</div>
+                    <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>class GeminiMultimodalModel(nn.Module):
+    def __init__(self, d_model=2048, num_layers=64):
+        super().__init__()
+        
+        # All encoders output same dimension
+        self.text_embedding = nn.Embedding(256000, d_model)
+        self.image_encoder = ViT(output_dim=d_model)  # Native 2048D
+        self.video_encoder = ViT3D(output_dim=d_model)  # 3D patches
+        self.audio_encoder = Wav2Vec(output_dim=d_model)
+        
+        # Single unified transformer
+        self.transformer_layers = nn.ModuleList([
+            TransformerLayer(d_model) for _ in range(num_layers)
+        ])
+        
+        # MoE routing for efficiency
+        self.expert_router = MoERouter(d_model, num_experts=8)
+    
+    def forward(self, batch):
+        all_tokens = []
+        
+        # Process each modality to same dimension
+        if 'text' in batch:
+            text_tokens = self.text_embedding(batch['text'])
+            all_tokens.append(text_tokens)
+        
+        if 'images' in batch:
+            image_tokens = self.image_encoder(batch['images'])
+            all_tokens.append(image_tokens)
+        
+        if 'video' in batch:
+            video_tokens = self.video_encoder(batch['video'])
+            all_tokens.append(video_tokens)
+        
+        # Concatenate all modalities - same dimension!
+        unified_sequence = torch.cat(all_tokens, dim=1)  # [B, total_len, 2048]
+        
+        # Process through unified transformer
+        for layer in self.transformer_layers:
+            unified_sequence = layer(unified_sequence)
+        
+        return unified_sequence
+
+# Key advantage: No dimension conversion needed!
+</pre>
+                  </div>
+                  
+                  <div class="success">
+                    <strong>🌟 Gemini's Unified Dimension Benefits:</strong><br>
+                    • <strong>No Information Loss:</strong> No projection bottlenecks between modalities<br>
+                    • <strong>Perfect Integration:</strong> All modalities treated equally by attention<br>
+                    • <strong>Simpler Architecture:</strong> No additional projection parameters<br>
+                    • <strong>Joint Optimization:</strong> End-to-end training across all modalities<br>
+                    • <strong>Scalability:</strong> Easy to add new modalities (audio, 3D, etc.)<br><br>
+                    
+                    <strong>⚠️ Trade-offs:</strong><br>
+                    • Vision encoder constrained to 2048D (may not be optimal)<br>
+                    • Cannot leverage separately pre-trained components easily<br>
+                    • Requires massive compute for joint training from scratch
+                  </div>
+                </div>`
+            },
+            'training-data': {
+              high: `
+                <div class="step">
+                  <h4>📊 Gemini Training Data Composition</h4>
+                  
+                  <div class="metric-grid">
+                    <div class="metric-card">
+                      <div class="metric-value">~100B+</div>
+                      <div class="metric-label">Total Multimodal Examples</div>
+                    </div>
+                    <div class="metric-card">
+                      <div class="metric-value">🌐</div>
+                      <div class="metric-label">Primary: Web + YouTube</div>
+                    </div>
+                    <div class="metric-card">
+                      <div class="metric-value">$50M+</div>
+                      <div class="metric-label">Estimated Training Cost</div>
+                    </div>
+                    <div class="metric-card">
+                      <div class="metric-value">100+</div>
+                      <div class="metric-label">Languages Supported</div>
+                    </div>
+                  </div>
+                  
+                  <div style="display: grid; gap: 15px; margin: 20px 0;">
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #dc3545;">
+                      <strong>🎥 YouTube Video Data (~40%)</strong><br>
+                      • Billions of hours with captions/transcripts<br>
+                      • Educational content (Khan Academy, Coursera)<br>
+                      • News and documentary footage<br>
+                      • User-generated content with permissions<br>
+                      • Multi-language video content
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #007bff;">
+                      <strong>🌐 Google Web Index (~35%)</strong><br>
+                      • Google Images with surrounding context<br>
+                      • Web pages with embedded images<br>
+                      • Google Books with illustrations<br>
+                      • News articles with photos<br>
+                      • Shopping/product imagery
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #28a745;">
+                      <strong>📚 Academic & Research (~15%)</strong><br>
+                      • ArXiv papers with figures<br>
+                      • Scientific journals and datasets<br>
+                      • Educational textbooks<br>
+                      • Research institution collaborations<br>
+                      • Government open data
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107;">
+                      <strong>🏢 Google Internal Data (~10%)</strong><br>
+                      • Google Photos (with user consent)<br>
+                      • Street View imagery<br>
+                      • Google Earth satellite data<br>
+                      • Android camera data (anonymized)<br>
+                      • Google Workspace documents
+                    </div>
+                  </div>
+                  
+                  <div class="info">
+                    <strong>🎯 Gemini's Data Advantages:</strong><br>
+                    • <strong>Scale:</strong> Access to Google's massive web crawl and YouTube<br>
+                    • <strong>Quality:</strong> Sophisticated filtering using Google's search quality systems<br>
+                    • <strong>Diversity:</strong> 100+ languages and global cultural representation<br>
+                    • <strong>Temporal:</strong> Video data provides temporal reasoning capabilities<br>
+                    • <strong>Multimodal Context:</strong> Rich context from web page structure and video transcripts
+                  </div>
+                </div>`
+            }
+          },
+          'claude': {
+            dimensions: {
+              high: `
+                <div class="step">
+                  <h4>📐 Claude 3 Constitutional Dimension Strategy</h4>
+                  
+                  <div class="math-formula">
+                    <strong>Constitutional Dimension Alignment:</strong><br><br>
+                    
+                    <strong>Vision Processing:</strong><br>
+                    V<sub>raw</sub> = ViT-L/14(image) ∈ ℝ^(257×1024)<br>
+                    Safety_mask = ConstitutionalFilter(V<sub>raw</sub>) ∈ {0,1}^257<br>
+                    V<sub>safe</sub> = V<sub>raw</sub> ⊙ Safety_mask<br><br>
+                    
+                    <strong>Projection with Safety:</strong><br>
+                    V<sub>projected</sub> = Constitutional_MLP(V<sub>safe</sub>) ∈ ℝ^(257×4096)<br>
+                    Where Constitutional_MLP enforces helpful/harmless constraints<br><br>
+                    
+                    <strong>Integration Strategy:</strong><br>
+                    Tokens = [V<sub>1</sub>, ..., V<sub>256</sub>, T<sub>1</sub>, ..., T<sub>M</sub>]<br>
+                    All tokens ∈ ℝ^4096 after constitutional processing
+                  </div>
+                  
+                  <div class="code-block">
+                    <div class="code-header">💻 Claude-Style Constitutional Vision</div>
+                    <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>class ConstitutionalVisionProjector(nn.Module):
+    def __init__(self, vision_dim=1024, language_dim=4096):
+        super().__init__()
+        
+        # Safety classifier for visual content
+        self.safety_classifier = nn.Sequential(
+            nn.Linear(vision_dim, 512),
+            nn.ReLU(),
+            nn.Linear(512, 128),
+            nn.ReLU(), 
+            nn.Linear(128, 3)  # safe, unsafe, uncertain
+        )
+        
+        # Constitutional projection
+        self.projector = nn.Sequential(
+            nn.Linear(vision_dim, 2048),
+            nn.GELU(),
+            nn.Dropout(0.1),
+            nn.Linear(2048, language_dim),
+            # Constitutional constraint: encourage helpful representations
+            ConstitutionalNorm(language_dim)
+        )
+    
+    def forward(self, vision_features):
+        # Step 1: Safety assessment
+        safety_scores = self.safety_classifier(vision_features)
+        safety_mask = torch.softmax(safety_scores, dim=-1)[:, :, 0]  # Safe probability
+        
+        # Step 2: Apply safety filtering
+        filtered_features = vision_features * safety_mask.unsqueeze(-1)
+        
+        # Step 3: Project to language dimension with constitutional constraints
+        projected = self.projector(filtered_features)
+        
+        return projected, safety_mask
+</pre>
+                  </div>
+                  
+                  <div class="info">
+                    <strong>🛡️ Constitutional Architecture Benefits:</strong><br>
+                    • <strong>Built-in Safety:</strong> Safety considerations integrated at architecture level<br>
+                    • <strong>Uncertainty Modeling:</strong> Explicit handling of visual ambiguity<br>
+                    • <strong>Educational Focus:</strong> Optimized for helpful, educational responses<br>
+                    • <strong>Bias Mitigation:</strong> Constitutional training reduces harmful biases
+                  </div>
+                </div>`
+            },
+            'training-data': {
+              high: `
+                <div class="step">
+                  <h4>📊 Claude 3 Training Data Philosophy</h4>
+                  
+                  <div class="metric-grid">
+                    <div class="metric-card">
+                      <div class="metric-value">~5B</div>
+                      <div class="metric-label">High-Quality Pairs</div>
+                    </div>
+                    <div class="metric-card">
+                      <div class="metric-value">🛡️</div>
+                      <div class="metric-label">Safety-First Curation</div>
+                    </div>
+                    <div class="metric-card">
+                      <div class="metric-value">$30M+</div>
+                      <div class="metric-label">Estimated Training Cost</div>
+                    </div>
+                    <div class="metric-card">
+                      <div class="metric-value">High</div>
+                      <div class="metric-label">Ethical Standards</div>
+                    </div>
+                  </div>
+                  
+                  <div style="display: grid; gap: 15px; margin: 20px 0;">
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #28a745;">
+                      <strong>📚 Educational & Academic (~40%)</strong><br>
+                      • Textbooks with diagrams and illustrations<br>
+                      • Educational video content with permissions<br>
+                      • Academic papers and research figures<br>
+                      • Museum collections with proper licensing<br>
+                      • Educational institution partnerships
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #007bff;">
+                      <strong>🔍 Curated Web Content (~30%)</strong><br>
+                      • High-quality, fact-checked sources<br>
+                      • News organizations with licensing<br>
+                      • Government and public domain data<br>
+                      • Wikipedia with attribution<br>
+                      • Filtered CommonCrawl (heavy screening)
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107;">
+                      <strong>🎯 Constitutional AI Data (~20%)</strong><br>
+                      • Human-feedback curated examples<br>
+                      • Constitutional AI training pairs<br>
+                      • Safety-aligned visual conversations<br>
+                      • Bias-tested and corrected datasets<br>
+                      • Diverse cultural representation verification
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #17a2b8;">
+                      <strong>🤝 Licensed Partnerships (~10%)</strong><br>
+                      • Stock photography with proper licensing<br>
+                      • Content creator partnerships<br>
+                      • Educational publisher collaborations<br>
+                      • Creative Commons with attribution<br>
+                      • Opt-in user contributions
+                    </div>
+                  </div>
+                  
+                  <div class="success">
+                    <strong>✅ Claude 3's Ethical Data Approach:</strong><br>
+                    • <strong>Quality over Quantity:</strong> Smaller but higher-quality training set<br>
+                    • <strong>Explicit Consent:</strong> Focus on licensed and permissioned content<br>
+                    • <strong>Bias Mitigation:</strong> Extensive testing and correction for representation<br>
+                    • <strong>Constitutional Filtering:</strong> All training data screened for constitutional principles
+                  </div>
+                </div>`
+            }
+          }
+        };
+
+        const details = architectureDetails[modelId];
+        if (details && details[analysisLevel]) {
+          document.getElementById('architectureDetails').innerHTML = details[analysisLevel][detailLevel];
+        }
+      }
+
+      // Copy code function
+      function copyCode(button) {
+        const codeBlock = button.nextElementSibling;
+        if (codeBlock && codeBlock.tagName === 'PRE') {
+          const text = codeBlock.textContent;
+          navigator.clipboard.writeText(text).then(() => {
+            const originalText = button.textContent;
+            button.textContent = '✅ Copied';
+            setTimeout(() => {
+              button.textContent = originalText;
+            }, 2000);
+          });
+        }
+      }
+    </script>
     </div>
 
     <div class="step">
