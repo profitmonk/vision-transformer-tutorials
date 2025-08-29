@@ -1050,6 +1050,479 @@ class OpenVLA(nn.Module):
       </div>
     </div>
   </div>
+  <div class="container">
+    <h2>🔬 Section 4: RT-2 vs OpenVLA Architecture Deep Dive</h2>
+
+    <div class="step">
+      <h3>🏗️ RT-2: The Closed Source Pioneer</h3>
+      <p>Google's RT-2 (Robotics Transformer 2) established the VLA paradigm by treating robot actions as text tokens. Built on PaLM-E foundations, RT-2 demonstrated that large multimodal models could generalize across robot embodiments and tasks.</p>
+
+      <div class="architecture-flow">
+        <div class="arch-component vision">
+          <h4>📷 Vision Processing</h4>
+          <div>ViT Backbone</div>
+          <div style="font-size:12px;margin-top:5px">
+            • 224×224 RGB images<br>• Patch tokenization<br>• Spatial attention
+          </div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-component language">
+          <h4>🧠 PaLM-E Core</h4>
+          <div>Multimodal LLM</div>
+          <div style="font-size:12px;margin-top:5px">
+            • 55B+ parameters<br>• Joint vision-text training<br>• Instruction following
+          </div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-component action">
+          <h4>🎯 Action Head</h4>
+          <div>String Tokenization</div>
+          <div style="font-size:12px;margin-top:5px">
+            • Actions as text<br>• "move(0.1,0.2,0.3)"<br>• Language modeling loss
+          </div>
+        </div>
+      </div>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🔍 RT-2 Action Tokenization</div>
+        <p><strong>RT-2 treats robot actions as natural language strings:</strong></p>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Robot Task:</label>
+            <select id="rt2Task">
+              <option value="pickup" selected>Pick up the apple</option>
+              <option value="place">Place cup on table</option>
+              <option value="pour">Pour water into glass</option>
+              <option value="open">Open the drawer</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Action Precision:</label>
+            <select id="rt2Precision">
+              <option value="low" selected>Low (2 decimals)</option>
+              <option value="medium">Medium (3 decimals)</option>
+              <option value="high">High (4 decimals)</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="generateRT2Actions()" class="primary">🤖 Generate RT-2 Actions</button>
+        <div id="rt2ActionOutput"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🦙 OpenVLA: The Open Source Revolution</h3>
+      <p>OpenVLA demonstrates that open source approaches can match or exceed proprietary systems through careful architecture design, efficient tokenization, and community-driven data curation.</p>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchArchTab('overview', this)">🏗️ Architecture</div>
+        <div class="tab" onclick="switchArchTab('training', this)">🎓 Training</div>
+        <div class="tab" onclick="switchArchTab('performance', this)">📊 Performance</div>
+        <div class="tab" onclick="switchArchTab('deployment', this)">🚀 Deployment</div>
+      </div>
+
+      <div id="overview" class="tab-content active">
+        <div class="math-formula">
+          <strong>OpenVLA Multi-Stage Architecture:</strong><br><br>
+          <strong>Stage 1 - Vision Encoding:</strong><br>
+          I<sub>RGB</sub> ∈ ℝ<sup>H×W×3</sup> → DINOv2(I) + SigLIP(I) → V<sub>tokens</sub> ∈ ℝ<sup>N×768</sup><br><br>
+          <strong>Stage 2 - Multimodal Fusion:</strong><br>
+          [&lt;img&gt;, V<sub>tokens</sub>, &lt;/img&gt;, T<sub>instruction</sub>, &lt;act&gt;, A<sub>history</sub>] → LLama-7B<br><br>
+          <strong>Stage 3 - Action Prediction:</strong><br>
+          Hidden<sub>states</sub> → ActionHead(h) → Softmax → Sample(logits) → VQ_Decode → robot_actions<br><br>
+          <strong>Key Innovation:</strong> Efficient cross-embodiment via adapter layers
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">🔧 OpenVLA Cross-Embodiment Adapters</div>
+          <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>class CrossEmbodimentAdapter(nn.Module):
+    """
+    Lightweight adapter for different robot morphologies
+    Enables one model to control many robot types
+    """
+    def __init__(self, hidden_dim=4096, robot_dof=7, adapter_rank=64):
+        super().__init__()
+        self.robot_dof = robot_dof
+        
+        # Low-rank adaptation for robot-specific control
+        self.adapter_down = nn.Linear(hidden_dim, adapter_rank, bias=False)
+        self.adapter_up = nn.Linear(adapter_rank, robot_dof * 2, bias=False)  # mean + std
+        
+        # Robot-specific normalization parameters
+        self.action_mean = nn.Parameter(torch.zeros(robot_dof))
+        self.action_std = nn.Parameter(torch.ones(robot_dof))
+        
+        # Initialize with small weights
+        nn.init.normal_(self.adapter_down.weight, std=0.02)
+        nn.init.zeros_(self.adapter_up.weight)
+    
+    def forward(self, hidden_states, robot_id=None):
+        """
+        Apply robot-specific adaptation to action predictions
+        
+        Args:
+            hidden_states: [batch, seq, hidden_dim] transformer outputs
+            robot_id: Optional robot identifier for multi-robot batches
+        """
+        # Low-rank adaptation
+        adapter_output = self.adapter_up(self.adapter_down(hidden_states))
+        action_params = adapter_output.view(-1, self.robot_dof, 2)  # [B*T, DOF, 2]
+        
+        raw_actions = action_params[..., 0]  # Mean predictions
+        action_uncertainty = torch.softplus(action_params[..., 1])  # Std predictions
+        
+        # Robot-specific normalization
+        normalized_actions = raw_actions * self.action_std + self.action_mean
+        
+        return normalized_actions, action_uncertainty
+
+class MultiRobotVLA(nn.Module):
+    """OpenVLA with support for multiple robot embodiments"""
+    def __init__(self, base_model_path, robot_configs):
+        super().__init__()
+        
+        # Base VLA model (shared across robots)
+        self.base_vla = OpenVLA.from_pretrained(base_model_path)
+        
+        # Robot-specific adapters
+        self.robot_adapters = nn.ModuleDict()
+        for robot_name, config in robot_configs.items():
+            self.robot_adapters[robot_name] = CrossEmbodimentAdapter(
+                hidden_dim=self.base_vla.config.hidden_size,
+                robot_dof=config['dof'],
+                adapter_rank=config.get('adapter_rank', 64)
+            )
+        
+        # Freeze base model, only train adapters
+        for param in self.base_vla.parameters():
+            param.requires_grad = False
+    
+    def forward(self, images, instructions, robot_type, action_history=None):
+        # Get base model representations
+        hidden_states = self.base_vla.forward_hidden(images, instructions, action_history)
+        
+        # Apply robot-specific adaptation
+        if robot_type in self.robot_adapters:
+            actions, uncertainty = self.robot_adapters[robot_type](hidden_states)
+        else:
+            raise ValueError(f"Unknown robot type: {robot_type}")
+        
+        return actions, uncertainty
+
+# Example: Training adapters for multiple robots
+def train_cross_embodiment_adapters():
+    """
+    Train lightweight adapters for different robot types
+    Enables rapid deployment to new robot platforms
+    """
+    robot_configs = {
+        'franka_panda': {'dof': 7, 'workspace': [0.3, 0.7, -0.3, 0.3, 0.0, 0.8]},
+        'ur5': {'dof': 6, 'workspace': [0.2, 0.8, -0.4, 0.4, 0.0, 1.0]},
+        'xarm7': {'dof': 7, 'workspace': [0.2, 0.7, -0.4, 0.4, 0.0, 0.9]},
+        'mobile_manipulator': {'dof': 9, 'workspace': [0.0, 2.0, -1.0, 1.0, 0.0, 1.5]}  # 3 base + 6 arm
+    }
+    
+    # Initialize multi-robot model
+    model = MultiRobotVLA("openvla-7b", robot_configs)
+    
+    # Only adapter parameters are trainable (efficient!)
+    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    total_params = sum(p.numel() for p in model.parameters())
+    
+    print(f"Trainable parameters: {trainable_params:,} ({100*trainable_params/total_params:.2f}%)")
+    print("Adapter training is 100-1000x more efficient than full fine-tuning!")
+    
+    return model
+
+# Usage example
+multi_robot_model = train_cross_embodiment_adapters()</pre>
+        </div>
+      </div>
+
+      <div id="training" class="tab-content">
+        <div class="metric-grid">
+          <div class="metric-card"><div class="metric-value">~1M</div><div class="metric-label">Robot Demonstrations</div></div>
+          <div class="metric-card"><div class="metric-value">$100K</div><div class="metric-label">Training Cost Estimate</div></div>
+          <div class="metric-card"><div class="metric-value">15</div><div class="metric-label">Robot Embodiments</div></div>
+          <div class="metric-card"><div class="metric-value">7B</div><div class="metric-label">Parameters</div></div>
+        </div>
+
+        <div class="breakthrough-highlight">
+          🎯 Training Innovation: Co-training on internet text + robot data creates emergent instruction-following capabilities
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-date">Phase 1</div>
+            <div class="timeline-content">
+              <strong>Base Model Pre-training</strong><br>
+              LLama-7B foundation + vision encoder alignment on image-text pairs
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">Phase 2</div>
+            <div class="timeline-content">
+              <strong>Robot Data Integration</strong><br>
+              Joint training on Open X-Embodiment dataset with action tokenization
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">Phase 3</div>
+            <div class="timeline-content">
+              <strong>Instruction Fine-tuning</strong><br>
+              Task-conditioned training with natural language commands
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">Phase 4</div>
+            <div class="timeline-content">
+              <strong>Cross-Embodiment Adapters</strong><br>
+              Lightweight fine-tuning for specific robot platforms
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="performance" class="tab-content">
+        <div class="interactive-demo">
+          <div class="demo-title">📊 Performance Comparison: OpenVLA vs RT-2-X</div>
+          <div class="controls">
+            <div class="control-group">
+              <label>Evaluation Domain:</label>
+              <select id="evalDomain">
+                <option value="manipulation" selected>Object Manipulation</option>
+                <option value="navigation">Mobile Navigation</option>
+                <option value="assembly">Assembly Tasks</option>
+                <option value="kitchen">Kitchen Tasks</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Metric Type:</label>
+              <select id="metricType">
+                <option value="success" selected>Success Rate</option>
+                <option value="efficiency">Sample Efficiency</option>
+                <option value="generalization">Generalization</option>
+                <option value="cost">Training Cost</option>
+              </select>
+            </div>
+          </div>
+          <button onclick="compareVLAPerformance()" class="primary">📈 Compare Performance</button>
+          <div id="performanceComparison"></div>
+        </div>
+      </div>
+
+      <div id="deployment" class="tab-content">
+        <div class="success">
+          <strong>🚀 Deployment Advantages of OpenVLA:</strong><br><br>
+          <strong>• Hardware Flexibility:</strong> Runs on single GPU (A100/H100) vs RT-2-X requiring multi-GPU clusters<br>
+          <strong>• Cost Efficiency:</strong> $50-100/month cloud costs vs $500-1000/month for equivalent RT-2-X inference<br>
+          <strong>• Customization:</strong> Full model weights enable domain-specific fine-tuning<br>
+          <strong>• Edge Deployment:</strong> Quantized versions run on Jetson Orin (15-30W power draw)<br>
+          <strong>• Community Support:</strong> Active development, bug fixes, and model improvements
+        </div>
+
+        <div class="robot-simulation">
+          <div class="demo-title">🤖 Deployment Simulator</div>
+          <div class="robot-icon">🤖</div>
+          <div class="controls">
+            <div class="control-group">
+              <label>Deployment Target:</label>
+              <select id="deploymentType">
+                <option value="cloud" selected>Cloud (A100)</option>
+                <option value="edge">Edge (Jetson Orin)</option>
+                <option value="mobile">Mobile (Jetson Nano)</option>
+              </select>
+            </div>
+          </div>
+          <button onclick="simulateDeployment()" class="primary">🚀 Simulate Deployment</button>
+          <div id="deploymentResults"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🌐 Section 5: Cross-Embodiment Learning - One Model, Many Robots</h2>
+
+    <div class="step">
+      <h3>🔄 The Cross-Embodiment Challenge</h3>
+      <p>Traditional robotics requires separate controllers for each robot type. VLA models enable <strong>cross-embodiment learning</strong>: training one foundation model that can control diverse robot morphologies through shared representations and adaptive interfaces.</p>
+
+      <div class="vla-playground">
+        <div class="demo-title">🎮 Interactive Cross-Embodiment Playground</div>
+        <p><strong>See how one VLA model controls different robot types:</strong></p>
+        
+        <div class="controls">
+          <div class="control-group">
+            <label>Robot Type:</label>
+            <select id="robotType" onchange="updateRobotDisplay()">
+              <option value="franka" selected>Franka Panda (7-DOF Arm)</option>
+              <option value="ur5">Universal Robot UR5 (6-DOF)</option>
+              <option value="mobile">Mobile Manipulator (9-DOF)</option>
+              <option value="humanoid">Humanoid Robot (20+ DOF)</option>
+              <option value="quadruped">Quadruped (12-DOF Legs)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Task Command:</label>
+            <input type="text" id="taskCommand" placeholder="Pick up the red cube" style="width:100%">
+          </div>
+        </div>
+
+        <div class="robot-workspace">
+          <div class="robot-avatar" id="robotAvatar">🤖</div>
+          <div class="object" id="object1" style="top:60%; right:30%">🟥</div>
+          <div class="object" id="object2" style="top:40%; right:60%">🟢</div>
+          <div class="object" id="object3" style="top:70%; right:70%">📦</div>
+        </div>
+
+        <div class="action-panel">
+          <button onclick="executeVLATask()" class="primary">🎯 Execute VLA Task</button>
+          <button onclick="resetPlayground()">🔄 Reset Scene</button>
+          <div id="executionLog"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🧩 Shared Representations Across Embodiments</h3>
+      <div class="math-formula">
+        <strong>Cross-Embodiment Learning Mathematics:</strong><br><br>
+        <strong>1. Shared Visual-Language Embedding:</strong><br>
+        φ<sub>shared</sub>(I, T) → h<sub>common</sub> ∈ ℝ<sup>D</sup> &nbsp; (same for all robots)<br><br>
+        <strong>2. Embodiment-Specific Action Mapping:</strong><br>
+        h<sub>common</sub> → A<sub>robot_i</sub>(h) → a<sub>i</sub> ∈ ℝ<sup>d_i</sup> &nbsp; (robot-specific DOF)<br><br>
+        <strong>3. Adapter Efficiency:</strong><br>
+        |θ<sub>adapter</sub>| ≪ |θ<sub>shared</sub>| &nbsp; (1% of total parameters)<br><br>
+        <strong>4. Transfer Learning:</strong><br>
+        New robot: freeze θ<sub>shared</sub>, train only θ<sub>adapter</sub> &nbsp; (hours vs months)
+      </div>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🔗 Embodiment Transfer Visualizer</div>
+        <div class="controls">
+          <div class="control-group">
+            <label>Source Robot (Trained):</label>
+            <select id="sourceRobot">
+              <option value="franka" selected>Franka Panda</option>
+              <option value="ur5">UR5</option>
+              <option value="mobile">Mobile Manipulator</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Target Robot (New):</label>
+            <select id="targetRobot">
+              <option value="xarm7" selected>xArm7</option>
+              <option value="kuka">KUKA iiwa</option>
+              <option value="humanoid">Tesla Optimus</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Transfer Method:</label>
+            <select id="transferMethod">
+              <option value="adapter" selected>Lightweight Adapter</option>
+              <option value="finetune">Full Fine-tuning</option>
+              <option value="zero_shot">Zero-shot Transfer</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="visualizeTransfer()" class="primary">🔄 Visualize Transfer</button>
+        <div id="transferVisualization"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🎯 Section 6: Key Takeaways - The Future of Embodied AI</h2>
+
+    <div class="step">
+      <h3>💡 Core Insights from VLA Revolution</h3>
+      <div class="model-comparison">
+        <div class="model-card">
+          <div class="model-name">🧩 Action Tokenization</div>
+          <div class="comparison-description">
+            The breakthrough that enables language models to control robots by treating actions as discrete tokens
+          </div>
+          <div class="model-capabilities">
+            <div class="capability"><span class="capability-icon">✅</span><span>Enables transformer architectures for robotics</span></div>
+            <div class="capability"><span class="capability-icon">⚡</span><span>Vector Quantization and FAST methods work best</span></div>
+            <div class="capability"><span class="capability-icon">🎯</span><span>Balance between precision and token efficiency</span></div>
+          </div>
+        </div>
+
+        <div class="model-card">
+          <div class="model-name">🌐 Cross-Embodiment Learning</div>
+          <div class="comparison-description">
+            One foundation model controlling diverse robot types through shared representations
+          </div>
+          <div class="model-capabilities">
+            <div class="capability"><span class="capability-icon">🔄</span><span>Dramatically reduces per-robot development time</span></div>
+            <div class="capability"><span class="capability-icon">💰</span><span>Makes robotics accessible to smaller teams</span></div>
+            <div class="capability"><span class="capability-icon">📈</span><span>Improves with scale and diversity of training data</span></div>
+          </div>
+        </div>
+
+        <div class="model-card">
+          <div class="model-name">🏆 Open Source Success</div>
+          <div class="comparison-description">
+            OpenVLA-style models proving competitive with much larger proprietary systems
+          </div>
+          <div class="model-capabilities">
+            <div class="capability"><span class="capability-icon">⚖️</span><span>7B parameters competing with 55B+ models</span></div>
+            <div class="capability"><span class="capability-icon">🔧</span><span>Full customization and fine-tuning capabilities</span></div>
+            <div class="capability"><span class="capability-icon">🌟</span><span>Community-driven improvements and datasets</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🚀 What's Next: The Path Forward</h3>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-date">2024-2025</div>
+          <div class="timeline-content">
+            <strong>VLA Foundation Era</strong><br>
+            Open source models reach production quality. Cross-embodiment learning becomes standard.
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2025-2026</div>
+          <div class="timeline-content">
+            <strong>Multi-Modal Integration</strong><br>
+            Audio, haptic, and proprioceptive sensing integrated into VLA models for richer interaction.
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2026-2027</div>
+          <div class="timeline-content">
+            <strong>Constitutional AI for Robots</strong><br>
+            Safe, reliable robot behavior through principled self-correction and value alignment.
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">2027+</div>
+          <div class="timeline-content">
+            <strong>General Robot Intelligence</strong><br>
+            VLA models approaching human-level competence in real-world manipulation and interaction.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="breakthrough-highlight">
+      🎯 Bottom Line: VLA models represent the ChatGPT moment for robotics — transforming robots from task-specific machines into general-purpose, instruction-following agents.
+    </div>
+
+    <div class="success">
+      <strong>🎓 You've Mastered VLA Fundamentals!</strong><br><br>
+      You now understand how Vision-Language-Action models work, from action tokenization mathematics to cross-embodiment learning. You've seen how open source approaches like OpenVLA can compete with much larger proprietary systems through smart architecture choices.<br><br>
+      <strong>Ready for the next level?</strong> Explore <a href="training-deploying-vlas.html">Training & Deploying VLAs</a> to learn how to build and deploy these systems in production, or dive into <a href="advanced-vla-robotics.html">Advanced VLA & Future Robotics</a> for cutting-edge research directions.
+    </div>
+  </div>
 
   <script>
     // ---------------------------
@@ -1262,6 +1735,293 @@ class OpenVLA(nn.Module):
       `).join('');
     }
 
+    // ---------------------------
+    // Section 4: RT-2 Action Generation
+    // ---------------------------
+    function generateRT2Actions(){
+      const task = document.getElementById('rt2Task').value;
+      const precision = document.getElementById('rt2Precision').value;
+      const box = document.getElementById('rt2ActionOutput');
+      
+      const decimals = {low:2, medium:3, high:4}[precision];
+      
+      // Simulate RT-2 style action sequences
+      const taskActions = {
+        pickup: [
+          "move_to(0.15, 0.23, 0.45)",
+          "rotate_gripper(-0.12, 0.34, 1.57)", 
+          "open_gripper(0.08)",
+          "move_to(0.15, 0.23, 0.35)",
+          "close_gripper(0.02)",
+          "lift_to(0.15, 0.23, 0.50)"
+        ],
+        place: [
+          "move_to(0.45, -0.12, 0.40)",
+          "rotate_gripper(0.00, 0.00, 0.78)",
+          "move_to(0.45, -0.12, 0.32)",
+          "open_gripper(0.08)",
+          "move_to(0.45, -0.12, 0.45)",
+          "close_gripper(0.00)"
+        ],
+        pour: [
+          "grasp_container(0.25, 0.15, 0.38)",
+          "lift_container(0.25, 0.15, 0.45)",
+          "move_to(0.35, -0.20, 0.42)",
+          "tilt_container(0.52, 0.15, 0.26)",
+          "pour_action(2.5)",
+          "untilt_container(0.00, 0.00, 0.00)"
+        ],
+        open: [
+          "approach_handle(0.55, 0.08, 0.35)",
+          "grasp_handle(0.03)",
+          "pull_motion(-0.15, 0.00, 0.00)",
+          "release_handle(0.08)",
+          "retract_arm(0.45, 0.08, 0.40)"
+        ]
+      };
+
+      const actions = taskActions[task] || taskActions.pickup;
+      const actionTokens = actions.map(action => {
+        // Add some noise to make it realistic
+        return action.replace(/(-?\d+\.\d+)/g, (match) => {
+          const val = parseFloat(match) + (Math.random()-0.5)*0.05;
+          return val.toFixed(decimals);
+        });
+      });
+
+      box.innerHTML = `
+        <div class="token-flow">
+          ${actionTokens.map(action => `<span class="token action">${action}</span>`).join('')}
+        </div>
+        <div class="info">
+          <strong>RT-2 Approach:</strong> Actions as natural language strings<br>
+          <strong>Vocabulary:</strong> ~32K text tokens (shared with language)<br>
+          <strong>Precision:</strong> ${decimals} decimal places
+        </div>
+      `;
+    }
+
+    // ---------------------------
+    // Section 4: Architecture tabs
+    // ---------------------------
+    function switchArchTab(id, el){
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(p=>p.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById(id).classList.add('active');
+    }
+
+    // ---------------------------
+    // Section 4: Performance comparison
+    // ---------------------------
+    function compareVLAPerformance(){
+      const domain = document.getElementById('evalDomain').value;
+      const metric = document.getElementById('metricType').value;
+      const box = document.getElementById('performanceComparison');
+
+      const data = {
+        manipulation: { 
+          success: {openvla: 78, rt2x: 82}, 
+          efficiency: {openvla: 92, rt2x: 85}, 
+          generalization: {openvla: 85, rt2x: 88},
+          cost: {openvla: 95, rt2x: 30}
+        },
+        navigation: { 
+          success: {openvla: 72, rt2x: 79}, 
+          efficiency: {openvla: 88, rt2x: 81},
+          generalization: {openvla: 83, rt2x: 86},
+          cost: {openvla: 95, rt2x: 25}
+        },
+        assembly: { 
+          success: {openvla: 69, rt2x: 75}, 
+          efficiency: {openvla: 85, rt2x: 78},
+          generalization: {openvla: 80, rt2x: 82},
+          cost: {openvla: 95, rt2x: 20}
+        },
+        kitchen: { 
+          success: {openvla: 74, rt2x: 80}, 
+          efficiency: {openvla: 90, rt2x: 83},
+          generalization: {openvla: 87, rt2x: 89},
+          cost: {openvla: 95, rt2x: 35}
+        }
+      };
+
+      const scores = data[domain][metric];
+      const winner = scores.openvla > scores.rt2x ? 'OpenVLA' : 'RT-2-X';
+      const gap = Math.abs(scores.openvla - scores.rt2x);
+
+      box.innerHTML = `
+        <table class="benchmark-table">
+          <thead>
+            <tr><th>Model</th><th>${metric.charAt(0).toUpperCase() + metric.slice(1)} Score</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>OpenVLA (7B)</td>
+              <td class="${scores.openvla >= 85 ? 'score-excellent' : scores.openvla >= 70 ? 'score-good' : 'score-average'}">${scores.openvla}%</td>
+              <td>Open source, efficient training</td>
+            </tr>
+            <tr>
+              <td>RT-2-X (55B)</td>
+              <td class="${scores.rt2x >= 85 ? 'score-excellent' : scores.rt2x >= 70 ? 'score-good' : 'score-average'}">${scores.rt2x}%</td>
+              <td>Proprietary, high resource cost</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="info">
+          <strong>Domain:</strong> ${domain} • <strong>Winner:</strong> ${winner} by ${gap}%<br>
+          ${metric === 'cost' ? 'Cost score = 100 - (relative training cost)' : 'Higher scores indicate better performance'}
+        </div>
+      `;
+    }
+
+    // ---------------------------
+    // Section 4: Deployment simulation
+    // ---------------------------
+    function simulateDeployment(){
+      const deployment = document.getElementById('deploymentType').value;
+      const box = document.getElementById('deploymentResults');
+
+      const specs = {
+        cloud: {
+          hardware: 'NVIDIA A100 (40GB)',
+          power: '400W',
+          memory: '40GB VRAM',
+          inference: '10-15ms latency',
+          cost: '$3.50/hour',
+          throughput: '50-100 actions/sec'
+        },
+        edge: {
+          hardware: 'Jetson AGX Orin (32GB)', 
+          power: '30W',
+          memory: '32GB unified',
+          inference: '50-100ms latency',
+          cost: '$2000 one-time',
+          throughput: '10-20 actions/sec'
+        },
+        mobile: {
+          hardware: 'Jetson Nano (4GB)',
+          power: '10W', 
+          memory: '4GB shared',
+          inference: '200-500ms latency',
+          cost: '$100 one-time',
+          throughput: '2-5 actions/sec'
+        }
+      };
+
+      const spec = specs[deployment];
+      box.innerHTML = `
+        <div class="metric-grid">
+          <div class="metric-card"><div class="metric-value">${spec.power}</div><div class="metric-label">Power Draw</div></div>
+          <div class="metric-card"><div class="metric-value">${spec.inference}</div><div class="metric-label">Inference Time</div></div>
+          <div class="metric-card"><div class="metric-value">${spec.cost}</div><div class="metric-label">Cost</div></div>
+          <div class="metric-card"><div class="metric-value">${spec.throughput}</div><div class="metric-label">Action Rate</div></div>
+        </div>
+        <div class="success">
+          <strong>Hardware:</strong> ${spec.hardware}<br>
+          <strong>Memory:</strong> ${spec.memory}<br>
+          <strong>Best for:</strong> ${deployment === 'cloud' ? 'High-performance research, multi-robot orchestration' : 
+                                   deployment === 'edge' ? 'Production robots, real-time control' : 
+                                   'Consumer robots, battery-powered applications'}
+        </div>
+      `;
+    }
+
+    // ---------------------------
+    // Section 5: Robot display updates
+    // ---------------------------
+    function updateRobotDisplay(){
+      const robotType = document.getElementById('robotType').value;
+      const avatar = document.getElementById('robotAvatar');
+      
+      const robotEmoji = {
+        franka: '🦾', ur5: '🤖', mobile: '🚛', humanoid: '🤖‍♂️', quadruped: '🐕‍🦮'
+      };
+      
+      avatar.textContent = robotEmoji[robotType] || '🤖';
+      avatar.style.fontSize = robotType === 'humanoid' ? '4em' : robotType === 'quadruped' ? '3em' : '3.5em';
+    }
+
+    function executeVLATask(){
+      const robotType = document.getElementById('robotType').value;
+      const command = document.getElementById('taskCommand').value || 'Pick up the red cube';
+      const log = document.getElementById('executionLog');
+      
+      const robot = document.getElementById('robotAvatar');
+      robot.style.transform = 'translateY(-50%) translateX(200px)';
+      
+      log.innerHTML = `
+        <div class="action-sequence">
+          <div class="action-step">🧠 Processing:<br>"${command}"</div>
+          <div class="action-step">👁️ Vision:<br>Detected objects</div>
+          <div class="action-step">🎯 Planning:<br>Generated trajectory</div>
+          <div class="action-step">🤖 Executing:<br>${robotType} motion</div>
+        </div>
+        <div class="success">
+          <strong>✅ Task completed!</strong><br>
+          Cross-embodiment adapter enabled ${robotType} to execute instruction using shared VLA representations.
+        </div>
+      `;
+      
+      setTimeout(() => {
+        robot.style.transform = 'translateY(-50%) translateX(0px)';
+      }, 2000);
+    }
+
+    function resetPlayground(){
+      document.getElementById('robotAvatar').style.transform = 'translateY(-50%) translateX(0px)';
+      document.getElementById('executionLog').innerHTML = '';
+      document.getElementById('taskCommand').value = '';
+    }
+
+    // ---------------------------
+    // Section 5: Transfer learning visualization
+    // ---------------------------
+    function visualizeTransfer(){
+      const source = document.getElementById('sourceRobot').value;
+      const target = document.getElementById('targetRobot').value;
+      const method = document.getElementById('transferMethod').value;
+      const box = document.getElementById('transferVisualization');
+
+      const transferData = {
+        adapter: { time: '2-6 hours', data: '50-200 demos', params: '0.1-1% of model', success: '85-95%' },
+        finetune: { time: '1-3 days', data: '1K-5K demos', params: '100% of model', success: '90-98%' },
+        zero_shot: { time: '0 hours', data: '0 demos', params: '0% additional', success: '60-80%' }
+      };
+
+      const data = transferData[method];
+      box.innerHTML = `
+        <div class="architecture-flow">
+          <div class="arch-component vision">
+            <h4>📚 Source: ${source.toUpperCase()}</h4>
+            <div>Trained Model</div>
+          </div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-component fusion">
+            <h4>🔄 ${method.toUpperCase()}</h4>
+            <div>${data.time}</div>
+          </div>
+          <div class="arch-arrow">→</div>
+          <div class="arch-component action">
+            <h4>🎯 Target: ${target.toUpperCase()}</h4>
+            <div>Deployed Model</div>
+          </div>
+        </div>
+        <div class="metric-grid">
+          <div class="metric-card"><div class="metric-value">${data.time}</div><div class="metric-label">Training Time</div></div>
+          <div class="metric-card"><div class="metric-value">${data.data}</div><div class="metric-label">Data Required</div></div>
+          <div class="metric-card"><div class="metric-value">${data.params}</div><div class="metric-label">Parameters Trained</div></div>
+          <div class="metric-card"><div class="metric-value">${data.success}</div><div class="metric-label">Expected Performance</div></div>
+        </div>
+      `;
+    }
+
+    // Initialize new demos
+    generateRT2Actions();
+    compareVLAPerformance();
+    simulateDeployment();
+    updateRobotDisplay();
+    visualizeTransfer();
     // Initialize some defaults so page isn’t empty
     exploreEvolution();
     compareApproaches();
