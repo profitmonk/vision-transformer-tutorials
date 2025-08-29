@@ -118,7 +118,7 @@ Architecture analysis of modern production VLMs with Constitutional AI integrati
 
 ### 🤖 Embodied AI & Physical Intelligence
 
-#### **🤖 Vision-Language-Action Fundamentals: The Robotics Revolution** 🆕 **NEW**
+#### **🤖 Vision-Language-Action Fundamentals: The Robotics Revolution** ✅ **COMPLETE**
 **File:** `vision-language-action.html`
 
 From understanding images to controlling robots - the breakthrough that's transforming robotics:
@@ -133,22 +133,37 @@ From understanding images to controlling robots - the breakthrough that's transf
 
 ---
 
-#### **🛠️ Training & Deploying VLAs: From Lab to Production** 🆕 **NEW**
-**File:** `training-deploying-vlas.html`
+#### **🛠️ Training VLAs: Data, Models & Pipelines** 🆕 **NEW**
+**File:** `training-vlas.html`
 
-Complete guide to building and deploying production VLA systems:
-- **Training data ecosystem** - Open X-Embodiment, synthetic data generation, community datasets
-- **Complete training pipelines** - OpenVLA, SmolVLA, GR00T N1.5 implementation guides
-- **Hardware deployment strategies** - Jetson Thor edge AI vs cloud inference trade-offs
-- **Real robot integration** - ALOHA, industrial robots, humanoid deployment
-- **Production case studies** - Boston Dynamics, Figure AI, Amazon Robotics implementations
-- **Interactive training simulator** - Configure VLA training for different robot types and budgets
+Master the complete VLA training pipeline from data collection to model deployment:
+- **Training data ecosystem** - Open X-Embodiment, synthetic data generation, ALOHA datasets
+- **Data curation strategies** - Quality control, demonstration filtering, multi-robot integration
+- **Model architecture choices** - OpenVLA, SmolVLA, π0 implementation guides with working code
+- **Training infrastructure** - Multi-GPU setups, gradient accumulation, mixed precision optimization
+- **Evaluation methodologies** - Success metrics, sim-to-real transfer, cross-embodiment benchmarks
+- **Interactive training simulator** - Configure training for different robot types, datasets, and budgets
 
-**Key Concepts:** Robot training data, edge AI deployment, production robotics, hardware optimization
+**Key Concepts:** Robot training data, data curation, training pipelines, evaluation metrics, infrastructure scaling
 
 ---
 
-#### **🚀 Advanced VLA & Future Robotics: The Path to AGI** 🆕 **NEW**
+#### **🚀 Deploying VLAs: Hardware, Integration & Production** 🆕 **NEW** 
+**File:** `deploying-vlas.html`
+
+Complete guide to production VLA deployment from edge to cloud:
+- **Hardware deployment strategies** - Jetson Thor edge AI vs cloud inference analysis with cost comparisons
+- **Real robot integration** - ALOHA, Franka Panda, UR5, mobile manipulator setup guides
+- **Production optimization** - Quantization, TensorRT, model serving, latency optimization
+- **Safety and reliability** - Fail-safe mechanisms, monitoring, error recovery for physical systems
+- **Production case studies** - Boston Dynamics, Figure AI, Amazon Robotics real-world implementations
+- **Interactive deployment calculator** - Hardware selection, cost estimation, performance predictions
+
+**Key Concepts:** Edge AI deployment, robot integration, production optimization, safety systems, cost analysis
+
+---
+
+#### **🔬 Advanced VLA & Future Robotics: The Path to AGI** 🆕 **NEW**
 **File:** `advanced-vla-robotics.html`
 
 Cutting-edge research and the future of embodied artificial intelligence:
@@ -290,20 +305,21 @@ Building real-world vision systems at scale:
 
 ### **Phase 3: Embodied AI & Physical Intelligence** 🆕
 8. **🤖 Vision-Language-Action Fundamentals** - The robotics revolution and action tokenization
-9. **🛠️ Training & Deploying VLAs** - Complete implementation and production deployment
-10. **🚀 Advanced VLA & Future Robotics** - Multi-agent systems and path to AGI
-11. **🧠 V-JEPA** - World models for predictive robot control
+9. **🛠️ Training VLAs: Data, Models & Pipelines** - Complete training implementation guide
+10. **🚀 Deploying VLAs: Hardware, Integration & Production** - Real robot deployment and optimization
+11. **🔬 Advanced VLA & Future Robotics** - Multi-agent systems and path to AGI
+12. **🧠 V-JEPA** - World models for predictive robot control
 
 ### **Phase 4: Generative Applications**
-12. **🎨 Generative Vision Transformers** - DALL-E and text-to-image
-13. **🌊 Diffusion Transformers** - DiT and advanced generation models
-14. **📹 Video Transformers** - Temporal modeling and video generation
+13. **🎨 Generative Vision Transformers** - DALL-E and text-to-image
+14. **🌊 Diffusion Transformers** - DiT and advanced generation models
+15. **📹 Video Transformers** - Temporal modeling and video generation
 
 ### **Phase 5: Advanced & Production**
-15. **⚡ Vision Optimization** - Production deployment strategies
-16. **🔬 Interpretability** - Understanding model behavior
-17. **🌟 Self-Supervised Learning** - Learning without labels
-18. **🏭 Production Systems** - Real-world case studies
+16. **⚡ Vision Optimization** - Production deployment strategies
+17. **🔬 Interpretability** - Understanding model behavior
+18. **🌟 Self-Supervised Learning** - Learning without labels
+19. **🏭 Production Systems** - Real-world case studies
 
 ## 📊 Learning Outcomes
 
@@ -329,6 +345,7 @@ After completing these tutorials, you'll master:
 - Performance optimization techniques
 - Real-world system design patterns
 - Training and fine-tuning best practices
+- **Robot training data curation and pipeline implementation** 🆕
 - **Edge AI deployment for robotics systems** 🆕
 - **Robot integration and control system design** 🆕
 
@@ -375,8 +392,9 @@ vision-transformer-tutorials/
 ├── training-finetuning-vits.html       # Training & fine-tuning ✅ COMPLETE
 ├── clip-architecture.html              # CLIP contrastive learning 🔜
 ├── vision-language-models.html         # Modern VLMs (GPT-4V, Gemini) ✅ COMPLETE
-├── vision-language-action.html         # VLA fundamentals 🆕 NEW
-├── training-deploying-vlas.html        # VLA training & deployment 🆕 NEW  
+├── vision-language-action.html         # VLA fundamentals ✅ COMPLETE
+├── training-vlas.html                  # VLA training & data pipelines 🆕 NEW
+├── deploying-vlas.html                 # VLA deployment & integration 🆕 NEW  
 ├── advanced-vla-robotics.html          # Advanced VLA & AGI 🆕 NEW
 ├── v-jepa-architecture.html            # V-JEPA world models 🔜
 ├── generative-vision-transformers.html # DALL-E & text-to-image 🔜
@@ -422,6 +440,7 @@ Simply visit the [live demo](https://profitmonk.github.io/vision-transformer-tut
 - **Training Simulators** - Configure hyperparameters and estimate costs
 - **Architecture Comparisons** - Interactive model specification comparisons
 - **Robot Control Simulators** - See VLAs control virtual robots in real-time 🆕
+- **Deployment Calculators** - Hardware selection and cost analysis tools 🆕
 
 ### 🏭 **Production-Ready Knowledge**
 - Real deployment strategies from industry leaders
@@ -429,6 +448,7 @@ Simply visit the [live demo](https://profitmonk.github.io/vision-transformer-tut
 - Memory and compute budgeting for production systems
 - Complete training and fine-tuning recipes
 - Case studies from Tesla FSD, medical AI, robotics applications
+- **Comprehensive robot training data pipeline guides** 🆕
 - **Edge AI deployment guides for robotics systems** 🆕
 - **Real robot integration examples with working code** 🆕
 
@@ -436,7 +456,7 @@ Simply visit the [live demo](https://profitmonk.github.io/vision-transformer-tut
 - **Foundation Models** - ViT, CLIP, modern VLMs
 - **Embodied AI Models** - OpenVLA, GR00T, SmolVLA, π0 🆕
 - **Generative Models** - DALL-E, DiT, video generation
-- **Robotics Applications** - VLA models, embodied AI, physical intelligence 🆕
+- **Robotics Applications** - VLA training, deployment, integration 🆕
 - **Optimization Techniques** - Quantization, efficient architectures
 - **Training & Deployment** - End-to-end production workflows
 
@@ -446,7 +466,7 @@ Simply visit the [live demo](https://profitmonk.github.io/vision-transformer-tut
 - **OpenVLA beats RT-2-X**: 7B parameters outperforms Google's 55B model by 16.5%
 - **SmolVLA efficiency**: 450M parameters running on consumer hardware
 - **NVIDIA goes open**: World's first open humanoid foundation model (GR00T N1.5)
-- **Cost revolution**: $500K training vs Google's $10M+ proprietary development
+- **Cost revolution**: $100K training vs Google's $10M+ proprietary development
 
 ### **🤖 Real-World Robot Deployments**
 - **Production companies**: Boston Dynamics, Figure AI, Amazon Robotics adopting open VLAs
