@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training & Deploying VLAs - Vision Transformer Tutorials</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-okaidia.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --dark: #1f2937;
+            --darker: #111827;
+            --light: #f3f4f6;
+            --accent: #10b981;
+            --code-bg: #1a1b26;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--light);
+            background: var(--darker);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        header {
+            background: var(--dark);
+            padding: 2rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo-accent {
+            color: var(--primary);
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            background: linear-gradient(to right, #4f46e5, #7c3aed);
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 3rem;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.4rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 3rem;
+        }
+        
+        main {
+            flex: 1;
+        }
+        
+        .toc {
+            position: sticky;
+            top: 2rem;
+            align-self: start;
+            background: var(--dark);
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+        
+        .toc h3 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .toc ul {
+            list-style: none;
+        }
+        
+        .toc li {
+            margin-bottom: 0.7rem;
+        }
+        
+        .toc a {
+            color: var(--light);
+            text-decoration: none;
+            transition: color 0.3s;
+            display: block;
+            padding: 0.3rem 0;
+        }
+        
+        .toc a:hover {
+            color: var(--primary);
+        }
+        
+        section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: var(--dark);
+            border-radius: 12px;
+        }
+        
+        h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        h3 {
+            color: var(--accent);
+            margin: 1.5rem 0 1rem;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+        }
+        
+        pre {
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        code {
+            font-family: 'Fira Code', monospace;
+        }
+        
+        code[class*="language-"], pre[class*="language-"] {
+            font-size: 0.9rem;
+            background: var(--code-bg);
+            padding: 1.5rem;
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 8px 8px 0 0;
+            font-size: 0.9rem;
+        }
+        
+        .copy-btn {
+            background: none;
+            border: none;
+            color: var(--light);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .copy-btn:hover {
+            color: var(--primary);
+        }
+        
+        .img-placeholder {
+            background: linear-gradient(45deg, #6366f1, #8b5cf6);
+            height: 300px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: white;
+            font-weight: 600;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        @media (max-width: 900px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .toc {
+                position: relative;
+                top: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="#" class="logo">
+                    <span class="logo-accent">Vision</span>Transformer<span class="logo-accent">.</span>
+                </a>
+                <div class="nav-links">
+                    <a href="#">Home</a>
+                    <a href="#">Tutorials</a>
+                    <a href="#">About</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="hero">
+        <div class="container">
+            <span class="badge">Tutorial 2</span>
+            <h1>Training & Deploying VLAs</h1>
+            <p>Practical implementation and production deployment of Vision-Language-Action models</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="content">
+            <main>
+                <section id="intro">
+                    <h2>🚀 Introduction</h2>
+                    <p>Welcome to the second tutorial in our Vision-Language-Action series. In this practical guide, we'll dive deep into training and deploying VLAs for real-world applications. We'll cover everything from data preparation to production deployment on edge devices.</p>
+                    <p>By the end of this tutorial, you'll have a solid understanding of how to train your own VLA models and deploy them in production environments.</p>
+                </section>
+
+                <section id="training-data">
+                    <h2>📊 Training Data & Pipelines</h2>
+                    <p>High-quality, diverse datasets are crucial for training robust VLAs. Let's explore the best options available today.</p>
+                    
+                    <h3>Open X-Embodiment Dataset</h3>
+                    <p>The Open X-Embodiment dataset is one of the largest robot demonstration datasets, featuring over 1 million robot trajectories across 22 robot embodiments.</p>
+                    
+                    <div class="code-header">
+                        <span>python</span>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                    <pre><code class="language-python">import tensorflow_datasets as tfds
+
+# Load Open X-Embodiment dataset
+dataset = tfds.load('open_x_embodiment', split='train')
+
+# Dataset structure:
+# {
+#   'steps': {
+#     'observation': {
+#       'image': tf.Tensor,        # RGB image
+#       'state': tf.Tensor,        # proprioceptive state
+#     },
+#     'action': tf.Tensor,         # robot action
+#     'language_instruction': tf.string  # natural language command
+#   }
+# }</code></pre>
+                    
+                    <h3>Synthetic Data Generation</h3>
+                    <p>When real-world data is scarce, synthetic data can help bridge the gap. Here's how to generate synthetic training data:</p>
+                    
+                    <div class="code-header">
+                        <span>python</span>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                    <pre><code class="language-python">import numpy as np
+import pybullet as p
+from vla_synthetic import RobotEnv, Camera
+
+def generate_synthetic_data(num_episodes):
+    env = RobotEnv()
+    camera = Camera()
+    dataset = []
+    
+    for episode in range(num_episodes):
+        # Reset environment with random objects
+        env.reset()
+        language_instruction = env.sample_task()
+        
+        # Execute policy and collect data
+        observations, actions = [], []
+        for step in range(env.max_steps):
+            obs = env.get_observation()
+            action = env.sample_action()  # Replace with policy
+            env.step(action)
+            
+            # Capture image and state
+            rgb = camera.capture()
+            observations.append({
+                'image': rgb,
+                'state': obs['state']
+            })
+            actions.append(action)
+        
+        dataset.append({
+            'observations': observations,
+            'actions': actions,
+            'instruction': language_instruction
+        })
+    
+    return dataset</code></pre>
+                    
+                    <div class="img-placeholder">Open X-Embodiment Dataset Samples Visualization</div>
+                </section>
+
+                <section id="training-walkthrough">
+                    <h2>🎓 Complete Training Walkthrough</h2>
+                    <p>Let's walk through the complete training process for OpenVLA, a popular open-source VLA architecture.</p>
+                    
+                    <h3>OpenVLA Training</h3>
+                    <div class="code-header">
+                        <span>python</span>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                    <pre><code class="language-python">import torch
+import torch.nn as nn
+from openvla import OpenVLA, OpenVLATrainer
+from datasets import load_dataset
+
+# Initialize model
+model = OpenVLA(
+    vision_encoder='vit-large',
+    llm_backbone='llama-2-7b',
+    projection_dim=1024,
+    freeze_vision=False,
+    freeze_llm=False
+)
+
+# Setup training
+trainer = OpenVLATrainer(
+    model=model,
+    train_dataset=load_dataset('open_x_embodiment', split='train'),
+    val_dataset=load_dataset('open_x_embodiment', split='validation'),
+    batch_size=32,
+    learning_rate=1e-4,
+    weight_decay=0.05,
+    max_epochs=50,
+    checkpoint_dir='./checkpoints'
+)
+
+# Start training
+trainer.train()
+
+# Evaluate model
+metrics = trainer.evaluate()
+print(f"Validation metrics: {metrics}")</code></pre>
+                    
+                    <h3>SmolVLA: Lightweight Alternative</h3>
+                    <p>For resource-constrained environments, SmolVLA provides a compact but capable alternative:</p>
+                    
+                    <div class="code-header">
+                        <span>python</span>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                    <pre><code class="language-python">from smolvla import SmolVLA
+
+# Initialize lightweight model
+model = SmolVLA(
+    vision_encoder='vit-small',
+    llm_backbone='phi-2',
+    projection_dim=512,
+    action_head_hidden_dims=[256, 128]
+)
+
+# Distributed training setup for multiple GPUs
+trainer = SmolVLATrainer(
+    model=model,
+    strategy='deepspeed_stage_2',  # Use DeepSpeed for efficiency
+    precision='bf16',              # Mixed precision training
+    gradient_checkpointing=True,   # Save memory
+    offload_optimizer=True         # Offload to CPU
+)</code></pre>
+                    
+                    <h3>GR00T Training Paradigm</h3>
+                    <p>NVIDIA's GR00T provides a generalized training approach for humanoid robots:</p>
+                    
+                    <div class="code-header">
+                        <span>bash</span>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                    <pre><code class="language-bash"># Clone GR00T repository
+git clone https://github.com/nvidia/groot
+cd groot
+
+# Install dependencies
+pip install -e .
+
+# Download pre-trained weights
+wget https://huggingface.co/nvidia/groot-1/resolve/main/groot-1b.pt
+
+# Fine-tune on custom dataset
+python train.py \
+  --model groot-1b \
+  --data_path ./custom_dataset \
+  --output_dir ./results \
+  --batch_size 16 \
+  --num_epochs 30 \
+  --learning_rate 1e-5 \
+  --warmup_steps 1000</code></pre>
+                    
+                    <div class="img-placeholder">Training Loss Curves Visualization</div>
+                </section>
+
+                <section id="hardware-deployment">
+                    <h2>⚡ Hardware & Edge Deployment</h2>
+                    <p>Deploying VLAs on edge devices requires careful optimization and hardware-specific considerations.</p>
+                    
+                    <h3>Jetson Thor Deployment</h3>
+                    <p>NVIDIA's Jetson Thor is specifically designed for humanoid robot control:</p>
+                    
+                    <div class="code-header">
+                        <span>python</span>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                    <pre><code class="language-python">import jetson.utils
+import torch
+from transformers import AutoTokenizer
+from optimized_vla import OptimizedVLA
+
+# Initialize model with TensorRT optimization
+model = OptimizedVLA.from_pretrained(
+    "nvidia/openvla-jetson",
+    use_tensorrt=True,
+    precision='fp16'
+)
+
+# Create camera pipeline
+camera = jetson.utils.gstCamera(1280, 720, "/dev/video0")
+display = jetson.utils.glDisplay()
+
+# Inference loop
+while display.IsOpen():
+    img, width, height = camera.CaptureRGBA()
+    rgb_array = jetson.utils.cudaToNumpy(img, width, height, 4)
+    
+    # Preprocess and predict
+    action = model.predict(rgb_array, "Pick up the blue block")
+    
+    # Execute action on robot
+    robot.execute(action)</code></pre>
+                    
+                    <h3>Cloud vs Edge Comparison</h3>
+                    <p>Here's a comparison of deployment strategies:</p>
+                    
+                    <div class="code-header">
+                        <span>python</span>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                    <pre><code class="language-python"># Cloud deployment example
+def cloud_inference(image, instruction):
+    # Send to cloud endpoint
+    response = requests.post(
+        'https://api.myrobot.com/v1/predict',
+        json={
+            'image': base64.encode(image),
+            'instruction': instruction
+        },
+        headers={'Authorization': 'Bearer YOUR_API_KEY'}
+    )
+    return response.json()['action']
+
+# Edge deployment example
+def edge_inference(image, instruction):
+    # Local prediction
+    with torch.no_grad():
+        inputs = processor(image, instruction, return_tensors="pt")
+        outputs = model(**inputs)
+        action = post_process(outputs)
+    return action
+
+# Hybrid approach (preprocess on edge, complex reasoning on cloud)
+def hybrid_inference(image, instruction):
+    # Preprocess on edge
+    compressed_image = compress_image(image)
+    features = feature_extractor(compressed_image)
+    
+    # Send features to cloud
+    response = requests.post(
+        'https://api.myrobot.com/v1/process_features',
+        json={
+            'features': features.numpy().tolist(),
+            'instruction': instruction
+        }
+    )
+    return response.json()['action']</code></pre>
+                    
+                    <div class="img-placeholder">Jetson Thor Hardware Diagram</div>
+                </section>
+
+                <section id="production-integration">
+                    <h2>💻 Production Integration</h2>
+                    <p>Integrating VLAs into real robotic systems requires careful consideration of latency, safety, and reliability.</p>
+                    
+                    <h3>Real Robot Setup</h3>
+                    <div class="code-header">
+                        <span>python</span>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                    <pre><code class="language-python">class RobotControlPipeline:
+    def __init__(self, model_path, robot_config):
+        self.model = load_model(model_path)
+        self.robot = Robot(robot_config)
+        self.safety_checker = SafetyChecker()
+        self.fallback_controller = FallbackController()
+        
+    def execute_task(self, instruction):
+        try:
+            while not self.robot.task_complete():
+                # Get observation
+                obs = self.robot.get_observation()
+                
+                # Model prediction
+                action = self.model.predict(obs['image'], instruction)
+                
+                # Safety check
+                if self.safety_checker.is_safe(action, obs):
+                    self.robot.execute(action)
+                else:
+                    action = self.fallback_controller.get_action(obs)
+                    self.robot.execute(action)
+                    
+        except Exception as e:
+            self.robot.emergency_stop()
+            logging.error(f"Task execution failed: {e}")
+            
+    def deploy_ota_update(self, new_model_path):
+        # Hot-swap model with zero downtime
+        new_model = load_model(new_model_path)
+        self.model = new_model
+        logging.info("Model updated successfully")</code></pre>
+                    
+                    <h3>Monitoring and Logging</h3>
+                    <div class="code-header">
+                        <span>python</span>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                    <pre><code class="language-python"># Setup comprehensive monitoring
+monitor = RobotMonitor(
+    metrics=[
+        'inference_latency',
+        'task_success_rate',
+        'safety_interventions',
+        'battery_usage'
+    ],
+    alerts=[
+        Alert('inference_latency', 'max', 100),  # ms
+        Alert('safety_interventions', 'rate', 0.1)  # interventions per minute
+    ]
+)
+
+# Logging configuration
+logging.basicConfig(
+    level=logging.INFO,
+    handlers=[
+        logging.FileHandler('robot_operations.log'),
+        logging.StreamHandler(),
+        logging.HttpHandler('https://logs.myrobot.com')  # Remote logging
+    ]
+)</code></pre>
+                    
+                    <div class="img-placeholder">Robot Deployment Architecture Diagram</div>
+                </section>
+
+                <section id="case-studies">
+                    <h2>🏭 Case Studies</h2>
+                    <p>Several companies are successfully deploying VLAs in production environments.</p>
+                    
+                    <h3>Company A: Warehouse Automation</h3>
+                    <p>Company A implemented VLAs for item picking in their warehouses, achieving:</p>
+                    <ul>
+                        <li>85% reduction in mis-picks</li>
+                        <li>60% increase in picking speed</li>
+                        <li>Ability to handle novel objects without retraining</li>
+                    </ul>
+                    
+                    <h3>Company B: Domestic Assistance</h3>
+                    <p>Company B deployed VLAs in home assistant robots, enabling:</p>
+                    <ul>
+                        <li>Natural language command understanding</li>
+                        <li>Adaptation to different home environments</li>
+                        <li>Continuous learning from user interactions</li>
+                    </ul>
+                    
+                    <div class="code-header">
+                        <span>python</span>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                    <pre><code class="language-python"># Example of Company A's implementation
+class WarehouseVLA:
+    def __init__(self):
+        self.model = load_model('company_a/warehouse-vla')
+        self.inventory_db = InventoryDatabase()
+        
+    def process_order(self, order_id):
+        items = self.inventory_db.get_order_items(order_id)
+        for item in items:
+            instruction = f"Pick the {item['description']} from bin {item['bin_id']}"
+            success = self.pick_item(instruction)
+            if not success:
+                self.notify_human_operator(item)
+                
+    def pick_item(self, instruction):
+        for attempt in range(3):  # Max 3 attempts per item
+            obs = self.get_observation()
+            action = self.model.predict(obs['image'], instruction)
+            if self.execute_pick_action(action):
+                return True
+        return False</code></pre>
+                    
+                    <div class="img-placeholder">Case Study Performance Metrics</div>
+                </section>
+
+                <section id="conclusion">
+                    <h2>✅ Conclusion</h2>
+                    <p>In this tutorial, we've covered the complete process of training and deploying Vision-Language-Action models in production environments. We explored:</p>
+                    <ul>
+                        <li>Training data preparation with Open X-Embodiment and synthetic data</li>
+                        <li>Complete training walkthroughs for OpenVLA, SmolVLA, and GR00T</li>
+                        <li>Hardware and edge deployment strategies, including Jetson Thor</li>
+                        <li>Production integration techniques for real robots</li>
+                        <li>Real-world case studies of companies successfully using VLAs</li>
+                    </ul>
+                    <p>As VLA technology continues to evolve, we can expect even more sophisticated capabilities and broader adoption across industries.</p>
+                </section>
+            </main>
+
+            <aside class="toc">
+                <h3>Table of Contents</h3>
+                <ul>
+                    <li><a href="#intro">🚀 Introduction</a></li>
+                    <li><a href="#training-data">📊 Training Data & Pipelines</a></li>
+                    <li><a href="#training-walkthrough">🎓 Complete Training Walkthrough</a></li>
+                    <li><a href="#hardware-deployment">⚡ Hardware & Edge Deployment</a></li>
+                    <li><a href="#production-integration">💻 Production Integration</a></li>
+                    <li><a href="#case-studies">🏭 Case Studies</a></li>
+                    <li><a href="#conclusion">✅ Conclusion</a></li>
+                </ul>
+            </aside>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>© 2023 Vision Transformer Tutorials. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-bash.min.js"></script>
+    <script>
+        // Copy button functionality
+        document.querySelectorAll('.copy-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const codeBlock = button.parentElement.nextElementSibling;
+                const textToCopy = codeBlock.querySelector('code').innerText;
+                
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    button.innerHTML = '✓ Copied!';
+                    setTimeout(() => {
+                        button.innerHTML = 'Copy';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
