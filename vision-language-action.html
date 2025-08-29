@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vision-Language-Action Fundamentals: The Robotics Revolution</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);color:#e0e0e0;line-height:1.6}
+    .container{background:#fff;color:#2d2d2d;border-radius:20px;padding:30px;margin:20px 0;border:1px solid #e0e0e0;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+    .nav-bar{background:#2d2d2d;color:#fff;padding:15px 30px;border-radius:15px;margin:20px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px}
+    .nav-home,.nav-prev,.nav-next{background:#fff;color:#2d2d2d;padding:8px 16px;border-radius:6px;text-decoration:none;font-weight:bold;transition:all .3s}
+    .nav-next{background:#28a745;color:#fff}
+    .nav-home:hover,.nav-prev:hover,.nav-next:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+    .nav-title{font-size:1.2em;font-weight:bold;flex:1;min-width:300px}
+    .step{background:#f8f9fa;border:1px solid #e9ecef;padding:20px;margin:15px 0;border-radius:15px;border-left:4px solid #2d2d2d}
+    .interactive-demo{background:#f8f9fa;border:2px solid #e9ecef;border-radius:15px;padding:25px;margin:20px 0}
+    .demo-title{font-size:1.3em;font-weight:bold;margin-bottom:20px;text-align:center;color:#2d2d2d}
+    .controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin:20px 0}
+    .control-group{display:flex;flex-direction:column;gap:5px}
+    .control-group label{font-weight:bold;font-size:14px;color:#2d2d2d}
+    button{background:#2d2d2d;border:none;color:#fff;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:bold;transition:all .3s;margin:5px}
+    button:hover{background:#1a1a1a;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+    button.primary{background:#28a745}
+    button.primary:hover{background:#218838}
+    input,select,textarea{padding:8px 12px;border:1px solid #dadce0;border-radius:6px;background:#fff;color:#2d2d2d}
+    textarea{min-height:70px;resize:vertical}
+    .math-formula{background:#f8f9fa;border:1px solid #e9ecef;padding:20px;border-radius:8px;margin:15px 0;font-family:'Courier New',monospace;text-align:center;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+    .code-block{background:#2d2d2d;color:#e0e0e0;padding:20px;border-radius:8px;margin:15px 0;font-family:'Courier New',monospace;font-size:14px;overflow:auto;position:relative}
+    .code-header{background:#1a1a1a;color:#28a745;padding:8px 15px;margin:-20px -20px 15px -20px;border-radius:8px 8px 0 0;font-weight:bold;font-size:12px}
+    .copy-button{position:absolute;top:10px;right:10px;background:#28a745;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:10px}
+    .architecture-flow{display:flex;justify-content:space-between;align-items:center;margin:20px 0;padding:20px;background:#fff;border-radius:12px;border:2px solid #e9ecef;flex-wrap:wrap;gap:15px}
+    .arch-component{background:#f8f9fa;border:2px solid #e9ecef;border-radius:8px;padding:15px;text-align:center;min-width:120px;flex:1}
+    .arch-component.vision{border-color:#dc3545}
+    .arch-component.language{border-color:#007bff}
+    .arch-component.action{border-color:#fd7e14}
+    .arch-component.fusion{border-color:#28a745}
+    .arch-component.output{border-color:#ffc107}
+    .arch-arrow{font-size:24px;color:#28a745;font-weight:bold}
+    .model-comparison{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin:20px 0}
+    .model-card{background:#fff;border:2px solid #e9ecef;border-radius:12px;padding:20px;transition:all .3s;cursor:pointer}
+    .model-card:hover{border-color:#28a745;transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.1)}
+    .model-card.selected{border-color:#28a745;background:#d4edda}
+    .model-name{font-size:1.3em;font-weight:bold;margin-bottom:10px;color:#2d2d2d}
+    .model-specs{background:#f8f9fa;padding:12px;border-radius:6px;margin:10px 0;font-size:12px;font-family:'Courier New',monospace}
+    .model-capabilities{margin:15px 0}
+    .capability{display:flex;align-items:center;margin:5px 0;font-size:14px}
+    .capability-icon{margin-right:8px;font-size:16px}
+    .token-flow{display:flex;flex-wrap:wrap;gap:8px;margin:15px 0;padding:15px;background:#f8f9fa;border-radius:8px}
+    .token{padding:8px 12px;background:#e9ecef;border-radius:6px;font-family:'Courier New',monospace;font-size:12px;border:2px solid transparent}
+    .token.text{border-color:#007bff;background:#cce7ff}
+    .token.image{border-color:#dc3545;background:#ffcccc}
+    .token.action{border-color:#fd7e14;background:#fed7aa}
+    .token.special{border-color:#28a745;background:#ccffcc}
+    .metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin:20px 0}
+    .metric-card{background:#fff;border:2px solid #e9ecef;border-radius:8px;padding:15px;text-align:center}
+    .metric-value{font-size:1.5em;font-weight:bold;color:#2d2d2d;margin-bottom:5px}
+    .metric-label{font-size:12px;color:#666}
+    .benchmark-table{width:100%;border-collapse:collapse;margin:15px 0;background:#fff;border:1px solid #e9ecef;border-radius:8px;overflow:hidden}
+    .benchmark-table th{background:#2d2d2d;color:#fff;padding:12px;text-align:center;font-weight:bold}
+    .benchmark-table td{padding:12px;text-align:center;border-bottom:1px solid #e9ecef}
+    .score-excellent{background:#d4edda;color:#155724;font-weight:bold}
+    .score-good{background:#d1ecf1;color:#0c5460;font-weight:bold}
+    .score-average{background:#fff3cd;color:#856404;font-weight:bold}
+    .score-poor{background:#f8d7da;color:#721c24;font-weight:bold}
+    .robot-simulation{background:#fff;border:2px solid #e9ecef;border-radius:12px;padding:20px;margin:15px 0;text-align:center}
+    .robot-icon{font-size:4em;margin:20px 0;animation:robotMove 2s ease-in-out infinite}
+    @keyframes robotMove{0%{transform:translateY(0px)}50%{transform:translateY(-10px)}100%{transform:translateY(0px)}}
+    .action-sequence{display:flex;flex-wrap:wrap;gap:10px;margin:15px 0;padding:15px;background:#fff3cd;border-radius:8px}
+    .action-step{background:#fff;border:2px solid #fd7e14;border-radius:6px;padding:10px;flex:1;min-width:150px;text-align:center}
+    .comparison-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;margin:20px 0}
+    .comparison-card{background:#fff;border:2px solid #e9ecef;border-radius:8px;padding:15px;cursor:pointer;transition:all .3s}
+    .comparison-card:hover{border-color:#28a745;transform:translateY(-2px)}
+    .comparison-card.selected{border-color:#28a745;background:#d4edda}
+    .comparison-title{font-weight:bold;margin-bottom:8px;color:#2d2d2d}
+    .comparison-description{font-size:13px;color:#666;margin-bottom:8px}
+    .comparison-math{background:#f8f9fa;padding:8px;border-radius:4px;font-size:11px;font-family:'Courier New',monospace}
+    .info{background:#d1ecf1;border-left:4px solid #17a2b8;color:#0c5460;padding:15px;border-radius:8px;margin:15px 0}
+    .success{background:#d4edda;border-left:4px solid #28a745;color:#155724;padding:15px;border-radius:8px;margin:15px 0}
+    .warning{background:#fff3cd;border-left:4px solid #ffc107;color:#856404;padding:15px;border-radius:8px;margin:15px 0}
+    .breakthrough-highlight{background:linear-gradient(135deg,#28a745,#20c997);color:#fff;padding:20px;border-radius:12px;text-align:center;margin:20px 0;font-size:18px;font-weight:bold;box-shadow:0 4px 15px rgba(40,167,69,.3)}
+    .tabs{display:flex;margin-bottom:20px;border-bottom:2px solid #e9ecef}
+    .tab{padding:12px 24px;cursor:pointer;border-bottom:3px solid transparent;font-weight:bold;transition:all .3s}
+    .tab:hover{background:#f8f9fa}
+    .tab.active{border-bottom-color:#28a745;background:#d4edda;color:#155724}
+    .tab-content{display:none}
+    .tab-content.active{display:block}
+    @keyframes pulse{0%{transform:scale(1);opacity:.8}50%{transform:scale(1.05);opacity:1}100%{transform:scale(1);opacity:.8}}
+    .processing-animation{animation:pulse 2s ease-in-out infinite}
+    .timeline{position:relative;margin:20px 0}
+    .timeline-item{display:flex;align-items:center;margin:15px 0;padding:15px;background:#fff;border-radius:8px;border-left:4px solid #28a745}
+    .timeline-date{font-weight:bold;min-width:100px;color:#28a745}
+    .timeline-content{flex:1;margin-left:15px}
+    .performance-indicator{display:inline-block;width:12px;height:12px;border-radius:50%;margin:0 2px}
+    .perf-excellent{background:#28a745}
+    .perf-good{background:#17a2b8}
+    .perf-average{background:#ffc107}
+    .perf-poor{background:#dc3545}
+    .vla-playground{background:linear-gradient(135deg,#e3f2fd,#f3e5f5);border:3px solid #28a745;border-radius:15px;padding:25px;margin:20px 0}
+    .robot-workspace{background:#fff;border:2px dashed #28a745;border-radius:10px;padding:20px;margin:15px 0;min-height:200px;position:relative}
+    .robot-avatar{position:absolute;top:50%;left:20px;transform:translateY(-50%);font-size:3em;transition:all 1s ease}
+    .object{position:absolute;font-size:2em;transition:all 1s ease;cursor:pointer}
+    .action-panel{background:#f8f9fa;border-radius:8px;padding:15px;margin:15px 0}
+  </style>
+</head>
+<body>
+  <div class="nav-bar">
+    <div class="nav-title">🤖 Vision-Language-Action Fundamentals: The Robotics Revolution</div>
+    <a href="index.html" class="nav-home">🏠 Home</a>
+    <a href="vision-language-models.html" class="nav-prev">← VLM Fundamentals</a>
+    <a href="training-deploying-vlas.html" class="nav-next">Next: Training & Deploying VLAs →</a>
+  </div>
+
+  <div class="container">
+    <h1>🤖 Vision-Language-Action: From Understanding to Embodied Intelligence</h1>
+    <p>Building on Vision-Language Models, <strong>Vision-Language-Action (VLA) models</strong> represent the next evolutionary leap: AI systems that can not only see and understand the world, but can <strong>interact with it physically</strong>. These models bridge the gap between digital reasoning and real-world action, enabling robots to understand instructions, perceive their environment, and execute complex tasks.</p>
+    
+    <div class="breakthrough-highlight">
+      🌟 The Final Frontier: From GPT understanding text to robots understanding and acting in the physical world — VLAs make AI embodied!
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🚀 Section 1: The VLA Revolution - Why Robots Need Transformers</h2>
+    
+    <div class="step">
+      <h3>🏗️ From VLMs to VLAs: The Final Frontier</h3>
+      <p>While Vision-Language Models revolutionized how AI understands multimodal content, they remained confined to digital responses. <strong>VLA models break this barrier</strong> by adding a crucial third modality: <em>actions</em>. This enables AI to move from passive understanding to active interaction with the physical world.</p>
+
+      <div class="architecture-flow">
+        <div class="arch-component vision">
+          <h4>👁️ Vision</h4>
+          <div>Camera Input</div>
+          <div style="font-size:12px;margin-top:5px">
+            • RGB images/video<br>• Depth information<br>• Scene understanding
+          </div>
+        </div>
+        <div class="arch-arrow">+</div>
+        <div class="arch-component language">
+          <h4>🗣️ Language</h4>
+          <div>Text Instructions</div>
+          <div style="font-size:12px;margin-top:5px">
+            • Natural language commands<br>• Task descriptions<br>• Conversational context
+          </div>
+        </div>
+        <div class="arch-arrow">+</div>
+        <div class="arch-component action">
+          <h4>🤖 Action</h4>
+          <div>Robot Control</div>
+          <div style="font-size:12px;margin-top:5px">
+            • Joint positions<br>• End-effector poses<br>• Movement trajectories
+          </div>
+        </div>
+        <div class="arch-arrow">=</div>
+        <div class="arch-component fusion">
+          <h4>🧠 Embodied AI</h4>
+          <div>Integrated Intelligence</div>
+          <div style="font-size:12px;margin-top:5px">
+            • Scene-aware planning<br>• Instruction following<br>• Real-world interaction
+          </div>
+        </div>
+      </div>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🎭 VLA Evolution Timeline</div>
+        <p><strong>Explore the journey from text-only AI to embodied intelligence:</strong></p>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>AI Evolution Stage:</label>
+            <select id="evolutionStage">
+              <option value="language" selected>Language Models (GPT-3)</option>
+              <option value="vision-language">Vision-Language (GPT-4V)</option>
+              <option value="action">Vision-Language-Action (VLA)</option>
+              <option value="embodied">Fully Embodied AI (Future)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Capability Focus:</label>
+            <select id="capabilityFocus">
+              <option value="understanding" selected>Understanding</option>
+              <option value="reasoning">Reasoning</option>
+              <option value="planning">Planning</option>
+              <option value="execution">Execution</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="exploreEvolution()" class="primary">🚀 Explore AI Evolution</button>
+        <div id="evolutionVisualization"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🔧 The Robotics Bottleneck: Why Traditional Approaches Failed</h3>
+      <div class="comparison-grid">
+        <div class="comparison-card" onclick="selectApproach('traditional', this)">
+          <div class="comparison-title">🏭 Traditional Robotics</div>
+          <div class="comparison-description">Rule-based, task-specific programming</div>
+          <div class="comparison-math">
+            if sensor_reading &gt; threshold:<br>&nbsp;&nbsp;execute_hardcoded_action()
+          </div>
+        </div>
+        <div class="comparison-card" onclick="selectApproach('learning', this)">
+          <div class="comparison-title">🧠 Learning-Based Methods</div>
+          <div class="comparison-description">RL and imitation learning approaches</div>
+          <div class="comparison-math">
+            π(a|s) = policy_network(state)<br>Limited to specific tasks
+          </div>
+        </div>
+        <div class="comparison-card" onclick="selectApproach('vla', this)">
+          <div class="comparison-title">🌟 VLA Foundation Models</div>
+          <div class="comparison-description">Transformer-based generalist robots</div>
+          <div class="comparison-math">
+            action_tokens = VLA(image, text)<br>Universal across tasks & robots
+          </div>
+        </div>
+      </div>
+      <div id="approachAnalysis"></div>
+    </div>
+
+    <div class="step">
+      <h3>🎯 The Paradigm Shift: Foundation Models for Physical Intelligence</h3>
+      <div class="warning">
+        <strong>🏭 Traditional Robotics Problems:</strong><br>
+        • <strong>Task-specific:</strong> Each robot application requires months of custom programming<br>
+        • <strong>Brittle:</strong> Fails when encountering slightly different scenarios<br>
+        • <strong>Expensive:</strong> $50K–$500K per robot deployment including engineering<br>
+        • <strong>Limited:</strong> Cannot adapt to new tasks without complete reprogramming<br><br>
+        <strong>📊 Industry Statistics:</strong><br>
+        • 80% of industrial robots perform single, repetitive tasks<br>
+        • Average deployment time: 6–18 months per application<br>
+        • 90% of robots cannot adapt to unexpected situations
+      </div>
+
+      <div class="success">
+        <strong>🚀 VLA Foundation Model Benefits:</strong><br>
+        • <strong>Generalist:</strong> One model handles diverse tasks across robot types<br>
+        • <strong>Sample efficient:</strong> Learn new tasks from few demonstrations<br>
+        • <strong>Cost effective:</strong> Reduce deployment costs by 10–100×<br>
+        • <strong>Adaptable:</strong> Handle novel situations through language instructions<br><br>
+        <strong>📈 VLA Performance Metrics:</strong><br>
+        • Cross-task transfer: 5–20× faster learning on new tasks<br>
+        • Zero-shot capabilities: Handle 40–60% of novel scenarios<br>
+        • Deployment time: Days to weeks instead of months<br>
+        • Cost reduction: 90%+ reduction in custom engineering
+      </div>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🔄 Traditional vs VLA Comparison</div>
+        <div class="controls">
+          <div class="control-group">
+            <label>Task Complexity:</label>
+            <select id="taskComplexity">
+              <option value="simple" selected>Simple (Pick & Place)</option>
+              <option value="medium">Medium (Assembly Task)</option>
+              <option value="complex">Complex (Cooking Recipe)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Environment Variability:</label>
+            <select id="environmentVar">
+              <option value="controlled" selected>Controlled Lab</option>
+              <option value="structured">Structured Workspace</option>
+              <option value="unstructured">Real-world Chaos</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="compareApproaches()" class="primary">⚖️ Compare Approaches</button>
+        <div id="comparisonResults"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🧩 Section 2: Action Tokenization - Making Movements Into Language</h2>
+
+    <div class="step">
+      <h3>🔄 The Core Innovation: Actions as Tokens</h3>
+      <p>The breakthrough insight of VLA models is treating robot actions as <strong>discrete tokens</strong>, just like words in language. This allows the same transformer architecture that powers ChatGPT to control robot movements with unprecedented generality and efficiency.</p>
+
+      <div class="math-formula">
+        <strong>Action Tokenization Pipeline:</strong><br><br>
+        <strong>1. Continuous Action Space:</strong><br>
+        a<sub>continuous</sub> ∈ ℝ<sup>d</sup> (e.g., 7-DOF arm: joint angles, gripper)<br><br>
+        <strong>2. Discretization Strategies:</strong><br>
+        • <strong>Binning:</strong> a<sub>discrete</sub> = quantize(a<sub>continuous</sub>, bins=256)<br>
+        • <strong>Vector Quantization:</strong> a<sub>tokens</sub> = VQ-VAE(a<sub>continuous</sub>)<br>
+        • <strong>DCT Compression:</strong> a<sub>compressed</sub> = DCT(action_sequence)<br><br>
+        <strong>3. Token Sequence:</strong><br>
+        [IMG] patch₁ patch₂ … [TXT] "pick" "up" "cup" [ACT] a₁ a₂ a₃ [/ACT]<br><br>
+        <strong>4. Unified Processing:</strong><br>
+        Next_Action_Token = Transformer(vision_tokens + text_tokens + action_history)
+      </div>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🎭 Interactive Action Tokenizer</div>
+        <p><strong>See how robot movements become discrete tokens:</strong></p>
+        <div class="controls">
+          <div class="control-group">
+            <label>Robot Action:</label>
+            <select id="robotAction">
+              <option value="reach" selected>Reach to Object</option>
+              <option value="grasp">Grasp Object</option>
+              <option value="lift">Lift & Move</option>
+              <option value="place">Place Object</option>
+              <option value="pour">Pour Liquid</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Tokenization Method:</label>
+            <select id="tokenizationMethod">
+              <option value="binning" selected>Uniform Binning</option>
+              <option value="vq">Vector Quantization</option>
+              <option value="dct">DCT Compression (FAST)</option>
+              <option value="flow">Flow Matching</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Token Resolution:</label>
+            <select id="tokenResolution">
+              <option value="low">Low (64 tokens)</option>
+              <option value="medium" selected>Medium (256 tokens)</option>
+              <option value="high">High (1024 tokens)</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="generateActionTokens()" class="primary">🎭 Tokenize Action</button>
+        <div id="actionTokenVisualization"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>📊 Action Space Mathematics: From Continuous to Discrete</h3>
+
+      <div class="math-formula">
+        <strong>Action Space Transformation Mathematics:</strong><br><br>
+        <strong>Robot State Space:</strong><br>
+        s = [x, y, z, roll, pitch, yaw, gripper] ∈ ℝ⁷<br>
+        Continuous range: x,y,z ∈ [-1, 1], angles ∈ [-π, π]<br><br>
+        <strong>Binning Tokenization:</strong><br>
+        token_x = ⌊(x + 1) × (bins/2)⌋ ∈ [0, bins-1]<br>
+        Total vocabulary: bins^7 = 256⁷ ≈ 72 trillion tokens!<br><br>
+        <strong>Vector Quantization (Better):</strong><br>
+        VQ-VAE: a → encode(a) → quantize(z) → decode(z′) → a′<br>
+        Vocabulary size: ~8K tokens (manageable for transformers)<br><br>
+        <strong>FAST (DCT) Tokenization:</strong><br>
+        Trajectory τ = [a₁, a₂, …, aₜ] → DCT(τ) → top-k frequencies<br>
+        Enables high-frequency control (200Hz) with low token count
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchActionTab('binning', this)">📊 Uniform Binning</div>
+        <div class="tab" onclick="switchActionTab('vq', this)">🧩 Vector Quantization</div>
+        <div class="tab" onclick="switchActionTab('dct', this)">⚡ DCT (FAST)</div>
+        <div class="tab" onclick="switchActionTab('flow', this)">🌊 Flow Matching</div>
+      </div>
+
+      <div id="binning" class="tab-content active">
+        <div class="code-block">
+          <div class="code-header">📊 Uniform Binning Implementation</div>
+          <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>import numpy as np
+import torch
+
+class UniformActionTokenizer:
+    """
+    Simple uniform binning for action tokenization
+    """
+    def __init__(self, action_dims=7, bins_per_dim=256, action_range=(-1, 1)):
+        self.action_dims = action_dims
+        self.bins_per_dim = bins_per_dim
+        self.action_min, self.action_max = action_range
+        
+        # Calculate bin edges
+        self.bin_edges = np.linspace(self.action_min, self.action_max, bins_per_dim + 1)
+        
+        # Vocabulary size grows exponentially with dimensions!
+        self.vocab_size = bins_per_dim ** action_dims
+        print(f"Warning: Vocab size = {self.vocab_size:,} tokens!")
+    
+    def tokenize(self, actions):
+        """Convert continuous actions to discrete tokens"""
+        # Clip actions to valid range
+        actions = np.clip(actions, self.action_min, self.action_max)
+        
+        # Bin each dimension
+        tokens = []
+        for dim in range(self.action_dims):
+            # Find which bin each action falls into
+            dim_tokens = np.digitize(actions[:, dim], self.bin_edges) - 1
+            # Ensure tokens are in valid range
+            dim_tokens = np.clip(dim_tokens, 0, self.bins_per_dim - 1)
+            tokens.append(dim_tokens)
+        
+        return np.array(tokens).T  # Shape: [sequence_length, action_dims]
+    
+    def detokenize(self, tokens):
+        """Convert discrete tokens back to continuous actions"""
+        actions = []
+        for dim in range(self.action_dims):
+            # Get bin centers as continuous values
+            dim_actions = self.bin_edges[tokens[:, dim]] + \
+                         (self.bin_edges[1] - self.bin_edges[0]) / 2
+            actions.append(dim_actions)
+        
+        return np.array(actions).T
+    
+    def get_vocab_size(self):
+        return self.vocab_size
+
+# Example usage
+tokenizer = UniformActionTokenizer(action_dims=7, bins_per_dim=256)
+
+# Sample robot trajectory
+trajectory = np.random.uniform(-1, 1, (10, 7))  # 10 timesteps, 7-DOF robot
+print("Original trajectory shape:", trajectory.shape)
+
+# Tokenize
+tokens = tokenizer.tokenize(trajectory)
+print("Tokenized shape:", tokens.shape)
+print("Sample tokens:", tokens[0])  # First timestep tokens
+
+# Detokenize
+reconstructed = tokenizer.detokenize(tokens)
+print("Reconstruction error:", np.mean(np.abs(trajectory - reconstructed)))
+
+# Problem: Massive vocabulary size makes this impractical!
+print(f"Vocabulary size: {tokenizer.get_vocab_size():,} tokens")
+print("This would require a {:.1f}B parameter embedding layer!".format(
+    tokenizer.get_vocab_size() * 512 / 1e9  # Assuming 512D embeddings
+))</pre>
+        </div>
+        <div class="warning">
+          <strong>⚠️ Uniform Binning Challenges:</strong><br>
+          • <strong>Exponential vocabulary growth:</strong> 256⁷ = 72+ trillion possible tokens<br>
+          • <strong>Sparse data:</strong> Most token combinations never seen in training<br>
+          • <strong>Quantization error:</strong> Loses precision in continuous space<br>
+          • <strong>Memory requirements:</strong> Embedding layer needs massive parameters<br><br>
+          <strong>Why it fails:</strong> Works for 1–2 dimensions, completely impractical for 7+ DOF robots
+        </div>
+      </div>
+
+      <div id="vq" class="tab-content">
+        <div class="code-block">
+          <div class="code-header">🧩 Vector Quantization (VQ-VAE) Approach</div>
+          <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class VectorQuantizer(nn.Module):
+    """
+    Vector Quantization layer for action tokenization
+    Learns a codebook of common action patterns
+    """
+    def __init__(self, num_embeddings, embedding_dim, commitment_cost=0.25):
+        super().__init__()
+        
+        self.embedding_dim = embedding_dim
+        self.num_embeddings = num_embeddings
+        self.commitment_cost = commitment_cost
+        
+        # Initialize codebook with uniform distribution
+        self.embedding = nn.Embedding(num_embeddings, embedding_dim)
+        self.embedding.weight.data.uniform_(-1/num_embeddings, 1/num_embeddings)
+        
+    def forward(self, inputs):
+        # Convert inputs from [B, C, H, W] to [B, H, W, C]
+        inputs = inputs.permute(0, 2, 3, 1).contiguous()
+        input_shape = inputs.shape
+        
+        # Flatten input
+        flat_input = inputs.view(-1, self.embedding_dim)
+        
+        # Calculate distances to codebook entries
+        distances = (torch.sum(flat_input**2, dim=1, keepdim=True) 
+                    + torch.sum(self.embedding.weight**2, dim=1)
+                    - 2 * torch.matmul(flat_input, self.embedding.weight.t()))
+        
+        # Find closest codebook entry
+        encoding_indices = torch.argmin(distances, dim=1).unsqueeze(1)
+        encodings = torch.zeros(encoding_indices.shape[0], self.num_embeddings, device=inputs.device)
+        encodings.scatter_(1, encoding_indices, 1)
+        
+        # Quantize and unflatten
+        quantized = torch.matmul(encodings, self.embedding.weight).view(input_shape)
+        
+        # Loss
+        e_latent_loss = F.mse_loss(quantized.detach(), inputs)
+        q_latent_loss = F.mse_loss(quantized, inputs.detach())
+        loss = q_latent_loss + self.commitment_cost * e_latent_loss
+        
+        # Straight-through estimator
+        quantized = inputs + (quantized - inputs).detach()
+        avg_probs = torch.mean(encodings, dim=0)
+        perplexity = torch.exp(-torch.sum(avg_probs * torch.log(avg_probs + 1e-10)))
+        
+        return quantized.permute(0, 3, 1, 2).contiguous(), loss, perplexity, encoding_indices
+
+class ActionVQVAE(nn.Module):
+    """
+    VQ-VAE specifically designed for robot action sequences
+    """
+    def __init__(self, action_dim=7, hidden_dim=128, num_embeddings=8192):
+        super().__init__()
+        
+        self.action_dim = action_dim
+        
+        # Encoder: action sequence -> latent space
+        self.encoder = nn.Sequential(
+            nn.Linear(action_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim)
+        )
+        
+        # Vector quantizer
+        self.vq_layer = VectorQuantizer(num_embeddings, hidden_dim)
+        
+        # Decoder: quantized latent -> action sequence
+        self.decoder = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, action_dim)
+        )
+        
+    def forward(self, actions):
+        # Encode actions
+        encoded = self.encoder(actions)
+        
+        # Add spatial dimensions for VQ layer (hack for 1D actions)
+        encoded = encoded.unsqueeze(-1).unsqueeze(-1)  # [B, T, C, 1, 1]
+        encoded = encoded.permute(0, 2, 3, 4, 1)       # [B, C, 1, 1, T]
+        
+        # Vector quantize
+        quantized, vq_loss, perplexity, encoding_indices = self.vq_layer(encoded.squeeze(-1))
+        
+        # Remove spatial dimensions
+        quantized = quantized.squeeze(-1).squeeze(-1)
+        quantized = quantized.permute(0, 2, 1)  # [B, T, C]
+        
+        # Decode
+        reconstructed = self.decoder(quantized)
+        
+        return {
+            'reconstructed': reconstructed,
+            'vq_loss': vq_loss,
+            'perplexity': perplexity,
+            'encoding_indices': encoding_indices,
+            'quantized': quantized
+        }
+
+# Training the VQ-VAE
+def train_action_vqvae(model, dataloader, num_epochs=100):
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+    
+    for epoch in range(num_epochs):
+        total_loss = 0
+        for batch_actions in dataloader:
+            optimizer.zero_grad()
+            
+            outputs = model(batch_actions)
+            
+            # Reconstruction loss
+            recon_loss = F.mse_loss(outputs['reconstructed'], batch_actions)
+            
+            # Total loss
+            loss = recon_loss + outputs['vq_loss']
+            loss.backward()
+            
+            optimizer.step()
+            total_loss += loss.item()
+        
+        if epoch % 20 == 0:
+            print(f"Epoch {epoch}, Loss: {total_loss/len(dataloader):.4f}, "
+                  f"Perplexity: {outputs['perplexity']:.2f}")
+
+# Example usage for robot actions
+action_vqvae = ActionVQVAE(action_dim=7, num_embeddings=8192)
+
+# Create sample robot trajectory data
+robot_trajectories = torch.randn(1000, 50, 7)  # 1000 trajectories, 50 timesteps, 7-DOF
+
+# The VQ-VAE learns to represent actions with only 8192 tokens instead of 256^7!
+print(f"Vocabulary size: {8192} tokens (vs {256**7:,} for binning)")
+print("This makes transformer training feasible!")</pre>
+        </div>
+        <div class="success">
+          <strong>✅ Vector Quantization Advantages:</strong><br>
+          • <strong>Manageable vocabulary:</strong> 8K tokens instead of trillions<br>
+          • <strong>Learned representations:</strong> Captures common action patterns<br>
+          • <strong>Continuous reconstruction:</strong> Can recover smooth movements<br>
+          • <strong>Transfer learning:</strong> Codebook transfers across robot types<br><br>
+          <strong>🎯 Real-world Success:</strong><br>
+          • OpenVLA-like designs use VQ approaches for 7B-scale models<br>
+          • Enables training on ~1M robot demonstrations<br>
+          • Competes with much larger proprietary systems
+        </div>
+      </div>
+
+      <div id="dct" class="tab-content">
+        <div class="code-block">
+          <div class="code-header">⚡ FAST (DCT) Tokenization</div>
+          <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>import numpy as np
+import torch
+import torch.nn as nn
+from scipy.fft import dct, idct
+
+class FASTActionTokenizer:
+    """
+    FAST (Frequency-domain Action Sequence Tokenization)
+    Uses DCT compression for high-frequency robot control
+    """
+    def __init__(self, sequence_length=64, action_dim=7, num_frequencies=16):
+        self.sequence_length = sequence_length
+        self.action_dim = action_dim
+        self.num_frequencies = num_frequencies
+        
+        # Total tokens per action sequence
+        self.tokens_per_sequence = num_frequencies * action_dim
+        
+        # Create frequency bins for quantization
+        self.freq_bins = np.linspace(-1, 1, 256)  # 8-bit quantization
+        
+    def encode_sequence(self, action_sequence):
+        """
+        Convert action sequence to frequency domain tokens
+        
+        Args:
+            action_sequence: [sequence_length, action_dim] numpy array
+        
+        Returns:
+            tokens: [num_frequencies * action_dim] discrete tokens
+        """
+        # Apply DCT to each action dimension
+        freq_coefficients = dct(action_sequence, axis=0, norm='ortho')
+        
+        # Keep only the most important frequencies
+        truncated_coeffs = freq_coefficients[:self.num_frequencies, :]
+        
+        # Quantize frequency coefficients
+        quantized_coeffs = np.digitize(truncated_coeffs.flatten(), self.freq_bins) - 1
+        quantized_coeffs = np.clip(quantized_coeffs, 0, len(self.freq_bins) - 1)
+        
+        return quantized_coeffs
+    
+    def decode_sequence(self, tokens):
+        """
+        Convert frequency domain tokens back to action sequence
+        
+        Args:
+            tokens: [num_frequencies * action_dim] discrete tokens
+        
+        Returns:
+            action_sequence: [sequence_length, action_dim] numpy array
+        """
+        # Dequantize tokens back to frequency coefficients
+        dequantized = self.freq_bins[tokens]
+        freq_coefficients = dequantized.reshape(self.num_frequencies, self.action_dim)
+        
+        # Pad with zeros for remaining frequencies
+        full_coefficients = np.zeros((self.sequence_length, self.action_dim))
+        full_coefficients[:self.num_frequencies, :] = freq_coefficients
+        
+        # Apply inverse DCT
+        reconstructed_sequence = idct(full_coefficients, axis=0, norm='ortho')
+        
+        return reconstructed_sequence
+    
+    def get_vocab_size(self):
+        return len(self.freq_bins)  # Only 256 tokens needed!
+
+class FASTActionModel(nn.Module):
+    """
+    Transformer model using FAST tokenization for robot control
+    Enables high-frequency control (200Hz) with efficient tokenization
+    """
+    def __init__(self, vocab_size=256, hidden_dim=512, num_layers=8, num_heads=8):
+        super().__init__()
+        
+        # Token embeddings for frequency coefficients
+        self.token_embedding = nn.Embedding(vocab_size, hidden_dim)
+        
+        # Transformer layers
+        self.transformer = nn.TransformerEncoder(
+            nn.TransformerEncoderLayer(
+                d_model=hidden_dim,
+                nhead=num_heads,
+                dim_feedforward=hidden_dim * 4,
+                dropout=0.1,
+                batch_first=True
+            ),
+            num_layers=num_layers
+        )
+        
+        # Output projection to frequency tokens
+        self.output_proj = nn.Linear(hidden_dim, vocab_size)
+        
+    def forward(self, input_tokens):
+        # Embed tokens
+        embedded = self.token_embedding(input_tokens)
+        
+        # Transformer processing
+        transformed = self.transformer(embedded)
+        
+        # Project to output vocabulary
+        logits = self.output_proj(transformed)
+        
+        return logits
+
+# Example: High-frequency robot control with FAST
+def demonstrate_fast_control():
+    # Initialize FAST tokenizer
+    tokenizer = FASTActionTokenizer(
+        sequence_length=64,    # 64 timesteps at 200Hz = 0.32 seconds
+        action_dim=7,          # 7-DOF robot arm
+        num_frequencies=16     # Keep top 16 frequency components
+    )
+    
+    print(f"Vocabulary size: {tokenizer.get_vocab_size()} tokens")
+    print(f"Tokens per sequence: {tokenizer.tokens_per_sequence}")
+    
+    # Generate sample smooth robot trajectory
+    t = np.linspace(0, 2*np.pi, 64)
+    action_sequence = np.zeros((64, 7))
+    
+    # Create smooth sinusoidal movements for each joint
+    for joint in range(7):
+        frequency = 0.5 + joint * 0.1  # Different frequency per joint
+        action_sequence[:, joint] = 0.5 * np.sin(frequency * t)
+    
+    print("Original trajectory shape:", action_sequence.shape)
+    
+    # Tokenize using FAST
+    tokens = tokenizer.encode_sequence(action_sequence)
+    print("Encoded tokens shape:", tokens.shape)
+    print("Sample tokens:", tokens[:10])
+    
+    # Decode back to actions
+    reconstructed = tokenizer.decode_sequence(tokens)
+    print("Reconstructed shape:", reconstructed.shape)
+    
+    # Measure reconstruction quality
+    mse_error = np.mean((action_sequence - reconstructed) ** 2)
+    print(f"Reconstruction MSE: {mse_error:.6f}")
+    
+    return tokenizer, action_sequence, reconstructed
+
+# Demonstrate FAST advantages
+tokenizer, original, reconstructed = demonstrate_fast_control()
+
+print("\n🚀 FAST Tokenization Advantages:")
+print(f"✅ Compact: Only {tokenizer.tokens_per_sequence} tokens per trajectory")
+print(f"✅ High-frequency: Supports 200Hz control (vs 10-20Hz for other methods)")
+print(f"✅ Smooth: Preserves trajectory smoothness through frequency domain")
+print(f"✅ Efficient: {tokenizer.get_vocab_size()} vocab size vs millions for binning")
+
+# Calculate compression ratio
+original_size = original.size * 32  # 32-bit floats
+compressed_size = tokenizer.tokens_per_sequence * 8  # 8-bit tokens
+compression_ratio = original_size / compressed_size
+
+print(f"✅ Compression: {compression_ratio:.1f}x smaller than full trajectory")</pre>
+        </div>
+        <div class="info">
+          <strong>⚡ FAST Tokenization Benefits:</strong><br>
+          • <strong>High-frequency control:</strong> Enables 200Hz robot control vs 10–20Hz for other methods<br>
+          • <strong>Frequency efficiency:</strong> Most robot motions are low-frequency, DCT captures this<br>
+          • <strong>Smooth trajectories:</strong> Frequency domain naturally preserves motion smoothness<br>
+          • <strong>Compact representation:</strong> 16 frequency coefficients per action dimension<br><br>
+          <strong>🎯 Real-world Applications:</strong><br>
+          • Used in recent VLA-style research for precise manipulation tasks<br>
+          • Enables real-time robot control with transformer inference<br>
+          • Particularly effective for continuous, smooth robot motions
+        </div>
+      </div>
+
+      <div id="flow" class="tab-content">
+        <div class="warning">
+          <strong>🌊 Flow Matching for Action Generation:</strong><br>
+          • <strong>Continuous generation:</strong> Directly generates smooth action trajectories<br>
+          • <strong>No discretization:</strong> Avoids quantization errors entirely<br>
+          • <strong>Diffusion-based:</strong> Uses flow-matching or diffusion models for actions<br>
+          • <strong>Emerging approach:</strong> Still in research phase, very promising results<br><br>
+          <strong>🔬 Technical Details:</strong><br>
+          • Model learns to transform noise into valid robot trajectories<br>
+          • Conditioning on vision and language for task-specific generation<br>
+          • Enables precise, safe motion planning through learned dynamics<br>
+          • Can generate multiple candidate trajectories for robust execution
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🎯 Token Efficiency: The Key to Real-Time Control</h3>
+      <div class="metric-grid">
+        <div class="metric-card"><div class="metric-value">256⁷</div><div class="metric-label">Binning Vocabulary</div></div>
+        <div class="metric-card"><div class="metric-value">8K</div><div class="metric-label">VQ-VAE Vocabulary</div></div>
+        <div class="metric-card"><div class="metric-value">256</div><div class="metric-label">FAST Vocabulary</div></div>
+        <div class="metric-card"><div class="metric-value">200Hz</div><div class="metric-label">Control Frequency</div></div>
+      </div>
+      <div class="success">
+        <strong>🎯 Why Token Efficiency Matters:</strong><br>
+        • <strong>Inference Speed:</strong> Smaller vocabularies = faster transformer inference<br>
+        • <strong>Training Stability:</strong> Fewer tokens = better sample efficiency<br>
+        • <strong>Memory Requirements:</strong> Token embeddings scale with vocabulary size<br>
+        • <strong>Real-time Control:</strong> Must generate actions faster than robot needs them<br><br>
+        <strong>📊 Performance Impact:</strong><br>
+        • FAST: 200Hz achievable (short-horizon control windows)<br>
+        • VQ-VAE: 50–100Hz typical for manipulation<br>
+        • Binning: 10–20Hz max, usually too slow<br>
+        • Flow matching: Variable; depends on sampler steps
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🏆 Section 3: Open Source vs Closed Source - The VLA David vs Goliath Story</h2>
+
+    <div class="step">
+      <h3>📊 OpenVLA vs RT-2-X: When 7B Beats 55B</h3>
+      <p>In a striking comparison, an open 7B-parameter VLA can compete with (and sometimes surpass) much larger closed models—highlighting how **architecture, data curation, and tokenization** matter as much as raw parameter count.</p>
+
+      <div class="breakthrough-highlight">
+        🏆 Takeaway: Smart representation + training beats brute-force parameter count.
+      </div>
+
+      <div class="model-comparison">
+        <div class="model-card" onclick="selectVLAModel('openvla', this)" style="border-color:#28a745">
+          <div class="model-name">🦙 OpenVLA-style (7B, open)</div>
+          <div class="model-specs">
+            <strong>Backbone:</strong> LLM + vision encoders (DINOv2/SigLIP)<br>
+            <strong>Training Data:</strong> ~1M robot demonstrations<br>
+            <strong>Training Cost:</strong> O(10^5–10^6 USD)<br>
+            <strong>Performance:</strong> Competitive on manipulation<br>
+            <strong>Robots:</strong> Many embodiments via adapters<br>
+            <strong>License:</strong> Open
+          </div>
+          <div class="model-capabilities">
+            <div class="capability"><span class="capability-icon">🎯</span><span>Cross-embodiment generalization</span></div>
+            <div class="capability"><span class="capability-icon">💰</span><span>Lower training cost</span></div>
+            <div class="capability"><span class="capability-icon">🔧</span><span>Fine-tuning friendly</span></div>
+            <div class="capability"><span class="capability-icon">📚</span><span>Transparent research</span></div>
+          </div>
+        </div>
+
+        <div class="model-card" onclick="selectVLAModel('rt2x', this)" style="border-color:#dc3545">
+          <div class="model-name">🔒 RT-2-X-style (≈55B, closed)</div>
+          <div class="model-specs">
+            <strong>Backbone:</strong> Large multimodal transformer<br>
+            <strong>Training Data:</strong> Multi-million demos + web<br>
+            <strong>Training Cost:</strong> O(10^7 USD)+<br>
+            <strong>Performance:</strong> Strong; access limited<br>
+            <strong>Robots:</strong> Internal + select partners<br>
+            <strong>License:</strong> Proprietary
+          </div>
+          <div class="model-capabilities">
+            <div class="capability"><span class="capability-icon">🏢</span><span>Big-infra engineering</span></div>
+            <div class="capability"><span class="capability-icon">🔬</span><span>Extensive internal evals</span></div>
+            <div class="capability"><span class="capability-icon">⚠️</span><span>Limited external access</span></div>
+            <div class="capability"><span class="capability-icon">💸</span><span>High training cost</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="vlaModelAnalysis"></div>
+    </div>
+
+    <div class="step">
+      <h3>🚀 The Open Source VLA Ecosystem</h3>
+      <div class="interactive-demo">
+        <div class="demo-title">🌟 Open Source VLA Model Explorer</div>
+        <div class="controls">
+          <div class="control-group">
+            <label>Model Category:</label>
+            <select id="vlaCategory">
+              <option value="general" selected>General Purpose VLAs</option>
+              <option value="efficient">Efficient/Mobile VLAs</option>
+              <option value="specialized">Specialized Applications</option>
+              <option value="research">Research Prototypes</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Deployment Target:</label>
+            <select id="deploymentTarget">
+              <option value="cloud" selected>Cloud/Server Deployment</option>
+              <option value="edge">Edge Computing (Jetson)</option>
+              <option value="mobile">Mobile/Consumer Robotics</option>
+              <option value="industrial">Industrial Applications</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="exploreVLAEcosystem()" class="primary">🔍 Explore VLA Models</button>
+        <div id="vlaEcosystemResults"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🦙 OpenVLA: The Open Source Pattern</h3>
+      <div class="math-formula">
+        <strong>OpenVLA-Style Architecture Pipeline:</strong><br><br>
+        <strong>1. Multimodal Fusion:</strong><br>
+        Vision: DINOv2 + SigLIP → visual_tokens ∈ ℝ^(N×D)<br>
+        Language: LLM tokenizer → text_tokens ∈ ℝ^(M×D)<br><br>
+        <strong>2. Unified Processing:</strong><br>
+        Mixed_Tokens = [&lt;image&gt;, visual_tokens, &lt;/image&gt;, text_tokens, &lt;action&gt;, action_history]&nbsp;≤ context_len<br><br>
+        <strong>3. Action Generation:</strong><br>
+        action_logits = LM_Head(Transformer_Output)<br>
+        action_tokens = Sample(Softmax(action_logits))<br><br>
+        <strong>4. Detokenization:</strong><br>
+        robot_actions = VQ_Decoder(action_tokens) ∈ ℝ^(T×7)
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">🦙 OpenVLA-Style Implementation (Display-only)</div>
+        <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>import torch
+import torch.nn as nn
+from transformers import LlamaForCausalLM, LlamaTokenizer
+import numpy as np
+
+class OpenVLA(nn.Module):
+    """
+    Simplified, display-only sketch of an OpenVLA-style model.
+    NOTE: This snippet illustrates structure. It will not run as-is without
+    proper processors, image patching, and checkpoint access.
+    """
+    def __init__(self, 
+                 llama_model="meta-llama/Llama-2-7b-hf",
+                 action_vocab_size=8192,
+                 max_action_tokens=100):
+        super().__init__()
+        
+        # Core language model (LLM backbone)
+        self.llama = LlamaForCausalLM.from_pretrained(llama_model)
+        self.tokenizer = LlamaTokenizer.from_pretrained(llama_model)
+        
+        # Vision encoders (DINOv2 + SigLIP fusion, placeholders)
+        self.vision_encoder = self._build_vision_encoder()
+        
+        # Action tokenization
+        self.action_vocab_size = action_vocab_size
+        self.max_action_tokens = max_action_tokens
+        
+        # Extend tokenizer with special multimodal tokens
+        special_tokens = {
+            'additional_special_tokens': [
+                '<image>', '</image>', '<action>', '</action>',
+                '<robot>', '</robot>', '<task>', '</task>'
+            ]
+        }
+        self.tokenizer.add_special_tokens(special_tokens)
+        self.llama.resize_token_embeddings(len(self.tokenizer))
+        
+        # Action head for generating robot control tokens
+        hidden_size = self.llama.config.hidden_size
+        self.action_head = nn.Linear(hidden_size, action_vocab_size)
+        
+    def _build_vision_encoder(self):
+        """Build fusion of DINOv2 and SigLIP vision encoders (placeholders)."""
+        from transformers import AutoModel
+        
+        dinov2 = AutoModel.from_pretrained("facebook/dinov2-base")  # requires image processor in practice
+        siglip = AutoModel.from_pretrained("google/siglip-base-patch16-224")
+        
+        # Match LLM hidden size with a projection
+        fusion_proj = nn.Linear(768 + 768, self.llama.config.hidden_size)
+        return nn.ModuleDict({'dinov2': dinov2, 'siglip': siglip, 'fusion': fusion_proj})
+    
+    def encode_vision(self, images):
+        """
+        Encode images using DINOv2 + SigLIP fusion.
+        images: preprocessed image tensor batches.
+        """
+        dinov2_features = self.vision_encoder.dinov2(images).last_hidden_state
+        siglip_features = self.vision_encoder.siglip(images).last_hidden_state
+        fused = torch.cat([dinov2_features, siglip_features], dim=-1)
+        vision_tokens = self.vision_encoder.fusion(fused)  # [B, N_img, D]
+        return vision_tokens
+    
+    def _embed_special(self, token_str, device):
+        tid = self.tokenizer.convert_tokens_to_ids(token_str)
+        tid = torch.tensor([tid], device=device)
+        return self.llama.get_input_embeddings()(tid)[None, :, :]  # [1, 1, D]
+    
+    def _build_input_sequence(self, vision_tokens, text_input_ids, action_history_embeds=None):
+        """
+        Concatenate: <image> + vision_tokens + </image> + text_embeds + optional <action> + history.
+        Returns embeddings ready for the LLM forward.
+        """
+        device = vision_tokens.device
+        text_embeds = self.llama.get_input_embeddings()(text_input_ids)  # [B, T_txt, D]
+        
+        img_start = self._embed_special('<image>', device)       # [1,1,D]
+        img_end   = self._embed_special('</image>', device)
+        
+        if action_history_embeds is not None:
+            act_start = self._embed_special('<action>', device)
+            act_end   = self._embed_special('</action>', device)
+        else:
+            act_start = act_end = None
+        
+        B = text_embeds.size(0)
+        # Tile special tokens to batch
+        img_start = img_start.expand(B, -1, -1)  # [B,1,D]
+        img_end   = img_end.expand(B, -1, -1)    # [B,1,D]
+        if act_start is not None:
+            act_start = act_start.expand(B, -1, -1)
+            act_end   = act_end.expand(B, -1, -1)
+        
+        seq_parts = [img_start, vision_tokens, img_end, text_embeds]
+        if action_history_embeds is not None:
+            seq_parts.extend([act_start, action_history_embeds, act_end])
+        
+        return torch.cat(seq_parts, dim=1)  # [B, T_total, D]
+    
+    def forward(self, images, text_input, action_history=None):
+        """
+        Forward pass for VLA inference (display-only).
+        """
+        device = images.device
+        B = images.size(0)
+        
+        # Encode vision
+        vision_tokens = self.encode_vision(images)  # [B, N_vis, D]
+        
+        # Tokenize text
+        tok = self.tokenizer(list(text_input), return_tensors='pt', padding=True, truncation=True, max_length=512)
+        text_input_ids = tok.input_ids.to(device)   # [B, T_txt]
+        
+        # Optional: embed previous action tokens (if provided)
+        action_history_embeds = None
+        if action_history is not None:
+            # Assume action_history already token ids shaped [B, T_act]
+            action_history_embeds = self.llama.get_input_embeddings()(action_history.to(device))
+        
+        # Build multimodal sequence
+        inputs_embeds = self._build_input_sequence(vision_tokens, text_input_ids, action_history_embeds)
+        
+        # Run LLM
+        out = self.llama(inputs_embeds=inputs_embeds, use_cache=False)
+        
+        # Project to action vocab
+        action_logits = self.action_head(out.last_hidden_state)  # [B, T_total, V_act]
+        return action_logits</pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---------------------------
+    // Utility: copy code blocks
+    // ---------------------------
+    function copyCode(btn){
+      try{
+        const pre = btn.parentElement.querySelector('pre');
+        const text = pre.innerText;
+        navigator.clipboard.writeText(text);
+        btn.textContent = '✔ Copied';
+        setTimeout(()=>btn.textContent='📋 Copy', 1500);
+      }catch(e){
+        console.error(e);
+      }
+    }
+
+    // ---------------------------
+    // Tabs for tokenization
+    // ---------------------------
+    function switchActionTab(id, el){
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(p=>p.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById(id).classList.add('active');
+    }
+
+    // ---------------------------
+    // Section 1: Evolution demo
+    // ---------------------------
+    function exploreEvolution(){
+      const stage = document.getElementById('evolutionStage').value;
+      const focus = document.getElementById('capabilityFocus').value;
+      const box = document.getElementById('evolutionVisualization');
+      const summaries = {
+        language: 'Text-only models map tokens-to-tokens. Great at '+focus+'. No grounding.',
+        'vision-language': 'Adds pixels. Grounded '+focus+' across images. Still digital-only.',
+        action: 'Adds actions. '+focus+' spans pixels→policy. Embodied control emerges.',
+        embodied: 'Closed-loop perception–planning–control with real-world feedback.'
+      };
+      box.innerHTML = `
+        <div class="success">
+          <strong>Stage:</strong> ${stage.toUpperCase()} &nbsp; • &nbsp; <strong>Focus:</strong> ${focus}<br><br>
+          ${summaries[stage]}
+        </div>`;
+    }
+
+    // ---------------------------
+    // Section 1: Approach compare
+    // ---------------------------
+    let selectedApproach = null;
+    function selectApproach(type, el){
+      document.querySelectorAll('.comparison-card').forEach(c=>c.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedApproach = type;
+      const box = document.getElementById('approachAnalysis');
+      const explain = {
+        traditional: {
+          pros: ['Deterministic', 'Fast control loops'],
+          cons: ['Brittle in OOD', 'High engineering cost', 'Poor generalization']
+        },
+        learning: {
+          pros: ['Learns from data', 'Better adaptation'],
+          cons: ['Task-specific', 'Sample hungry', 'Safety constraints']
+        },
+        vla: {
+          pros: ['Generalist across tasks', 'Language-conditioned', 'Zero/low-shot'],
+          cons: ['Token rate limits', 'Data curation needed']
+        }
+      };
+      const e = explain[type];
+      box.innerHTML = `
+        <div class="info">
+          <strong>Selected:</strong> ${type.toUpperCase()}<br><br>
+          <b>Pros:</b> ${e.pros.join(', ')}<br>
+          <b>Cons:</b> ${e.cons.join(', ')}
+        </div>`;
+    }
+
+    // ---------------------------
+    // Section 1: Traditional vs VLA comparison
+    // ---------------------------
+    function compareApproaches(){
+      const task = document.getElementById('taskComplexity').value;
+      const env = document.getElementById('environmentVar').value;
+      const box = document.getElementById('comparisonResults');
+
+      const baseline = {
+        simple:   { traditional: 0.9, learning: 0.85, vla: 0.92 },
+        medium:   { traditional: 0.6, learning: 0.75, vla: 0.85 },
+        complex:  { traditional: 0.2, learning: 0.5,  vla: 0.75 }
+      }[task];
+
+      const envFactor = {
+        controlled:   1.0,
+        structured:   0.9,
+        unstructured: 0.75
+      }[env];
+
+      const scores = Object.fromEntries(
+        Object.entries(baseline).map(([k,v]) => [k, Math.max(0, Math.min(1, v * envFactor))])
+      );
+
+      const color = (s)=> s>=0.85 ? 'score-excellent' : s>=0.7 ? 'score-good' : s>=0.5 ? 'score-average' : 'score-poor';
+      box.innerHTML = `
+        <table class="benchmark-table">
+          <thead><tr><th>Approach</th><th>Estimated Success</th></tr></thead>
+          <tbody>
+            <tr><td>Traditional</td><td class="${color(scores.traditional)}">${(scores.traditional*100).toFixed(0)}%</td></tr>
+            <tr><td>Learning</td><td class="${color(scores.learning)}">${(scores.learning*100).toFixed(0)}%</td></tr>
+            <tr><td>VLA</td><td class="${color(scores.vla)}">${(scores.vla*100).toFixed(0)}%</td></tr>
+          </tbody>
+        </table>
+      `;
+    }
+
+    // ---------------------------
+    // Section 2: Tokenizer demo
+    // ---------------------------
+    function generateActionTokens(){
+      const action = document.getElementById('robotAction').value;
+      const method = document.getElementById('tokenizationMethod').value;
+      const res = document.getElementById('tokenResolution').value;
+      const box = document.getElementById('actionTokenVisualization');
+
+      const vocab = { low:64, medium:256, high:1024 }[res];
+      // Simulate a 7-D action vector in [-1,1]
+      const vec = Array.from({length:7}, (_,i)=>+(Math.sin((i+1)*1.1)*0.5 + 0.5* (action==='grasp'?0.2:0)).toFixed(3));
+      let tokens = [];
+
+      if(method==='binning'){
+        tokens = vec.map(v => Math.min(vocab-1, Math.max(0, Math.floor(v * vocab))));
+      }else if(method==='vq'){
+        // Fake codebook assignment: round to nearest centroid index
+        tokens = vec.map(v => Math.min(vocab-1, Math.max(0, Math.round(v * (vocab-1)))));
+      }else if(method==='dct'){
+        // Pretend DCT keeps K coeffs per dim → flatten
+        const K = Math.max(4, Math.floor(Math.log2(vocab)));
+        tokens = Array.from({length:7*K}, (_,i)=> (i*13)%vocab);
+      }else{ // flow
+        tokens = ['(continuous trajectory — no discrete tokens)'];
+      }
+
+      const pretty = Array.isArray(tokens) ? tokens.slice(0,20).join(' ') + (tokens.length>20?' …':'') : tokens;
+      box.innerHTML = `
+        <div class="token-flow">
+          <span class="token text special">[&lt;task&gt;] ${action}</span>
+          <span class="token image">[IMG]</span>
+          <span class="token action">[ACT]</span>
+          <span class="token">${pretty}</span>
+          <span class="token action">[/ACT]</span>
+        </div>
+        <div class="info"><b>Vocab:</b> ${vocab} • <b>Method:</b> ${method.toUpperCase()}</div>
+      `;
+    }
+
+    // ---------------------------
+    // Section 3: Model selection cards
+    // ---------------------------
+    function selectVLAModel(id, el){
+      document.querySelectorAll('.model-card').forEach(c=>c.classList.remove('selected'));
+      el.classList.add('selected');
+      const info = {
+        openvla: {
+          summary: 'Open 7B-style model with vision fusion + action head. Strong manipulation at moderate cost.',
+          params: '≈7B', pros:['Open weights','Adaptable','Lower cost'], cons:['Token rate bound','Needs curated demos']
+        },
+        rt2x: {
+          summary: 'Large closed multimodal model. Strong results; limited external access.',
+          params: '≈55B', pros:['Scale','Engineering'], cons:['Costly','Closed weights']
+        }
+      }[id];
+      const box = document.getElementById('vlaModelAnalysis');
+      box.innerHTML = `
+        <div class="success">
+          <b>Selected:</b> ${id.toUpperCase()} • <b>Params:</b> ${info.params}<br><br>
+          ${info.summary}<br>
+          <b>Pros:</b> ${info.pros.join(', ')}<br>
+          <b>Cons:</b> ${info.cons.join(', ')}
+        </div>
+      `;
+    }
+
+    // ---------------------------
+    // Section 3: Ecosystem explorer
+    // ---------------------------
+    function exploreVLAEcosystem(){
+      const cat = document.getElementById('vlaCategory').value;
+      const target = document.getElementById('deploymentTarget').value;
+      const box = document.getElementById('vlaEcosystemResults');
+
+      const db = [
+        {name:'OpenVLA-style 7B', cat:'general', target:'cloud', notes:'Multimodal fusion; VQ/FAST action head'},
+        {name:'SmolVLA-style 0.4–0.6B', cat:'efficient', target:'mobile', notes:'Async inference; laptop-friendly'},
+        {name:'π0-FAST (3B)', cat:'specialized', target:'edge', notes:'Frequency tokenization for high-rate control'},
+        {name:'NVIDIA GR00T N1.5', cat:'general', target:'edge', notes:'Diffusion action head; Jetson optimized'},
+        {name:'Research Proto: Flow-matching', cat:'research', target:'cloud', notes:'Continuous trajectory generation'}
+      ];
+
+      const filtered = db.filter(x => (x.cat===cat) && (x.target===target));
+      if(!filtered.length){
+        box.innerHTML = `<div class="warning"><b>No exact matches.</b> Try different filters.</div>`;
+        return;
+      }
+      box.innerHTML = filtered.map(x=>`
+        <div class="step">
+          <b>${x.name}</b><br>
+          <span class="comparison-description">${x.notes}</span>
+        </div>
+      `).join('');
+    }
+
+    // Initialize some defaults so page isn’t empty
+    exploreEvolution();
+    compareApproaches();
+    generateActionTokens();
+  </script>
+</body>
+</html>
