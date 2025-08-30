@@ -1,0 +1,2233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>V-JEPA: Video Joint Embedding Predictive Architecture</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);color:#e0e0e0;line-height:1.6}
+    .container{background:#fff;color:#2d2d2d;border-radius:20px;padding:30px;margin:20px 0;border:1px solid #e0e0e0;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+    .nav-bar{background:#2d2d2d;color:#fff;padding:15px 30px;border-radius:15px;margin:20px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px}
+    .nav-home,.nav-prev,.nav-next{background:#fff;color:#2d2d2d;padding:8px 16px;border-radius:6px;text-decoration:none;font-weight:bold;transition:all .3s}
+    .nav-next{background:#28a745;color:#fff}
+    .nav-home:hover,.nav-prev:hover,.nav-next:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+    .nav-title{font-size:1.2em;font-weight:bold;flex:1;min-width:300px}
+    .step{background:#f8f9fa;border:1px solid #e9ecef;padding:20px;margin:15px 0;border-radius:15px;border-left:4px solid #2d2d2d}
+    .interactive-demo{background:#f8f9fa;border:2px solid #e9ecef;border-radius:15px;padding:25px;margin:20px 0}
+    .demo-title{font-size:1.3em;font-weight:bold;margin-bottom:20px;text-align:center;color:#2d2d2d}
+    .controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin:20px 0}
+    .control-group{display:flex;flex-direction:column;gap:5px}
+    .control-group label{font-weight:bold;font-size:14px;color:#2d2d2d}
+    button{background:#2d2d2d;border:none;color:#fff;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:bold;transition:all .3s;margin:5px}
+    button:hover{background:#1a1a1a;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+    button.primary{background:#28a745}
+    button.primary:hover{background:#218838}
+    button.secondary{background:#17a2b8}
+    button.secondary:hover{background:#138496}
+    button.warning{background:#fd7e14}
+    button.warning:hover{background:#dc3545}
+    input,select,textarea{padding:8px 12px;border:1px solid #dadce0;border-radius:6px;background:#fff;color:#2d2d2d}
+    input[type="range"]{width:100%}
+    textarea{min-height:70px;resize:vertical;width:100%}
+    .math-formula{background:#f8f9fa;border:1px solid #e9ecef;padding:20px;border-radius:8px;margin:15px 0;font-family:'Courier New',monospace;text-align:center;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+    .code-block{background:#2d2d2d;color:#e0e0e0;padding:20px;border-radius:8px;margin:15px 0;font-family:'Courier New',monospace;font-size:14px;overflow:auto;position:relative}
+    .code-header{background:#1a1a1a;color:#28a745;padding:8px 15px;margin:-20px -20px 15px -20px;border-radius:8px 8px 0 0;font-weight:bold;font-size:12px}
+    .copy-button{position:absolute;top:10px;right:10px;background:#28a745;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:10px}
+    .architecture-flow{display:flex;justify-content:space-between;align-items:center;margin:20px 0;padding:20px;background:#fff;border-radius:12px;border:2px solid #e9ecef;flex-wrap:wrap;gap:15px}
+    .arch-component{background:#f8f9fa;border:2px solid #e9ecef;border-radius:8px;padding:15px;text-align:center;min-width:120px;flex:1}
+    .arch-component.context{border-color:#dc3545}
+    .arch-component.encoder{border-color:#007bff}
+    .arch-component.predictor{border-color:#fd7e14}
+    .arch-component.target{border-color:#28a745}
+    .arch-component.loss{border-color:#6f42c1}
+    .arch-arrow{font-size:24px;color:#28a745;font-weight:bold}
+    .video-timeline{display:flex;justify-content:space-between;align-items:center;margin:20px 0;padding:15px;background:#fff;border-radius:8px;border:1px solid #e9ecef}
+    .video-frame{width:60px;height:45px;background:#f8f9fa;border:2px solid #e9ecef;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;transition:all .3s}
+    .video-frame:hover{border-color:#28a745}
+    .video-frame.context{border-color:#dc3545;background:#ffebee}
+    .video-frame.predict{border-color:#fd7e14;background:#fff3e0}
+    .video-frame.target{border-color:#28a745;background:#e8f5e8}
+    .video-frame.masked{border-color:#6c757d;background:#f8f9fa;opacity:0.5}
+    .prediction-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin:20px 0}
+    .prediction-card{background:#fff;border:2px solid #e9ecef;border-radius:8px;padding:15px;text-align:center;cursor:pointer;transition:all .3s}
+    .prediction-card:hover{border-color:#28a745;transform:translateY(-2px)}
+    .prediction-card.selected{border-color:#28a745;background:#d4edda}
+    .prediction-accuracy{width:100%;height:8px;background:#e9ecef;border-radius:4px;margin:10px 0;overflow:hidden}
+    .accuracy-fill{height:100%;background:#28a745;border-radius:4px;transition:width 0.5s ease}
+    .world-model-viz{background:linear-gradient(135deg,#e3f2fd,#f3e5f5);border:3px solid #28a745;border-radius:15px;padding:25px;margin:20px 0}
+    .physics-simulation{background:#fff;border:2px dashed #28a745;border-radius:10px;padding:20px;margin:15px 0;min-height:200px;position:relative;overflow:hidden}
+    .physics-object{position:absolute;width:30px;height:30px;border-radius:50%;transition:all 1s ease;cursor:pointer}
+    .physics-object.ball{background:#ff6b6b}
+    .physics-object.block{background:#4ecdc4;border-radius:4px;width:40px;height:25px}
+    .physics-object.pendulum{background:#45b7d1}
+    .emergent-capability{background:#fff;border:2px solid #e9ecef;border-radius:10px;padding:15px;margin:10px 0}
+    .capability-header{font-weight:bold;color:#2d2d2d;margin-bottom:8px}
+    .capability-description{font-size:13px;color:#666;margin-bottom:8px}
+    .capability-strength{display:flex;align-items:center;gap:8px}
+    .strength-bar{flex:1;height:6px;background:#e9ecef;border-radius:3px;overflow:hidden}
+    .strength-fill{height:100%;border-radius:3px;transition:width 0.5s ease}
+    .strength-fill.strong{background:#28a745}
+    .strength-fill.medium{background:#fd7e14}
+    .strength-fill.weak{background:#dc3545}
+    .comparison-table{width:100%;border-collapse:collapse;margin:15px 0;background:#fff;border:1px solid #e9ecef;border-radius:8px;overflow:hidden}
+    .comparison-table th{background:#2d2d2d;color:#fff;padding:12px;text-align:center;font-weight:bold}
+    .comparison-table td{padding:12px;text-align:center;border-bottom:1px solid #e9ecef}
+    .score-excellent{background:#d4edda;color:#155724;font-weight:bold}
+    .score-good{background:#d1ecf1;color:#0c5460;font-weight:bold}
+    .score-average{background:#fff3cd;color:#856404;font-weight:bold}
+    .score-poor{background:#f8d7da;color:#721c24;font-weight:bold}
+    .metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin:20px 0}
+    .metric-card{background:#fff;border:2px solid #e9ecef;border-radius:8px;padding:15px;text-align:center;transition:all .3s}
+    .metric-card:hover{border-color:#28a745;transform:translateY(-2px)}
+    .metric-value{font-size:1.5em;font-weight:bold;color:#2d2d2d;margin-bottom:5px}
+    .metric-label{font-size:12px;color:#666}
+    .breakthrough-highlight{background:linear-gradient(135deg,#28a745,#20c997);color:#fff;padding:20px;border-radius:12px;text-align:center;margin:20px 0;font-size:18px;font-weight:bold;box-shadow:0 4px 15px rgba(40,167,69,.3)}
+    .tabs{display:flex;margin-bottom:20px;border-bottom:2px solid #e9ecef}
+    .tab{padding:12px 24px;cursor:pointer;border-bottom:3px solid transparent;font-weight:bold;transition:all .3s}
+    .tab:hover{background:#f8f9fa}
+    .tab.active{border-bottom-color:#28a745;background:#d4edda;color:#155724}
+    .tab-content{display:none}
+    .tab-content.active{display:block}
+    .info{background:#d1ecf1;border-left:4px solid #17a2b8;color:#0c5460;padding:15px;border-radius:8px;margin:15px 0}
+    .success{background:#d4edda;border-left:4px solid #28a745;color:#155724;padding:15px;border-radius:8px;margin:15px 0}
+    .warning{background:#fff3cd;border-left:4px solid #ffc107;color:#856404;padding:15px;border-radius:8px;margin:15px 0}
+    .danger{background:#f8d7da;border-left:4px solid #dc3545;color:#721c24;padding:15px;border-radius:8px;margin:15px 0}
+    .robotics-integration{background:#fff;border:2px solid #28a745;border-radius:10px;padding:20px;margin:15px 0}
+    .robot-scenario{display:flex;align-items:center;gap:15px;margin:15px 0;padding:15px;background:#f8f9fa;border-radius:8px}
+    .robot-icon{font-size:2em;min-width:50px}
+    .scenario-content{flex:1}
+    .scenario-title{font-weight:bold;margin-bottom:5px}
+    .scenario-description{font-size:13px;color:#666}
+    .training-progress{background:#fff;border:1px solid #e9ecef;border-radius:8px;padding:15px;margin:10px 0}
+    .progress-header{font-weight:bold;margin-bottom:10px}
+    .progress-bar{background:#e9ecef;height:8px;border-radius:4px;margin:5px 0;overflow:hidden}
+    .progress-fill{background:#28a745;height:100%;border-radius:4px;transition:width 0.5s ease}
+    .progress-fill.pretraining{background:#17a2b8}
+    .progress-fill.finetuning{background:#fd7e14}
+    .progress-fill.evaluation{background:#28a745}
+    @keyframes pulse{0%{transform:scale(1);opacity:.8}50%{transform:scale(1.05);opacity:1}100%{transform:scale(1);opacity:.8}}
+    @keyframes physics{0%{transform:translateX(0px) translateY(0px)}25%{transform:translateX(100px) translateY(-20px)}50%{transform:translateX(200px) translateY(0px)}75%{transform:translateX(100px) translateY(20px)}100%{transform:translateX(0px) translateY(0px)}}
+    .pulsing{animation:pulse 2s ease-in-out infinite}
+    .physics-demo{animation:physics 4s ease-in-out infinite}
+    .slider-container{margin:15px 0}
+    .slider-label{display:flex;justify-content:space-between;font-size:12px;color:#666;margin-bottom:5px}
+    .jepa-logo{background:linear-gradient(45deg,#667eea,#764ba2);color:#fff;border-radius:50%;width:60px;height:60px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:18px;margin:0 auto 15px}
+    .masking-pattern{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;margin:15px 0;padding:10px;background:#f8f9fa;border-radius:8px}
+    .mask-cell{aspect-ratio:1;background:#fff;border:1px solid #e9ecef;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;transition:all .3s}
+    .mask-cell.visible{background:#d4edda;border-color:#28a745}
+    .mask-cell.masked{background:#f8d7da;border-color:#dc3545}
+    .mask-cell.predict{background:#fff3cd;border-color:#fd7e14}
+  </style>
+</head>
+<body>
+  <div class="nav-bar">
+    <div class="nav-title">🧠 V-JEPA: Video Joint Embedding Predictive Architecture</div>
+    <a href="index.html" class="nav-home">🏠 Home</a>
+    <a href="path-to-agi.html" class="nav-prev">← The Path to AGI</a>
+    <a href="generative-vision-transformers.html" class="nav-next">Next: Generative Vision Transformers →</a>
+  </div>
+
+  <div class="container">
+    <div class="jepa-logo">V-JEPA</div>
+    <h1>🧠 V-JEPA: Meta's Breakthrough in World Model Learning</h1>
+    <p><strong>Video Joint Embedding Predictive Architecture (V-JEPA)</strong> represents a fundamental shift in how AI systems learn about the world. Instead of predicting pixels, V-JEPA predicts abstract representations of future video states, enabling the emergence of sophisticated world models that understand physics, causality, and object permanence.</p>
+    
+    <div class="breakthrough-highlight">
+      🎯 The Core Insight: Learning to predict abstract representations leads to richer world models than pixel-level prediction
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🎬 Section 1: The V-JEPA Revolution - Beyond Pixel Prediction</h2>
+    
+    <div class="step">
+      <h3>🆚 The Fundamental Paradigm Shift</h3>
+      <p>Traditional video prediction models try to generate future pixels—an extremely difficult task that often produces blurry, unrealistic results. V-JEPA takes a radically different approach: <strong>predict abstract feature representations</strong> of future video states, allowing the model to learn rich world models without getting bogged down in pixel-level details.</p>
+
+      <div class="architecture-flow">
+        <div class="arch-component context">
+          <h4>📹 Context Frames</h4>
+          <div>Visible Video</div>
+          <div style="font-size:12px;margin-top:5px">
+            • Past frames<br>• Current observation<br>• Known context
+          </div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-component encoder">
+          <h4>🔍 Context Encoder</h4>
+          <div>Feature Extraction</div>
+          <div style="font-size:12px;margin-top:5px">
+            • Vision Transformer<br>• Spatial patches<br>• Temporal encoding
+          </div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-component predictor">
+          <h4>🎯 Predictor Network</h4>
+          <div>Future Prediction</div>
+          <div style="font-size:12px;margin-top:5px">
+            • Predict features<br>• Not pixels<br>• Abstract representation
+          </div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-component target">
+          <h4>🎪 Target Encoder</h4>
+          <div>Ground Truth</div>
+          <div style="font-size:12px;margin-top:5px">
+            • Actual future frames<br>• Same architecture<br>• EMA weights
+          </div>
+        </div>
+      </div>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🎥 Interactive Video Prediction Comparison</div>
+        <p><strong>Compare traditional pixel prediction vs V-JEPA representation prediction:</strong></p>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Video Scenario:</label>
+            <select id="videoScenario">
+              <option value="bouncing_ball" selected>Bouncing Ball Physics</option>
+              <option value="pendulum">Pendulum Swing</option>
+              <option value="falling_objects">Falling Objects</option>
+              <option value="fluid_dynamics">Fluid Dynamics</option>
+              <option value="human_movement">Human Movement</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Prediction Method:</label>
+            <select id="predictionMethod">
+              <option value="pixel" selected>Traditional Pixel Prediction</option>
+              <option value="vjepa">V-JEPA Representation Prediction</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Prediction Horizon:</label>
+            <input type="range" id="predictionHorizon" min="1" max="20" value="5" oninput="updateHorizonDisplay()">
+            <div class="slider-label"><span>1 frame</span><span id="horizonDisplay">5 frames</span><span>20 frames</span></div>
+          </div>
+        </div>
+
+        <button onclick="compareVideoPredicton()" class="primary">🔍 Compare Prediction Methods</button>
+        <div id="videoComparisonResults"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🧩 V-JEPA Architecture Deep Dive</h3>
+      <div class="math-formula">
+        <strong>V-JEPA Mathematical Framework:</strong><br><br>
+        <strong>1. Video Tokenization:</strong><br>
+        Video V ∈ ℝ^(T×H×W×C) → Patches P ∈ ℝ^(T×N×D)<br>
+        Where T=time, N=spatial patches, D=feature dimension<br><br>
+        <strong>2. Context & Target Masking:</strong><br>
+        Context C = P[mask_context] ∈ ℝ^(T_c×N_c×D)<br>
+        Target T = P[mask_target] ∈ ℝ^(T_t×N_t×D)<br><br>
+        <strong>3. Representation Learning:</strong><br>
+        z_context = ContextEncoder(C) ∈ ℝ^(T_c×N_c×D)<br>
+        z_target = TargetEncoder(T) ∈ ℝ^(T_t×N_t×D)<br><br>
+        <strong>4. Prediction Loss:</strong><br>
+        ẑ_target = Predictor(z_context, mask_target)<br>
+        L = MSE(ẑ_target, z_target) + Regularization
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchArchTab('masking', this)">🎭 Masking Strategy</div>
+        <div class="tab" onclick="switchArchTab('encoder', this)">🔍 Encoder Architecture</div>
+        <div class="tab" onclick="switchArchTab('predictor', this)">🎯 Predictor Network</div>
+        <div class="tab" onclick="switchArchTab('training', this)">🎓 Training Process</div>
+      </div>
+
+      <div id="masking" class="tab-content active">
+        <div class="interactive-demo">
+          <div class="demo-title">🎭 Interactive Masking Pattern Explorer</div>
+          <p><strong>V-JEPA uses sophisticated masking patterns to learn temporal and spatial relationships:</strong></p>
+          
+          <div class="controls">
+            <div class="control-group">
+              <label>Masking Strategy:</label>
+              <select id="maskingStrategy" onchange="updateMaskingPattern()">
+                <option value="temporal" selected>Temporal Masking</option>
+                <option value="spatial">Spatial Masking</option>
+                <option value="spatiotemporal">Spatiotemporal Masking</option>
+                <option value="block">Block Masking</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Mask Ratio:</label>
+              <input type="range" id="maskRatio" min="20" max="80" value="40" oninput="updateMaskingPattern()">
+              <div class="slider-label"><span>20%</span><span id="maskRatioDisplay">40%</span><span>80%</span></div>
+            </div>
+          </div>
+
+          <div class="video-timeline" id="maskingVisualization">
+            <!-- Dynamic masking pattern will be generated here -->
+          </div>
+          
+          <div class="masking-pattern" id="spatialMaskingGrid">
+            <!-- 8x8 grid for spatial masking visualization -->
+          </div>
+
+          <button onclick="generateMaskingPattern()" class="secondary">🎲 Generate New Pattern</button>
+          <div id="maskingAnalysis"></div>
+        </div>
+      </div>
+
+      <div id="encoder" class="tab-content">
+        <div class="code-block">
+          <div class="code-header">🔍 V-JEPA Context Encoder Implementation</div>
+          <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class VJEPAContextEncoder(nn.Module):
+    """
+    Context encoder for V-JEPA architecture
+    Processes visible video patches to create context representations
+    """
+    def __init__(self, 
+                 patch_size=16,
+                 embed_dim=768,
+                 num_heads=12,
+                 num_layers=12,
+                 temporal_patch_size=2):
+        super().__init__()
+        
+        self.patch_size = patch_size
+        self.temporal_patch_size = temporal_patch_size
+        self.embed_dim = embed_dim
+        
+        # Patch embedding for video
+        self.patch_embed = VideoPatchEmbed(
+            patch_size=patch_size,
+            temporal_patch_size=temporal_patch_size,
+            embed_dim=embed_dim
+        )
+        
+        # Positional embeddings
+        self.pos_embed_spatial = nn.Parameter(torch.randn(1, 196, embed_dim) * 0.02)  # 14x14 spatial
+        self.pos_embed_temporal = nn.Parameter(torch.randn(1, 8, embed_dim) * 0.02)   # 8 temporal
+        
+        # Transformer blocks
+        self.blocks = nn.ModuleList([
+            VisionTransformerBlock(
+                dim=embed_dim,
+                num_heads=num_heads,
+                mlp_ratio=4.0,
+                drop_path=0.1 * i / num_layers
+            )
+            for i in range(num_layers)
+        ])
+        
+        # Layer normalization
+        self.norm = nn.LayerNorm(embed_dim)
+        
+        # Initialize weights
+        self.apply(self._init_weights)
+    
+    def _init_weights(self, m):
+        if isinstance(m, nn.Linear):
+            torch.nn.init.xavier_uniform_(m.weight)
+            if isinstance(m, nn.Linear) and m.bias is not None:
+                nn.init.constant_(m.bias, 0)
+        elif isinstance(m, nn.LayerNorm):
+            nn.init.constant_(m.bias, 0)
+            nn.init.constant_(m.weight, 1.0)
+    
+    def forward(self, video_patches, mask=None):
+        """
+        Forward pass of context encoder
+        
+        Args:
+            video_patches: [B, T, N, D] - batched video patches
+            mask: [B, T, N] - masking pattern (1=visible, 0=masked)
+        
+        Returns:
+            context_features: [B, T*N_visible, D] - context representations
+        """
+        B, T, N, D = video_patches.shape
+        
+        # Apply patch embedding
+        x = self.patch_embed(video_patches)  # [B, T*N, D]
+        
+        # Add positional embeddings
+        # Spatial position embedding
+        spatial_pos = self.pos_embed_spatial.unsqueeze(1).repeat(1, T, 1, 1)  # [1, T, N, D]
+        spatial_pos = spatial_pos.view(1, T*N, D)
+        
+        # Temporal position embedding  
+        temporal_pos = self.pos_embed_temporal.unsqueeze(2).repeat(1, 1, N, 1)  # [1, T, N, D]
+        temporal_pos = temporal_pos.view(1, T*N, D)
+        
+        # Add both positional embeddings
+        x = x + spatial_pos + temporal_pos
+        
+        # Apply mask if provided (keep only visible patches)
+        if mask is not None:
+            mask_flat = mask.view(B, T*N)  # [B, T*N]
+            visible_indices = mask_flat.nonzero(as_tuple=True)
+            x = x[visible_indices[0], visible_indices[1]].view(B, -1, D)
+        
+        # Apply transformer blocks
+        for block in self.blocks:
+            x = block(x)
+        
+        # Final normalization
+        x = self.norm(x)
+        
+        return x
+
+class VideoPatchEmbed(nn.Module):
+    """
+    Video patch embedding layer
+    Converts video patches to embedding vectors
+    """
+    def __init__(self, patch_size=16, temporal_patch_size=2, embed_dim=768):
+        super().__init__()
+        self.patch_size = patch_size
+        self.temporal_patch_size = temporal_patch_size
+        
+        # 3D convolution for spatiotemporal patch embedding
+        self.proj = nn.Conv3d(
+            in_channels=3,
+            out_channels=embed_dim,
+            kernel_size=(temporal_patch_size, patch_size, patch_size),
+            stride=(temporal_patch_size, patch_size, patch_size)
+        )
+        
+    def forward(self, x):
+        """
+        Args:
+            x: [B, T, H, W, C] video tensor
+        Returns:
+            patches: [B, T*N, D] flattened patch embeddings
+        """
+        B, T, H, W, C = x.shape
+        
+        # Rearrange for 3D convolution: [B, C, T, H, W]
+        x = x.permute(0, 4, 1, 2, 3)
+        
+        # Apply 3D convolution
+        x = self.proj(x)  # [B, embed_dim, T', H', W']
+        
+        # Flatten spatial and temporal dimensions
+        x = x.flatten(2).transpose(1, 2)  # [B, T'*H'*W', embed_dim]
+        
+        return x
+
+class VisionTransformerBlock(nn.Module):
+    """
+    Standard Vision Transformer block with attention and MLP
+    """
+    def __init__(self, dim, num_heads, mlp_ratio=4.0, drop_path=0.0):
+        super().__init__()
+        self.norm1 = nn.LayerNorm(dim)
+        self.attn = nn.MultiheadAttention(dim, num_heads, batch_first=True)
+        
+        self.norm2 = nn.LayerNorm(dim)
+        mlp_hidden_dim = int(dim * mlp_ratio)
+        self.mlp = nn.Sequential(
+            nn.Linear(dim, mlp_hidden_dim),
+            nn.GELU(),
+            nn.Linear(mlp_hidden_dim, dim)
+        )
+        
+        self.drop_path = DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
+    
+    def forward(self, x):
+        # Self-attention with residual connection
+        x = x + self.drop_path(self.attn(self.norm1(x), self.norm1(x), self.norm1(x))[0])
+        
+        # MLP with residual connection
+        x = x + self.drop_path(self.mlp(self.norm2(x)))
+        
+        return x
+
+class DropPath(nn.Module):
+    """Drop paths (Stochastic Depth) per sample"""
+    def __init__(self, drop_prob=None):
+        super().__init__()
+        self.drop_prob = drop_prob
+
+    def forward(self, x):
+        if self.drop_prob == 0.0 or not self.training:
+            return x
+        keep_prob = 1 - self.drop_prob
+        shape = (x.shape[0],) + (1,) * (x.ndim - 1)
+        random_tensor = keep_prob + torch.rand(shape, dtype=x.dtype, device=x.device)
+        random_tensor.floor_()
+        output = x.div(keep_prob) * random_tensor
+        return output</pre>
+        </div>
+      </div>
+
+      <div id="predictor" class="tab-content">
+        <div class="code-block">
+          <div class="code-header">🎯 V-JEPA Predictor Network Implementation</div>
+          <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>class VJEPAPredictor(nn.Module):
+    """
+    Predictor network for V-JEPA
+    Predicts target representations from context representations
+    """
+    def __init__(self, 
+                 embed_dim=768,
+                 num_heads=12,
+                 num_layers=6,
+                 predictor_embed_dim=384):
+        super().__init__()
+        
+        self.embed_dim = embed_dim
+        self.predictor_embed_dim = predictor_embed_dim
+        
+        # Project context features to predictor dimension
+        self.context_proj = nn.Linear(embed_dim, predictor_embed_dim)
+        
+        # Mask token for target positions
+        self.mask_token = nn.Parameter(torch.randn(1, 1, predictor_embed_dim) * 0.02)
+        
+        # Position embeddings for target locations
+        self.pos_embed = nn.Parameter(torch.randn(1, 2048, predictor_embed_dim) * 0.02)
+        
+        # Transformer blocks for prediction
+        self.blocks = nn.ModuleList([
+            VisionTransformerBlock(
+                dim=predictor_embed_dim,
+                num_heads=num_heads,
+                mlp_ratio=4.0,
+                drop_path=0.1 * i / num_layers
+            )
+            for i in range(num_layers)
+        ])
+        
+        # Layer norm
+        self.norm = nn.LayerNorm(predictor_embed_dim)
+        
+        # Project back to target embedding dimension
+        self.target_proj = nn.Linear(predictor_embed_dim, embed_dim)
+        
+        self.apply(self._init_weights)
+    
+    def _init_weights(self, m):
+        if isinstance(m, nn.Linear):
+            torch.nn.init.xavier_uniform_(m.weight)
+            if m.bias is not None:
+                nn.init.constant_(m.bias, 0)
+        elif isinstance(m, nn.LayerNorm):
+            nn.init.constant_(m.bias, 0)
+            nn.init.constant_(m.weight, 1.0)
+    
+    def forward(self, context_features, target_mask, context_positions, target_positions):
+        """
+        Predict target representations from context
+        
+        Args:
+            context_features: [B, N_ctx, D] - context patch features
+            target_mask: [B, N_target] - mask for target positions  
+            context_positions: [B, N_ctx] - position indices for context
+            target_positions: [B, N_target] - position indices for targets
+        
+        Returns:
+            predicted_targets: [B, N_target, D] - predicted target features
+        """
+        B, N_ctx, D = context_features.shape
+        N_target = target_positions.shape[1]
+        
+        # Project context features to predictor dimension
+        context_embed = self.context_proj(context_features)  # [B, N_ctx, predictor_dim]
+        
+        # Add positional embeddings to context
+        context_pos_embed = self.pos_embed[:, context_positions].expand(B, -1, -1)
+        context_embed = context_embed + context_pos_embed
+        
+        # Create mask tokens for target positions
+        mask_tokens = self.mask_token.expand(B, N_target, -1)  # [B, N_target, predictor_dim]
+        
+        # Add positional embeddings to mask tokens
+        target_pos_embed = self.pos_embed[:, target_positions].expand(B, -1, -1)
+        mask_tokens = mask_tokens + target_pos_embed
+        
+        # Concatenate context and mask tokens
+        x = torch.cat([context_embed, mask_tokens], dim=1)  # [B, N_ctx + N_target, predictor_dim]
+        
+        # Apply transformer blocks
+        for block in self.blocks:
+            x = block(x)
+        
+        # Extract predictions for target positions
+        predicted_targets = x[:, N_ctx:]  # [B, N_target, predictor_dim]
+        
+        # Apply layer norm and project back to target dimension
+        predicted_targets = self.norm(predicted_targets)
+        predicted_targets = self.target_proj(predicted_targets)  # [B, N_target, embed_dim]
+        
+        return predicted_targets
+
+class VJEPATargetEncoder(nn.Module):
+    """
+    Target encoder for V-JEPA (EMA of context encoder)
+    Encodes ground truth target patches
+    """
+    def __init__(self, context_encoder, momentum=0.996):
+        super().__init__()
+        
+        # Copy context encoder architecture
+        self.encoder = context_encoder
+        self.momentum = momentum
+        
+        # Initialize with context encoder weights
+        for param_target, param_context in zip(self.encoder.parameters(), 
+                                               context_encoder.parameters()):
+            param_target.data.copy_(param_context.data)
+            param_target.requires_grad = False
+    
+    def update_target_network(self, context_encoder):
+        """
+        Update target encoder weights using exponential moving average
+        """
+        for param_target, param_context in zip(self.encoder.parameters(),
+                                               context_encoder.parameters()):
+            param_target.data = param_target.data * self.momentum + \
+                               param_context.data * (1.0 - self.momentum)
+    
+    def forward(self, video_patches):
+        """
+        Forward pass through target encoder
+        
+        Args:
+            video_patches: [B, T, N, D] target video patches
+        
+        Returns:
+            target_features: [B, T*N, D] target representations
+        """
+        with torch.no_grad():  # No gradients for target encoder
+            return self.encoder(video_patches)</pre>
+        </div>
+        <div class="info">
+          <strong>🎯 Key Predictor Innovations:</strong><br>
+          • <strong>Mask Tokens:</strong> Learnable tokens represent positions to be predicted<br>
+          • <strong>Position Encoding:</strong> Explicit spatial-temporal position information<br>
+          • <strong>Cross-Attention:</strong> Context patches attend to prediction positions<br>
+          • <strong>Dimension Reduction:</strong> Predictor operates in lower dimensional space for efficiency
+        </div>
+      </div>
+
+      <div id="training" class="tab-content">
+        <div class="training-progress">
+          <div class="progress-header">🎓 V-JEPA Training Pipeline</div>
+          
+          <div>Data Loading & Augmentation <div class="progress-bar"><div class="progress-fill pretraining" style="width:95%"></div></div></div>
+          <div>Context Encoder Training <div class="progress-bar"><div class="progress-fill pretraining" style="width:80%"></div></div></div>
+          <div>Predictor Network Training <div class="progress-bar"><div class="progress-fill finetuning" style="width:75%"></div></div></div>
+          <div>Target Encoder (EMA Updates) <div class="progress-bar"><div class="progress-fill evaluation" style="width:85%"></div></div></div>
+          <div>Downstream Task Transfer <div class="progress-bar"><div class="progress-fill evaluation" style="width:60%"></div></div></div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">🎓 V-JEPA Training Loop</div>
+          <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>def train_vjepa_step(model, video_batch, optimizer, device):
+    """
+    Single training step for V-JEPA
+    
+    Args:
+        model: VJEPAModel containing all components
+        video_batch: [B, T, H, W, C] batch of videos  
+        optimizer: optimizer for trainable parameters
+        device: training device
+    
+    Returns:
+        loss: prediction loss value
+    """
+    B, T, H, W, C = video_batch.shape
+    video_batch = video_batch.to(device)
+    
+    # Generate masking pattern
+    context_mask, target_mask, context_positions, target_positions = \
+        generate_masking_pattern(B, T, H//16, W//16, mask_ratio=0.4)
+    
+    # Convert video to patches
+    video_patches = model.patch_embed(video_batch)  # [B, T*N, D]
+    video_patches = video_patches.view(B, T, -1, model.embed_dim)
+    
+    # Apply context mask and encode
+    context_patches = video_patches * context_mask.unsqueeze(-1)
+    context_features = model.context_encoder(context_patches, context_mask)
+    
+    # Get target patches and encode with EMA encoder  
+    target_patches = video_patches * target_mask.unsqueeze(-1)
+    with torch.no_grad():
+        target_features = model.target_encoder(target_patches)
+        # Extract only the masked target positions
+        target_indices = target_mask.nonzero(as_tuple=True)
+        target_features = target_features[target_indices[0], target_indices[1]]
+    
+    # Predict target features from context
+    predicted_targets = model.predictor(
+        context_features=context_features,
+        target_mask=target_mask,
+        context_positions=context_positions,
+        target_positions=target_positions
+    )
+    
+    # Compute prediction loss
+    loss = F.mse_loss(predicted_targets, target_features.detach())
+    
+    # Add regularization terms
+    reg_loss = compute_regularization_loss(model)
+    total_loss = loss + 0.01 * reg_loss
+    
+    # Backward pass
+    optimizer.zero_grad()
+    total_loss.backward()
+    optimizer.step()
+    
+    # Update target encoder with EMA
+    model.update_target_encoder()
+    
+    return total_loss.item()
+
+def generate_masking_pattern(batch_size, num_frames, height, width, 
+                           mask_ratio=0.4, temporal_mask_ratio=0.5):
+    """
+    Generate sophisticated masking patterns for V-JEPA training
+    
+    Returns:
+        context_mask: [B, T, H, W] - 1 for context, 0 for masked
+        target_mask: [B, T, H, W] - 1 for prediction targets, 0 for ignored
+        context_positions: [B, N_context] - position indices for context
+        target_positions: [B, N_target] - position indices for targets  
+    """
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    
+    # Initialize masks
+    context_mask = torch.zeros(batch_size, num_frames, height, width, device=device)
+    target_mask = torch.zeros(batch_size, num_frames, height, width, device=device)
+    
+    for b in range(batch_size):
+        # Temporal masking strategy
+        if torch.rand(1) < temporal_mask_ratio:
+            # Mask temporal blocks
+            context_frames = torch.randperm(num_frames)[:int(num_frames * (1 - mask_ratio))]
+            target_frames = torch.randperm(num_frames)[:int(num_frames * mask_ratio)]
+            
+            context_mask[b, context_frames] = 1
+            target_mask[b, target_frames] = 1
+        else:
+            # Spatial masking within frames
+            for t in range(num_frames):
+                total_patches = height * width
+                num_context = int(total_patches * (1 - mask_ratio))
+                
+                # Random spatial patches for context
+                context_indices = torch.randperm(total_patches)[:num_context]
+                context_h = context_indices // width  
+                context_w = context_indices % width
+                context_mask[b, t, context_h, context_w] = 1
+                
+                # Remaining patches as targets
+                target_indices = torch.randperm(total_patches)[:int(total_patches * mask_ratio)]
+                target_h = target_indices // width
+                target_w = target_indices % width  
+                target_mask[b, t, target_h, target_w] = 1
+    
+    # Generate position indices
+    context_positions = context_mask.nonzero()[:, -2:] # [N_context, 2] (h, w coordinates)
+    target_positions = target_mask.nonzero()[:, -2:]   # [N_target, 2]
+    
+    return context_mask, target_mask, context_positions, target_positions
+
+def compute_regularization_loss(model):
+    """
+    Compute regularization losses for stable training
+    """
+    reg_loss = 0.0
+    
+    # L2 regularization on predictor parameters
+    for param in model.predictor.parameters():
+        reg_loss += torch.sum(param ** 2)
+    
+    # Feature variance regularization to prevent collapse
+    # (Additional regularization terms can be added here)
+    
+    return reg_loss</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🌍 Section 2: World Model Learning - How V-JEPA Understands Physics</h2>
+
+    <div class="step">
+      <h3>🔬 Emergent Physical Understanding</h3>
+      <p>By learning to predict abstract representations of future video states, V-JEPA develops sophisticated understanding of physical laws, object permanence, and causal relationships—all without explicit supervision about physics.</p>
+
+      <div class="world-model-viz">
+        <div class="demo-title">⚛️ Interactive Physics Understanding Demo</div>
+        <p><strong>See how V-JEPA learns to model different physical phenomena:</strong></p>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Physics Scenario:</label>
+            <select id="physicsScenario">
+              <option value="gravity" selected>Gravity & Free Fall</option>
+              <option value="collision">Collision Dynamics</option>
+              <option value="pendulum">Pendulum Motion</option>
+              <option value="fluid">Fluid Dynamics</option>
+              <option value="occlusion">Object Permanence</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Prediction Accuracy:</label>
+            <input type="range" id="physicsAccuracy" min="0" max="100" value="85" oninput="updatePhysicsViz()">
+            <div class="slider-label"><span>0%</span><span id="accuracyDisplay">85%</span><span>100%</span></div>
+          </div>
+        </div>
+
+        <div class="physics-simulation" id="physicsSimulation">
+          <div class="physics-object ball" id="physicsObject" style="top:10px;left:50px"></div>
+        </div>
+
+        <button onclick="runPhysicsSimulation()" class="primary">🚀 Run Physics Simulation</button>
+        <div id="physicsAnalysis"></div>
+      </div>
+
+      <div class="prediction-grid">
+        <div class="emergent-capability">
+          <div class="capability-header">🎾 Object Tracking</div>
+          <div class="capability-description">Follows objects through occlusion and scene changes</div>
+          <div class="capability-strength">
+            <div class="strength-bar"><div class="strength-fill strong" style="width:90%"></div></div>
+            <span>Strong</span>
+          </div>
+        </div>
+
+        <div class="emergent-capability">
+          <div class="capability-header">🔄 Motion Prediction</div>
+          <div class="capability-description">Predicts realistic object trajectories and movements</div>
+          <div class="capability-strength">
+            <div class="strength-bar"><div class="strength-fill strong" style="width:85%"></div></div>
+            <span>Strong</span>
+          </div>
+        </div>
+
+        <div class="emergent-capability">
+          <div class="capability-header">💥 Collision Detection</div>
+          <div class="capability-description">Understands when and how objects will interact</div>
+          <div class="capability-strength">
+            <div class="strength-bar"><div class="strength-fill medium" style="width:75%"></div></div>
+            <span>Medium</span>
+          </div>
+        </div>
+
+        <div class="emergent-capability">
+          <div class="capability-header">🌊 Fluid Dynamics</div>
+          <div class="capability-description">Models liquid behavior and flow patterns</div>
+          <div class="capability-strength">
+            <div class="strength-bar"><div class="strength-fill medium" style="width:65%"></div></div>
+            <span>Medium</span>
+          </div>
+        </div>
+
+        <div class="emergent-capability">
+          <div class="capability-header">🤝 Human Actions</div>
+          <div class="capability-description">Predicts human movement and behavior patterns</div>
+          <div class="capability-strength">
+            <div class="strength-bar"><div class="strength-fill weak" style="width:55%"></div></div>
+            <span>Developing</span>
+          </div>
+        </div>
+
+        <div class="emergent-capability">
+          <div class="capability-header">🧩 Causal Reasoning</div>
+          <div class="capability-description">Infers cause-effect relationships between events</div>
+          <div class="capability-strength">
+            <div class="strength-bar"><div class="strength-fill weak" style="width:45%"></div></div>
+            <span>Developing</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>📊 V-JEPA vs Traditional Video Models</h3>
+      <div class="comparison-table">
+        <thead>
+          <tr>
+            <th>Capability</th>
+            <th>Pixel Prediction</th>
+            <th>Optical Flow</th>
+            <th>V-JEPA</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Long-term Prediction</strong></td>
+            <td class="score-poor">Poor</td>
+            <td class="score-average">Average</td>
+            <td class="score-excellent">Excellent</td>
+            <td>V-JEPA maintains coherence over longer horizons</td>
+          </tr>
+          <tr>
+            <td><strong>Object Permanence</strong></td>
+            <td class="score-poor">Poor</td>
+            <td class="score-poor">Poor</td>
+            <td class="score-good">Good</td>
+            <td>Tracks objects through occlusion</td>
+          </tr>
+          <tr>
+            <td><strong>Physical Realism</strong></td>
+            <td class="score-average">Average</td>
+            <td class="score-good">Good</td>
+            <td class="score-excellent">Excellent</td>
+            <td>Emergent understanding of physics laws</td>
+          </tr>
+          <tr>
+            <td><strong>Computational Efficiency</strong></td>
+            <td class="score-poor">Poor</td>
+            <td class="score-good">Good</td>
+            <td class="score-excellent">Excellent</td>
+            <td>No pixel generation, representation learning</td>
+          </tr>
+          <tr>
+            <td><strong>Fine Detail Preservation</strong></td>
+            <td class="score-excellent">Excellent</td>
+            <td class="score-average">Average</td>
+            <td class="score-good">Good</td>
+            <td>Trade-off: abstracts away pixel details</td>
+          </tr>
+          <tr>
+            <td><strong>Training Stability</strong></td>
+            <td class="score-poor">Poor</td>
+            <td class="score-average">Average</td>
+            <td class="score-good">Good</td>
+            <td>More stable than pixel-level objectives</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="interactive-demo">
+        <div class="demo-title">📈 Performance Comparison Visualizer</div>
+        <div class="controls">
+          <div class="control-group">
+            <label>Evaluation Metric:</label>
+            <select id="evaluationMetric">
+              <option value="prediction_horizon" selected>Prediction Horizon</option>
+              <option value="object_tracking">Object Tracking Accuracy</option>
+              <option value="physics_realism">Physics Realism Score</option>
+              <option value="computational_cost">Computational Cost</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="compareModelPerformance()" class="secondary">📊 Compare Models</button>
+        <div id="performanceResults"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🤖 Section 3: V-JEPA for Robotics - World Models for Action Planning</h2>
+
+    <div class="step">
+      <h3>🎯 From Video Understanding to Robot Control</h3>
+      <p>V-JEPA's world modeling capabilities make it particularly valuable for robotics applications. By understanding how the world changes over time, robots can plan actions more effectively and predict the consequences of their behaviors.</p>
+
+      <div class="robotics-integration">
+        <div class="demo-title">🤖 V-JEPA Robotics Applications</div>
+        
+        <div class="robot-scenario">
+          <div class="robot-icon">🦾</div>
+          <div class="scenario-content">
+            <div class="scenario-title">Manipulation Planning</div>
+            <div class="scenario-description">V-JEPA predicts object movements and interactions, enabling robots to plan complex manipulation sequences like stacking, pouring, or assembly tasks.</div>
+          </div>
+        </div>
+
+        <div class="robot-scenario">
+          <div class="robot-icon">🚗</div>
+          <div class="scenario-content">
+            <div class="scenario-title">Navigation & Obstacle Avoidance</div>
+            <div class="scenario-description">World model predictions help robots understand dynamic environments, predicting where obstacles will move and planning safe navigation paths.</div>
+          </div>
+        </div>
+
+        <div class="robot-scenario">
+          <div class="robot-icon">🤝</div>
+          <div class="scenario-content">
+            <div class="scenario-title">Human-Robot Interaction</div>
+            <div class="scenario-description">By predicting human movements and intentions, robots can collaborate more naturally and safely with human partners in shared workspaces.</div>
+          </div>
+        </div>
+
+        <div class="robot-scenario">
+          <div class="robot-icon">🔧</div>
+          <div class="scenario-content">
+            <div class="scenario-title">Tool Use & Assembly</div>
+            <div class="scenario-description">V-JEPA's understanding of object interactions enables robots to use tools effectively and perform complex assembly tasks with precision.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🎮 Robot Planning Simulator</div>
+        <p><strong>Simulate how V-JEPA world models enable robot planning:</strong></p>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Robot Task:</label>
+            <select id="robotTask">
+              <option value="stacking" selected>Block Stacking</option>
+              <option value="pouring">Liquid Pouring</option>
+              <option value="navigation">Dynamic Navigation</option>
+              <option value="collaboration">Human Collaboration</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>World Model Accuracy:</label>
+            <input type="range" id="worldModelAccuracy" min="50" max="100" value="85" oninput="updateModelAccuracy()">
+            <div class="slider-label"><span>50%</span><span id="modelAccuracyDisplay">85%</span><span>100%</span></div>
+          </div>
+          <div class="control-group">
+            <label>Planning Horizon:</label>
+            <input type="range" id="planningHorizon" min="1" max="10" value="5" oninput="updatePlanningHorizon()">
+            <div class="slider-label"><span>1 step</span><span id="planningHorizonDisplay">5 steps</span><span>10 steps</span></div>
+          </div>
+        </div>
+
+        <button onclick="simulateRobotPlanning()" class="primary">🚀 Simulate Robot Planning</button>
+        <div id="robotPlanningResults"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🔗 Integration with VLA Models</h3>
+      <div class="math-formula">
+        <strong>V-JEPA + VLA Integration Framework:</strong><br><br>
+        <strong>1. World Model Component:</strong><br>
+        W(s_t, a_t) → s_{t+1} = V-JEPA(video_context, predicted_action)<br><br>
+        <strong>2. Action Planning:</strong><br>
+        π*(s_t) = argmax_a Σ_{k=0}^H R(W^k(s_t, a)) × γ^k<br>
+        Where W^k represents k-step world model rollout<br><br>
+        <strong>3. Model-Predictive Control:</strong><br>
+        a_t = MPC(s_t, W, π, H=planning_horizon)<br><br>
+        <strong>4. VLA Policy Integration:</strong><br>
+        a_VLA = VLA_Policy(image, instruction)<br>
+        a_final = α × a_VLA + (1-α) × a_MPC
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">🔗 V-JEPA + VLA Integration Implementation</div>
+        <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>import torch
+import torch.nn as nn
+import numpy as np
+
+class VJEPAWorldModel(nn.Module):
+    """
+    World model using V-JEPA for robot planning
+    Predicts future states given current state and actions
+    """
+    def __init__(self, vjepa_model, action_dim=7, state_dim=768):
+        super().__init__()
+        
+        self.vjepa = vjepa_model  # Pre-trained V-JEPA model
+        self.action_dim = action_dim
+        self.state_dim = state_dim
+        
+        # Action conditioning network
+        self.action_encoder = nn.Sequential(
+            nn.Linear(action_dim, 256),
+            nn.ReLU(),
+            nn.Linear(256, state_dim)
+        )
+        
+        # State transition predictor
+        self.transition_head = nn.Sequential(
+            nn.Linear(state_dim * 2, 512),  # state + action
+            nn.ReLU(),
+            nn.Linear(512, state_dim)
+        )
+        
+        # Freeze V-JEPA weights initially
+        for param in self.vjepa.parameters():
+            param.requires_grad = False
+    
+    def forward(self, current_state, action_sequence, horizon=5):
+        """
+        Predict future states given current state and action sequence
+        
+        Args:
+            current_state: [B, state_dim] current visual state representation
+            action_sequence: [B, horizon, action_dim] planned actions
+            horizon: number of steps to predict
+        
+        Returns:
+            predicted_states: [B, horizon, state_dim] predicted future states
+            confidence: [B, horizon] prediction confidence scores
+        """
+        B = current_state.shape[0]
+        
+        predicted_states = []
+        confidence_scores = []
+        
+        # Start with current state
+        state = current_state
+        
+        for t in range(horizon):
+            # Get action at time t
+            action = action_sequence[:, t]  # [B, action_dim]
+            
+            # Encode action
+            action_embed = self.action_encoder(action)  # [B, state_dim]
+            
+            # Predict next state
+            state_action = torch.cat([state, action_embed], dim=1)
+            next_state = self.transition_head(state_action)
+            
+            # Estimate prediction confidence (based on state uncertainty)
+            with torch.no_grad():
+                # Use V-JEPA's internal uncertainty estimation
+                confidence = self.estimate_prediction_confidence(state, next_state)
+            
+            predicted_states.append(next_state)
+            confidence_scores.append(confidence)
+            
+            # Update state for next iteration
+            state = next_state
+        
+        return torch.stack(predicted_states, dim=1), torch.stack(confidence_scores, dim=1)
+    
+    def estimate_prediction_confidence(self, current_state, predicted_state):
+        """
+        Estimate confidence in world model predictions
+        Higher confidence for states similar to training distribution
+        """
+        # Simple confidence based on prediction magnitude
+        # In practice, this would use more sophisticated uncertainty estimation
+        confidence = 1.0 / (1.0 + torch.norm(predicted_state - current_state, dim=1))
+        return torch.clamp(confidence, 0.1, 1.0)
+
+class VJEPAVLAController(nn.Module):
+    """
+    Integrated controller combining V-JEPA world model with VLA policy
+    """
+    def __init__(self, vla_model, vjepa_world_model, planning_horizon=5):
+        super().__init__()
+        
+        self.vla = vla_model  # Pre-trained VLA model
+        self.world_model = vjepa_world_model
+        self.planning_horizon = planning_horizon
+        
+        # Model-predictive control parameters
+        self.mpc_weight = 0.3  # Weight for MPC component
+        self.vla_weight = 0.7  # Weight for VLA component
+        
+        # Reward function for planning (learned or hand-crafted)
+        self.reward_function = self._build_reward_function()
+    
+    def _build_reward_function(self):
+        """
+        Build reward function for world model planning
+        In practice, this could be learned from human feedback
+        """
+        return nn.Sequential(
+            nn.Linear(768 + 7, 256),  # state + action
+            nn.ReLU(),
+            nn.Linear(256, 64),
+            nn.ReLU(),
+            nn.Linear(64, 1)  # scalar reward
+        )
+    
+    def forward(self, observation, instruction, current_state):
+        """
+        Generate action using combined VLA + V-JEPA planning
+        
+        Args:
+            observation: [B, H, W, C] visual observation
+            instruction: text instruction for the task
+            current_state: [B, state_dim] current state representation
+        
+        Returns:
+            action: [B, action_dim] combined action output
+            planning_info: dict with planning details
+        """
+        # Get VLA action
+        vla_action = self.vla(observation, instruction)  # [B, action_dim]
+        
+        # Perform model-predictive control using world model
+        mpc_action, planning_info = self.model_predictive_control(
+            current_state, 
+            vla_action, 
+            observation,
+            instruction
+        )
+        
+        # Combine VLA and MPC actions
+        combined_action = (self.vla_weight * vla_action + 
+                          self.mpc_weight * mpc_action)
+        
+        planning_info['vla_action'] = vla_action
+        planning_info['mpc_action'] = mpc_action
+        planning_info['combined_action'] = combined_action
+        
+        return combined_action, planning_info
+    
+    def model_predictive_control(self, current_state, vla_hint, observation, instruction):
+        """
+        Model-predictive control using V-JEPA world model
+        
+        Args:
+            current_state: current state representation
+            vla_hint: action suggestion from VLA model
+            observation: visual observation
+            instruction: task instruction
+        
+        Returns:
+            best_action: [B, action_dim] optimal first action
+            planning_info: planning details and diagnostics
+        """
+        B = current_state.shape[0]
+        device = current_state.device
+        
+        # Generate candidate action sequences
+        num_candidates = 50  # Number of action sequences to evaluate
+        
+        # Use VLA action as one candidate, add noise for exploration
+        candidate_sequences = []
+        
+        # Add VLA-based sequence with small variations
+        for i in range(num_candidates // 2):
+            noise = torch.randn_like(vla_hint) * 0.1
+            vla_variant = vla_hint + noise
+            
+            # Extend to full sequence (repeat with decay)
+            sequence = []
+            for t in range(self.planning_horizon):
+                decay = 0.9 ** t
+                sequence.append(vla_variant * decay)
+            
+            candidate_sequences.append(torch.stack(sequence, dim=1))
+        
+        # Add random exploration sequences
+        for i in range(num_candidates - num_candidates // 2):
+            random_sequence = torch.randn(B, self.planning_horizon, 7, device=device) * 0.2
+            candidate_sequences.append(random_sequence)
+        
+        candidate_sequences = torch.stack(candidate_sequences, dim=1)  # [B, num_candidates, horizon, action_dim]
+        
+        # Evaluate each candidate sequence
+        best_rewards = -float('inf') * torch.ones(B, device=device)
+        best_actions = torch.zeros(B, 7, device=device)
+        best_sequences = torch.zeros(B, self.planning_horizon, 7, device=device)
+        
+        for cand_idx in range(num_candidates):
+            sequence = candidate_sequences[:, cand_idx]  # [B, horizon, action_dim]
+            
+            # Predict future states using world model
+            predicted_states, confidence = self.world_model(current_state, sequence, self.planning_horizon)
+            
+            # Compute cumulative reward for this sequence
+            total_reward = torch.zeros(B, device=device)
+            
+            for t in range(self.planning_horizon):
+                # Reward for predicted state and action
+                state_action = torch.cat([predicted_states[:, t], sequence[:, t]], dim=1)
+                step_reward = self.reward_function(state_action).squeeze(-1)
+                
+                # Weight by confidence and discount factor
+                discount = 0.95 ** t
+                total_reward += step_reward * confidence[:, t] * discount
+            
+            # Update best sequence for each batch element
+            better_mask = total_reward > best_rewards
+            best_rewards[better_mask] = total_reward[better_mask]
+            best_actions[better_mask] = sequence[better_mask, 0]  # First action
+            best_sequences[better_mask] = sequence[better_mask]
+        
+        planning_info = {
+            'best_reward': best_rewards,
+            'best_sequence': best_sequences,
+            'num_candidates_evaluated': num_candidates,
+            'planning_horizon': self.planning_horizon
+        }
+        
+        return best_actions, planning_info
+
+# Training utilities for the integrated system
+def train_vjepa_vla_system(vjepa_vla_controller, robot_data_loader, num_epochs=100):
+    """
+    Train the integrated V-JEPA + VLA system on robot interaction data
+    """
+    optimizer = torch.optim.Adam(vjepa_vla_controller.parameters(), lr=1e-4)
+    
+    for epoch in range(num_epochs):
+        total_loss = 0.0
+        
+        for batch in robot_data_loader:
+            observations = batch['observations']  # [B, T, H, W, C]
+            actions = batch['actions']           # [B, T, action_dim]
+            instructions = batch['instructions'] # List of text instructions
+            rewards = batch['rewards']           # [B, T]
+            
+            batch_size, seq_length = observations.shape[:2]
+            
+            # Process sequence step by step
+            for t in range(seq_length - 1):
+                current_obs = observations[:, t]
+                current_instruction = [inst for inst in instructions]
+                target_action = actions[:, t]
+                actual_reward = rewards[:, t]
+                
+                # Get current state representation (from V-JEPA encoder)
+                with torch.no_grad():
+                    current_state = vjepa_vla_controller.world_model.vjepa.context_encoder(
+                        current_obs.unsqueeze(1)  # Add time dimension
+                    ).mean(dim=1)  # Pool over spatial dimensions
+                
+                # Forward pass
+                predicted_action, planning_info = vjepa_vla_controller(
+                    current_obs, current_instruction, current_state
+                )
+                
+                # Compute losses
+                # 1. Action prediction loss
+                action_loss = F.mse_loss(predicted_action, target_action)
+                
+                # 2. Reward prediction loss (if reward function is being learned)
+                predicted_reward = vjepa_vla_controller.reward_function(
+                    torch.cat([current_state, predicted_action], dim=1)
+                ).squeeze(-1)
+                reward_loss = F.mse_loss(predicted_reward, actual_reward)
+                
+                # 3. World model consistency loss
+                # Predict next state and compare with actual next observation
+                next_obs = observations[:, t + 1]
+                with torch.no_grad():
+                    next_state_actual = vjepa_vla_controller.world_model.vjepa.context_encoder(
+                        next_obs.unsqueeze(1)
+                    ).mean(dim=1)
+                
+                predicted_states, _ = vjepa_vla_controller.world_model(
+                    current_state, predicted_action.unsqueeze(1), horizon=1
+                )
+                world_model_loss = F.mse_loss(predicted_states[:, 0], next_state_actual)
+                
+                # Total loss
+                total_loss_step = action_loss + 0.1 * reward_loss + 0.05 * world_model_loss
+                total_loss += total_loss_step.item()
+                
+                # Backward pass
+                optimizer.zero_grad()
+                total_loss_step.backward()
+                optimizer.step()
+        
+        if epoch % 10 == 0:
+            avg_loss = total_loss / len(robot_data_loader)
+            print(f"Epoch {epoch}, Average Loss: {avg_loss:.4f}")
+    
+    return vjepa_vla_controller</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🚀 Section 4: Training V-JEPA - From Internet Videos to World Models</h2>
+
+    <div class="step">
+      <h3>📊 Training Data & Methodology</h3>
+      <p>V-JEPA's power comes from learning rich world models from diverse video data. Unlike supervised approaches, V-JEPA learns through self-supervised prediction, making it scalable to internet-scale video datasets.</p>
+
+      <div class="interactive-demo">
+        <div class="demo-title">📈 V-JEPA Training Pipeline Simulator</div>
+        <div class="controls">
+          <div class="control-group">
+            <label>Dataset Size:</label>
+            <select id="datasetSize">
+              <option value="small">Small (1M videos)</option>
+              <option value="medium" selected>Medium (10M videos)</option>
+              <option value="large">Large (100M videos)</option>
+              <option value="massive">Massive (1B+ videos)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Video Diversity:</label>
+            <input type="range" id="videoDiversity" min="20" max="100" value="70" oninput="updateDiversityDisplay()">
+            <div class="slider-label"><span>Limited</span><span id="diversityDisplay">High</span><span>Maximum</span></div>
+          </div>
+          <div class="control-group">
+            <label>Training Compute:</label>
+            <select id="trainingCompute">
+              <option value="low">Low (8 GPUs)</option>
+              <option value="medium" selected>Medium (64 GPUs)</option>
+              <option value="high">High (512 GPUs)</option>
+              <option value="massive">Massive (4096+ GPUs)</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="simulateVJEPATraining()" class="primary">🚀 Simulate Training</button>
+        <div id="trainingResults"></div>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-value">2-4 weeks</div>
+          <div class="metric-label">Training Time</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">10M+</div>
+          <div class="metric-label">Video Hours</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">85%</div>
+          <div class="metric-label">Prediction Accuracy</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">768D</div>
+          <div class="metric-label">Feature Dimension</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🎯 Downstream Task Performance</h3>
+      <div class="comparison-table">
+        <thead>
+          <tr>
+            <th>Task Domain</th>
+            <th>Supervised Baseline</th>
+            <th>Video MAE</th>
+            <th>V-JEPA</th>
+            <th>Improvement</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Action Recognition</strong></td>
+            <td class="score-good">76.2%</td>
+            <td class="score-good">78.1%</td>
+            <td class="score-excellent">82.4%</td>
+            <td>+6.2%</td>
+          </tr>
+          <tr>
+            <td><strong>Object Tracking</strong></td>
+            <td class="score-average">68.5%</td>
+            <td class="score-good">72.3%</td>
+            <td class="score-excellent">79.7%</td>
+            <td>+11.2%</td>
+          </tr>
+          <tr>
+            <td><strong>Video Prediction</strong></td>
+            <td class="score-poor">45.2%</td>
+            <td class="score-average">52.6%</td>
+            <td class="score-good">71.8%</td>
+            <td>+26.6%</td>
+          </tr>
+          <tr>
+            <td><strong>Physics Understanding</strong></td>
+            <td class="score-poor">38.9%</td>
+            <td class="score-average">42.1%</td>
+            <td class="score-good">65.3%</td>
+            <td>+26.4%</td>
+          </tr>
+          <tr>
+            <td><strong>Robotic Control</strong></td>
+            <td class="score-average">62.1%</td>
+            <td class="score-average">64.8%</td>
+            <td class="score-good">73.2%</td>
+            <td>+11.1%</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="success">
+        <strong>🎯 Key Performance Insights:</strong><br>
+        • <strong>Emergent Understanding:</strong> V-JEPA develops rich world models without explicit supervision<br>
+        • <strong>Transfer Learning:</strong> Pre-trained representations transfer well to downstream tasks<br>
+        • <strong>Long-term Prediction:</strong> Maintains coherence over longer time horizons than pixel-based methods<br>
+        • <strong>Efficiency:</strong> Faster training and inference compared to generative video models
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🔮 Section 5: Future Directions - V-JEPA and the Path to AGI</h2>
+
+    <div class="step">
+      <h3>🌟 V-JEPA's Role in AGI Development</h3>
+      <p>V-JEPA represents a crucial step toward AGI by demonstrating how AI systems can learn rich world models through self-supervision. These world models are essential for planning, reasoning, and understanding causality—core components of general intelligence.</p>
+
+      <div class="prediction-grid">
+        <div class="prediction-card" onclick="selectFutureDirection('multimodal', this)">
+          <div class="scenario-title">🌐 Multimodal V-JEPA</div>
+          <div class="scenario-description">
+            Integration with audio, text, and sensor modalities for comprehensive world understanding
+          </div>
+          <div class="prediction-accuracy">
+            <div class="accuracy-fill" style="width:85%"></div>
+          </div>
+          <div style="font-size:12px;margin-top:5px">Likelihood: High</div>
+        </div>
+
+        <div class="prediction-card" onclick="selectFutureDirection('interactive', this)">
+          <div class="scenario-title">🎮 Interactive World Models</div>
+          <div class="scenario-description">
+            V-JEPA learns from interaction, updating world models based on agent actions and outcomes
+          </div>
+          <div class="prediction-accuracy">
+            <div class="accuracy-fill" style="width:75%"></div>
+          </div>
+          <div style="font-size:12px;margin-top:5px">Likelihood: Medium-High</div>
+        </div>
+
+        <div class="prediction-card" onclick="selectFutureDirection('causal', this)">
+          <div class="scenario-title">🔗 Causal World Models</div>
+          <div class="scenario-description">
+            Enhanced understanding of cause-effect relationships and counterfactual reasoning
+          </div>
+          <div class="prediction-accuracy">
+            <div class="accuracy-fill" style="width:65%"></div>
+          </div>
+          <div style="font-size:12px;margin-top:5px">Likelihood: Medium</div>
+        </div>
+
+        <div class="prediction-card" onclick="selectFutureDirection('hierarchical', this)">
+          <div class="scenario-title">🏗️ Hierarchical Planning</div>
+          <div class="scenario-description">
+            Multi-scale world models enabling both short-term actions and long-term strategic planning
+          </div>
+          <div class="prediction-accuracy">
+            <div class="accuracy-fill" style="width:80%"></div>
+          </div>
+          <div style="font-size:12px;margin-top:5px">Likelihood: High</div>
+        </div>
+
+        <div class="prediction-card" onclick="selectFutureDirection('social', this)">
+          <div class="scenario-title">👥 Social World Models</div>
+          <div class="scenario-description">
+            Understanding and predicting human behavior, emotions, and social dynamics
+          </div>
+          <div class="prediction-accuracy">
+            <div class="accuracy-fill" style="width:55%"></div>
+          </div>
+          <div style="font-size:12px;margin-top:5px">Likelihood: Medium-Low</div>
+        </div>
+
+        <div class="prediction-card" onclick="selectFutureDirection('embodied', this)">
+          <div class="scenario-title">🤖 Embodied AGI Integration</div>
+          <div class="scenario-description">
+            V-JEPA as the world modeling component in fully integrated embodied AGI systems
+          </div>
+          <div class="prediction-accuracy">
+            <div class="accuracy-fill" style="width:70%"></div>
+          </div>
+          <div style="font-size:12px;margin-top:5px">Likelihood: Medium</div>
+        </div>
+      </div>
+
+      <div id="futureDirectionAnalysis"></div>
+    </div>
+
+    <div class="step">
+      <h3>🎯 Research Challenges & Opportunities</h3>
+      <div class="interactive-demo">
+        <div class="demo-title">🔬 V-JEPA Research Priority Matrix</div>
+        <div class="controls">
+          <div class="control-group">
+            <label>Research Timeline:</label>
+            <select id="researchTimeline">
+              <option value="near" selected>Near-term (1-2 years)</option>
+              <option value="medium">Medium-term (2-5 years)</option>
+              <option value="long">Long-term (5+ years)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Impact Potential:</label>
+            <select id="impactPotential">
+              <option value="incremental">Incremental Improvement</option>
+              <option value="significant" selected>Significant Advance</option>
+              <option value="breakthrough">Breakthrough Potential</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="analyzeResearchPriorities()" class="secondary">🔍 Analyze Priorities</button>
+        <div id="researchPriorityResults"></div>
+      </div>
+    </div>
+
+    <div class="breakthrough-highlight">
+      🌟 V-JEPA's Vision: World models that understand not just what will happen, but why it happens and how to make it happen differently
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🎓 Section 6: Key Takeaways - The World Model Revolution</h2>
+
+    <div class="step">
+      <h3>💡 Core Insights from V-JEPA</h3>
+      <div class="prediction-grid">
+        <div class="emergent-capability">
+          <div class="capability-header">🎯 Representation > Pixels</div>
+          <div class="capability-description">
+            Predicting abstract representations leads to richer understanding than pixel-level prediction
+          </div>
+        </div>
+
+        <div class="emergent-capability">
+          <div class="capability-header">🔮 Self-Supervised Learning</div>
+          <div class="capability-description">
+            Rich world models emerge from prediction tasks without explicit supervision
+          </div>
+        </div>
+
+        <div class="emergent-capability">
+          <div class="capability-header">⚡ Efficiency Through Abstraction</div>
+          <div class="capability-description">
+            Abstract prediction is computationally more efficient than pixel generation
+          </div>
+        </div>
+
+        <div class="emergent-capability">
+          <div class="capability-header">🤖 Foundation for Robotics</div>
+          <div class="capability-description">
+            World models enable better planning, prediction, and interaction in physical environments
+          </div>
+        </div>
+
+        <div class="emergent-capability">
+          <div class="capability-header">🧠 Emergent Physics Understanding</div>
+          <div class="capability-description">
+            V-JEPA develops intuitive understanding of physical laws without explicit teaching
+          </div>
+        </div>
+
+        <div class="emergent-capability">
+          <div class="capability-header">🌍 Scalable World Modeling</div>
+          <div class="capability-description">
+            Architecture scales to internet-sized video datasets for comprehensive world understanding
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🚀 Practical Applications & Next Steps</h3>
+      <div class="robotics-integration">
+        <div class="demo-title">📋 V-JEPA Implementation Roadmap</div>
+        
+        <div class="robot-scenario">
+          <div class="robot-icon">🔬</div>
+          <div class="scenario-content">
+            <div class="scenario-title">Research & Experimentation</div>
+            <div class="scenario-description">Implement V-JEPA on custom video datasets. Explore masking strategies and architecture variations. Evaluate on downstream tasks.</div>
+          </div>
+        </div>
+
+        <div class="robot-scenario">
+          <div class="robot-icon">🏭</div>
+          <div class="scenario-content">
+            <div class="scenario-title">Industrial Applications</div>
+            <div class="scenario-description">Apply V-JEPA world models to manufacturing robots, quality control systems, and automated inspection processes.</div>
+          </div>
+        </div>
+
+        <div class="robot-scenario">
+          <div class="robot-icon">🎮</div>
+          <div class="scenario-content">
+            <div class="scenario-title">Interactive Systems</div>
+            <div class="scenario-description">Integrate V-JEPA into games, simulations, and virtual environments for realistic physics and behavior prediction.</div>
+          </div>
+        </div>
+
+        <div class="robot-scenario">
+          <div class="robot-icon">🤖</div>
+          <div class="scenario-content">
+            <div class="scenario-title">Embodied AI Integration</div>
+            <div class="scenario-description">Combine V-JEPA with VLA models for robots that can plan actions based on sophisticated world understanding.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="success">
+      <strong>🎓 Congratulations! You've Mastered V-JEPA Architecture!</strong><br><br>
+      You now understand how V-JEPA revolutionizes world model learning through representation prediction, its mathematical foundations, training methodology, and applications to robotics and AGI. You've seen how this approach enables more efficient and effective learning of physical understanding.<br><br>
+      <strong>Ready to explore more?</strong> Continue with <a href="generative-vision-transformers.html">Generative Vision Transformers</a> to see how transformers create visual content, or dive into <a href="training-vlas.html">Training VLAs</a> to learn how to build production robotics systems with world models.
+    </div>
+  </div>
+
+  <script>
+    // Utility function for copying code
+    function copyCode(btn) {
+      try {
+        const pre = btn.parentElement.querySelector('pre');
+        const text = pre.innerText;
+        navigator.clipboard.writeText(text);
+        btn.textContent = '✔ Copied';
+        setTimeout(() => btn.textContent = '📋 Copy', 1500);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // Tab switching functions
+    function switchArchTab(id, el) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById(id).classList.add('active');
+    }
+
+    // Section 1: Video prediction comparison
+    function updateHorizonDisplay() {
+      const horizon = document.getElementById('predictionHorizon').value;
+      document.getElementById('horizonDisplay').textContent = `${horizon} frames`;
+    }
+
+    function compareVideoPredicton() {
+      const scenario = document.getElementById('videoScenario').value;
+      const method = document.getElementById('predictionMethod').value;
+      const horizon = document.getElementById('predictionHorizon').value;
+      const results = document.getElementById('videoComparisonResults');
+
+      const scenarioDetails = {
+        bouncing_ball: { 
+          name: "Bouncing Ball Physics",
+          pixel_accuracy: Math.max(20, 80 - horizon * 3),
+          vjepa_accuracy: Math.max(60, 95 - horizon * 1.5)
+        },
+        pendulum: {
+          name: "Pendulum Swing",
+          pixel_accuracy: Math.max(15, 75 - horizon * 4),
+          vjepa_accuracy: Math.max(55, 92 - horizon * 2)
+        },
+        falling_objects: {
+          name: "Falling Objects",
+          pixel_accuracy: Math.max(25, 85 - horizon * 3.5),
+          vjepa_accuracy: Math.max(65, 96 - horizon * 1.8)
+        },
+        fluid_dynamics: {
+          name: "Fluid Dynamics",
+          pixel_accuracy: Math.max(10, 60 - horizon * 5),
+          vjepa_accuracy: Math.max(45, 85 - horizon * 2.5)
+        },
+        human_movement: {
+          name: "Human Movement",
+          pixel_accuracy: Math.max(30, 70 - horizon * 2.5),
+          vjepa_accuracy: Math.max(50, 88 - horizon * 2)
+        }
+      };
+
+      const detail = scenarioDetails[scenario];
+      const accuracy = method === 'pixel' ? detail.pixel_accuracy : detail.vjepa_accuracy;
+      const otherAccuracy = method === 'pixel' ? detail.vjepa_accuracy : detail.pixel_accuracy;
+      
+      results.innerHTML = `
+        <div class="video-timeline">
+          ${Array.from({length: parseInt(horizon) + 5}, (_, i) => {
+            if (i < 3) return `<div class="video-frame context">C${i+1}</div>`;
+            if (i < 3 + parseInt(horizon)) return `<div class="video-frame predict">P${i-2}</div>`;
+            return `<div class="video-frame target">T${i-2-parseInt(horizon)}</div>`;
+          }).join('')}
+        </div>
+        <div class="info">
+          <strong>🎬 Scenario:</strong> ${detail.name}<br>
+          <strong>📊 ${method.toUpperCase()} Accuracy:</strong> ${accuracy.toFixed(1)}%<br>
+          <strong>📈 Alternative Method:</strong> ${(method === 'pixel' ? 'V-JEPA' : 'Pixel')} would achieve ${otherAccuracy.toFixed(1)}%<br>
+          <strong>🔍 Analysis:</strong> ${method === 'vjepa' ? 'V-JEPA maintains better long-term coherence through representation prediction' : 'Pixel prediction struggles with compounding errors over long horizons'}
+        </div>
+      `;
+    }
+
+    // Section 1: Masking pattern functions
+    function updateMaskingPattern() {
+      const strategy = document.getElementById('maskingStrategy').value;
+      const ratio = document.getElementById('maskRatio').value;
+      document.getElementById('maskRatioDisplay').textContent = `${ratio}%`;
+      
+      generateMaskingVisualization(strategy, ratio);
+    }
+
+    function generateMaskingPattern() {
+      updateMaskingPattern();
+    }
+
+    function generateMaskingVisualization(strategy, maskRatio) {
+      const timeline = document.getElementById('maskingVisualization');
+      const spatialGrid = document.getElementById('spatialMaskingGrid');
+      
+      // Generate temporal masking visualization
+      const numFrames = 12;
+      timeline.innerHTML = '';
+      
+      for (let i = 0; i < numFrames; i++) {
+        const frame = document.createElement('div');
+        frame.className = 'video-frame';
+        frame.textContent = `F${i+1}`;
+        
+        if (strategy === 'temporal') {
+          if (Math.random() > maskRatio / 100) {
+            frame.classList.add('context');
+          } else {
+            frame.classList.add('predict');
+          }
+        } else if (strategy === 'spatiotemporal') {
+          if (i < 6) {
+            frame.classList.add('context');
+          } else {
+            frame.classList.add('predict');
+          }
+        } else {
+          frame.classList.add('context'); // For spatial and block masking, show all frames as context
+        }
+        
+        timeline.appendChild(frame);
+      }
+      
+      // Generate spatial masking grid
+      spatialGrid.innerHTML = '';
+      for (let i = 0; i < 64; i++) { // 8x8 grid
+        const cell = document.createElement('div');
+        cell.className = 'mask-cell';
+        
+        if (strategy === 'spatial' || strategy === 'spatiotemporal') {
+          if (Math.random() > maskRatio / 100) {
+            cell.classList.add('visible');
+            cell.textContent = '✓';
+          } else {
+            cell.classList.add('predict');
+            cell.textContent = '?';
+          }
+        } else if (strategy === 'block') {
+          // Block masking - create blocks
+          const row = Math.floor(i / 8);
+          const col = i % 8;
+          if ((row < 4 && col < 4) || (row >= 4 && col >= 4)) {
+            cell.classList.add('visible');
+            cell.textContent = '✓';
+          } else {
+            cell.classList.add('predict');
+            cell.textContent = '?';
+          }
+        } else {
+          cell.classList.add('visible');
+          cell.textContent = '✓';
+        }
+        
+        spatialGrid.appendChild(cell);
+      }
+
+      const analysis = document.getElementById('maskingAnalysis');
+      const strategies = {
+        temporal: 'Masks entire time steps to learn temporal dynamics and object permanence',
+        spatial: 'Masks spatial regions to learn spatial relationships and object completion',
+        spatiotemporal: 'Combines temporal and spatial masking for comprehensive spatiotemporal understanding',
+        block: 'Masks coherent blocks to learn large-scale structure and global patterns'
+      };
+      
+      analysis.innerHTML = `
+        <div class="success">
+          <strong>🎭 Masking Strategy:</strong> ${strategy.toUpperCase()}<br>
+          <strong>📊 Mask Ratio:</strong> ${maskRatio}%<br>
+          <strong>🎯 Learning Focus:</strong> ${strategies[strategy]}
+        </div>
+      `;
+    }
+
+    // Section 2: Physics simulation
+    function updatePhysicsViz() {
+      const accuracy = document.getElementById('physicsAccuracy').value;
+      document.getElementById('accuracyDisplay').textContent = `${accuracy}%`;
+    }
+
+    function runPhysicsSimulation() {
+      const scenario = document.getElementById('physicsScenario').value;
+      const accuracy = document.getElementById('physicsAccuracy').value;
+      const physicsObject = document.getElementById('physicsObject');
+      const analysis = document.getElementById('physicsAnalysis');
+
+      // Animate object based on scenario
+      physicsObject.className = 'physics-object';
+      
+      if (scenario === 'gravity') {
+        physicsObject.classList.add('ball');
+        physicsObject.style.animation = 'physics 3s ease-in-out infinite';
+      } else if (scenario === 'collision') {
+        physicsObject.classList.add('block');
+        physicsObject.style.animation = 'physics 2s linear infinite';
+      } else if (scenario === 'pendulum') {
+        physicsObject.classList.add('pendulum');
+        physicsObject.style.animation = 'physics 4s ease-in-out infinite';
+      }
+
+      const scenarios = {
+        gravity: {
+          name: 'Gravitational Physics',
+          understanding: 'V-JEPA learns object trajectories under gravity, predicting parabolic motion and impact points',
+          capabilities: ['Free fall prediction', 'Trajectory estimation', 'Impact timing']
+        },
+        collision: {
+          name: 'Collision Dynamics', 
+          understanding: 'Models elastic and inelastic collisions, momentum conservation, and energy transfer',
+          capabilities: ['Impact detection', 'Momentum transfer', 'Deformation prediction']
+        },
+        pendulum: {
+          name: 'Oscillatory Motion',
+          understanding: 'Captures periodic motion, phase relationships, and energy conservation in pendulum systems',
+          capabilities: ['Period prediction', 'Amplitude decay', 'Phase tracking']
+        },
+        fluid: {
+          name: 'Fluid Dynamics',
+          understanding: 'Learns fluid flow patterns, viscosity effects, and container interactions',
+          capabilities: ['Flow prediction', 'Viscosity modeling', 'Turbulence capture']
+        },
+        occlusion: {
+          name: 'Object Permanence',
+          understanding: 'Maintains object identity and properties even when temporarily occluded',
+          capabilities: ['Occlusion handling', 'Identity maintenance', 'Property persistence']
+        }
+      };
+
+      const scenario_info = scenarios[scenario];
+      analysis.innerHTML = `
+        <div class="success">
+          <strong>🔬 Physics Scenario:</strong> ${scenario_info.name}<br>
+          <strong>🎯 V-JEPA Understanding:</strong> ${scenario_info.understanding}<br>
+          <strong>⚡ Model Accuracy:</strong> ${accuracy}%<br><br>
+          <strong>🛠️ Emergent Capabilities:</strong><br>
+          ${scenario_info.capabilities.map(cap => `• ${cap}`).join('<br>')}
+        </div>
+      `;
+    }
+
+    // Section 2: Model performance comparison
+    function compareModelPerformance() {
+      const metric = document.getElementById('evaluationMetric').value;
+      const results = document.getElementById('performanceResults');
+
+      const metrics = {
+        prediction_horizon: {
+          name: 'Prediction Horizon (frames)',
+          pixel: 5, optical_flow: 8, vjepa: 20,
+          description: 'Number of future frames that can be predicted with >70% accuracy'
+        },
+        object_tracking: {
+          name: 'Object Tracking Accuracy (%)',
+          pixel: 45, optical_flow: 72, vjepa: 89,
+          description: 'Accuracy in tracking objects through occlusion and scene changes'
+        },
+        physics_realism: {
+          name: 'Physics Realism Score (%)',
+          pixel: 52, optical_flow: 68, vjepa: 91,
+          description: 'Human evaluation of predicted motion realism and physics consistency'
+        },
+        computational_cost: {
+          name: 'Relative Computational Cost',
+          pixel: 100, optical_flow: 45, vjepa: 30,
+          description: 'Computational cost relative to pixel prediction baseline (lower is better)'
+        }
+      };
+
+      const data = metrics[metric];
+      const getColor = (score, isReverse = false) => {
+        if (isReverse) {
+          return score <= 30 ? 'score-excellent' : score <= 60 ? 'score-good' : score <= 80 ? 'score-average' : 'score-poor';
+        }
+        return score >= 85 ? 'score-excellent' : score >= 70 ? 'score-good' : score >= 50 ? 'score-average' : 'score-poor';
+      };
+
+      const isReverse = metric === 'computational_cost';
+
+      results.innerHTML = `
+        <table class="comparison-table">
+          <thead>
+            <tr><th>Method</th><th>${data.name}</th><th>Performance</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Pixel Prediction</td>
+              <td class="${getColor(data.pixel, isReverse)}">${data.pixel}${metric === 'computational_cost' ? '' : metric === 'prediction_horizon' ? '' : '%'}</td>
+              <td>${isReverse ? (data.pixel <= 30 ? 'Excellent' : 'Poor') : (data.pixel >= 85 ? 'Excellent' : 'Poor')}</td>
+            </tr>
+            <tr>
+              <td>Optical Flow</td>
+              <td class="${getColor(data.optical_flow, isReverse)}">${data.optical_flow}${metric === 'computational_cost' ? '' : metric === 'prediction_horizon' ? '' : '%'}</td>
+              <td>${isReverse ? (data.optical_flow <= 30 ? 'Excellent' : data.optical_flow <= 60 ? 'Good' : 'Average') : (data.optical_flow >= 85 ? 'Excellent' : data.optical_flow >= 70 ? 'Good' : 'Average')}</td>
+            </tr>
+            <tr>
+              <td>V-JEPA</td>
+              <td class="${getColor(data.vjepa, isReverse)}">${data.vjepa}${metric === 'computational_cost' ? '' : metric === 'prediction_horizon' ? '' : '%'}</td>
+              <td>${isReverse ? 'Excellent' : 'Excellent'}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="info">
+          <strong>📊 Metric:</strong> ${data.description}
+        </div>
+      `;
+    }
+
+    // Section 3: Robot planning simulation
+    function updateModelAccuracy() {
+      const accuracy = document.getElementById('worldModelAccuracy').value;
+      document.getElementById('modelAccuracyDisplay').textContent = `${accuracy}%`;
+    }
+
+    function updatePlanningHorizon() {
+      const horizon = document.getElementById('planningHorizon').value;
+      document.getElementById('planningHorizonDisplay').textContent = `${horizon} steps`;
+    }
+
+    function simulateRobotPlanning() {
+      const task = document.getElementById('robotTask').value;
+      const accuracy = document.getElementById('worldModelAccuracy').value;
+      const horizon = document.getElementById('planningHorizon').value;
+      const results = document.getElementById('robotPlanningResults');
+
+      const tasks = {
+        stacking: {
+          name: 'Block Stacking',
+          description: 'Robot must stack blocks while predicting stability and collision outcomes',
+          success_rate: Math.min(95, accuracy * 0.9 + parseInt(horizon) * 2),
+          key_predictions: ['Block stability', 'Collision detection', 'Grip success']
+        },
+        pouring: {
+          name: 'Liquid Pouring',
+          description: 'Robot predicts fluid dynamics to pour liquid accurately into containers',
+          success_rate: Math.min(90, accuracy * 0.8 + parseInt(horizon) * 3),
+          key_predictions: ['Flow trajectory', 'Container fill level', 'Splash dynamics']
+        },
+        navigation: {
+          name: 'Dynamic Navigation',
+          description: 'Robot navigates around moving obstacles using motion prediction',
+          success_rate: Math.min(92, accuracy * 0.85 + parseInt(horizon) * 2.5),
+          key_predictions: ['Obstacle trajectories', 'Collision avoidance', 'Path optimization']
+        },
+        collaboration: {
+          name: 'Human Collaboration',
+          description: 'Robot collaborates with humans by predicting their actions and intentions',
+          success_rate: Math.min(85, accuracy * 0.75 + parseInt(horizon) * 1.5),
+          key_predictions: ['Human motion', 'Intent recognition', 'Safety zones']
+        }
+      };
+
+      const task_info = tasks[task];
+      const success = task_info.success_rate;
+
+      results.innerHTML = `
+        <div class="metric-grid">
+          <div class="metric-card">
+            <div class="metric-value">${success.toFixed(1)}%</div>
+            <div class="metric-label">Success Rate</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">${horizon}</div>
+            <div class="metric-label">Planning Steps</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">${accuracy}%</div>
+            <div class="metric-label">World Model Accuracy</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">${(parseInt(horizon) * 50).toFixed(0)}ms</div>
+            <div class="metric-label">Planning Time</div>
+          </div>
+        </div>
+        <div class="success">
+          <strong>🤖 Task:</strong> ${task_info.name}<br>
+          <strong>📖 Description:</strong> ${task_info.description}<br><br>
+          <strong>🎯 Key V-JEPA Predictions:</strong><br>
+          ${task_info.key_predictions.map(pred => `• ${pred}`).join('<br>')}<br><br>
+          <strong>📊 Analysis:</strong> ${success >= 85 ? 'Excellent performance - V-JEPA world model enables reliable robot planning' : 
+                                        success >= 70 ? 'Good performance - Some improvements needed in world model accuracy' :
+                                        'Poor performance - Significant challenges remain for this task'}
+        </div>
+      `;
+    }
+
+    // Section 4: Training simulation
+    function updateDiversityDisplay() {
+      const diversity = document.getElementById('videoDiversity').value;
+      const levels = ['Limited', 'Low', 'Medium', 'High', 'Maximum'];
+      const level = Math.floor(diversity / 25);
+      document.getElementById('diversityDisplay').textContent = levels[Math.min(level, 4)];
+    }
+
+    function simulateVJEPATraining() {
+      const datasetSize = document.getElementById('datasetSize').value;
+      const diversity = document.getElementById('videoDiversity').value;
+      const compute = document.getElementById('trainingCompute').value;
+      const results = document.getElementById('trainingResults');
+
+      const datasets = { small: 1, medium: 10, large: 100, massive: 1000 };
+      const computes = { low: 8, medium: 64, high: 512, massive: 4096 };
+
+      const datasetMB = datasets[datasetSize];
+      const gpus = computes[compute];
+
+      // Calculate training metrics
+      const trainingDays = Math.max(1, (datasetMB * 10) / gpus);
+      const finalAccuracy = Math.min(95, 50 + (datasetMB * 0.1) + (diversity * 0.3) + (gpus * 0.05));
+      const emergentCapabilities = Math.floor((finalAccuracy - 50) / 10);
+
+      const capabilities = [
+        'Basic Object Tracking',
+        'Motion Prediction', 
+        'Collision Detection',
+        'Physics Understanding',
+        'Object Permanence',
+        'Causal Reasoning',
+        'Complex Scene Understanding'
+      ];
+
+      results.innerHTML = `
+        <div class="training-progress">
+          <div class="progress-header">🎓 Estimated Training Results</div>
+          <div>Dataset Processing <div class="progress-bar"><div class="progress-fill pretraining" style="width:100%"></div></div></div>
+          <div>Context Encoder Training <div class="progress-bar"><div class="progress-fill pretraining" style="width:${Math.min(100, finalAccuracy)}%"></div></div></div>
+          <div>Predictor Training <div class="progress-bar"><div class="progress-fill finetuning" style="width:${Math.min(100, finalAccuracy - 5)}%"></div></div></div>
+          <div>Emergent Capabilities <div class="progress-bar"><div class="progress-fill evaluation" style="width:${emergentCapabilities * 15}%"></div></div></div>
+        </div>
+        <div class="metric-grid">
+          <div class="metric-card">
+            <div class="metric-value">${trainingDays.toFixed(1)}</div>
+            <div class="metric-label">Training Days</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">${datasetMB}M</div>
+            <div class="metric-label">Video Hours</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">${finalAccuracy.toFixed(1)}%</div>
+            <div class="metric-label">Final Accuracy</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">${emergentCapabilities}</div>
+            <div class="metric-label">Emergent Capabilities</div>
+          </div>
+        </div>
+        <div class="info">
+          <strong>🎯 Expected Emergent Capabilities:</strong><br>
+          ${capabilities.slice(0, emergentCapabilities).map(cap => `• ${cap}`).join('<br>') || '• Basic video processing only'}
+        </div>
+      `;
+    }
+
+    // Section 5: Future directions
+    let selectedDirection = null;
+    function selectFutureDirection(type, el) {
+      document.querySelectorAll('.prediction-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedDirection = type;
+
+      const analysis = document.getElementById('futureDirectionAnalysis');
+      const directions = {
+        multimodal: {
+          timeline: '2025-2027',
+          impact: 'Revolutionary',
+          challenges: ['Cross-modal alignment', 'Computational scaling', 'Data integration'],
+          opportunities: ['Richer world understanding', 'Better robot perception', 'Human-AI interaction']
+        },
+        interactive: {
+          timeline: '2026-2028',
+          impact: 'Transformative',
+          challenges: ['Online learning stability', 'Safety constraints', 'Real-time adaptation'],
+          opportunities: ['Self-improving robots', 'Personalized AI', 'Adaptive systems']
+        },
+        causal: {
+          timeline: '2027-2030',
+          impact: 'Fundamental',
+          challenges: ['Causal discovery', 'Counterfactual reasoning', 'Intervention modeling'],
+          opportunities: ['Scientific discovery', 'Better planning', 'Explainable AI']
+        },
+        hierarchical: {
+          timeline: '2025-2026',
+          impact: 'Significant',
+          challenges: ['Multi-scale learning', 'Temporal abstraction', 'Planning integration'],
+          opportunities: ['Long-term planning', 'Strategic thinking', 'Complex behaviors']
+        },
+        social: {
+          timeline: '2028-2032',
+          impact: 'Profound',
+          challenges: ['Social understanding', 'Ethical reasoning', 'Cultural sensitivity'],
+          opportunities: ['Human collaboration', 'Social robots', 'Empathetic AI']
+        },
+        embodied: {
+          timeline: '2026-2029',
+          impact: 'Revolutionary',
+          challenges: ['Integration complexity', 'Real-world deployment', 'Safety assurance'],
+          opportunities: ['General-purpose robots', 'AGI development', 'Physical intelligence']
+        }
+      };
+
+      const direction = directions[type];
+      analysis.innerHTML = `
+        <div class="success">
+          <strong>🚀 Selected Direction:</strong> ${type.toUpperCase()}<br>
+          <strong>📅 Timeline:</strong> ${direction.timeline}<br>
+          <strong>⚡ Expected Impact:</strong> ${direction.impact}<br><br>
+          <strong>⚠️ Key Challenges:</strong><br>
+          ${direction.challenges.map(challenge => `• ${challenge}`).join('<br>')}<br><br>
+          <strong>🌟 Opportunities:</strong><br>
+          ${direction.opportunities.map(opportunity => `• ${opportunity}`).join('<br>')}
+        </div>
+      `;
+    }
+
+    // Section 5: Research priorities
+    function analyzeResearchPriorities() {
+      const timeline = document.getElementById('researchTimeline').value;
+      const impact = document.getElementById('impactPotential').value;
+      const results = document.getElementById('researchPriorityResults');
+
+      const priorities = {
+        near: {
+          incremental: ['Masking strategy optimization', 'Architecture efficiency', 'Training stability'],
+          significant: ['Multimodal integration', 'Real-time inference', 'Robotic applications'],
+          breakthrough: ['Causal world models', 'Interactive learning', 'Emergent reasoning']
+        },
+        medium: {
+          incremental: ['Scalability improvements', 'Domain adaptation', 'Quality metrics'],
+          significant: ['Hierarchical planning', 'Social understanding', 'Self-supervision'],
+          breakthrough: ['Consciousness emergence', 'General intelligence', 'Creative reasoning']
+        },
+        long: {
+          incremental: ['Performance optimization', 'Deployment tools', 'Evaluation frameworks'],
+          significant: ['AGI integration', 'Scientific discovery', 'Autonomous systems'],
+          breakthrough: ['Artificial consciousness', 'Superintelligence', 'Reality simulation']
+        }
+      };
+
+      const priorityList = priorities[timeline][impact];
+      results.innerHTML = `
+        <div class="success">
+          <strong>🔬 Research Focus:</strong> ${timeline.toUpperCase()}-term ${impact} improvements<br><br>
+          <strong>📋 Priority Research Areas:</strong><br>
+          ${priorityList.map((area, i) => `${i+1}. ${area}`).join('<br>')}<br><br>
+          <strong>💡 Recommendation:</strong> ${
+            impact === 'breakthrough' ? 'High-risk, high-reward research requiring significant resources and interdisciplinary collaboration' :
+            impact === 'significant' ? 'Balanced approach with clear milestones and practical applications' :
+            'Focused engineering efforts with quick wins and measurable improvements'
+          }
+        </div>
+      `;
+    }
+
+    // Initialize the tutorial
+    updateHorizonDisplay();
+    compareVideoPredicton();
+    updateMaskingPattern();
+    updatePhysicsViz();
+    runPhysicsSimulation();
+    compareModelPerformance();
+    updateModelAccuracy();
+    updatePlanningHorizon();
+    simulateRobotPlanning();
+    updateDiversityDisplay();
+    simulateVJEPATraining();
+    analyzeResearchPriorities();
+  </script>
+</body>
+</html>
