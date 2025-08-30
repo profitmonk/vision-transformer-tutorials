@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Path to AGI: Emergent Intelligence & Future Scenarios</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:1200px;margin:0 auto;padding:20px;background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);color:#e0e0e0;line-height:1.6}
+    .container{background:#fff;color:#2d2d2d;border-radius:20px;padding:30px;margin:20px 0;border:1px solid #e0e0e0;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+    .nav-bar{background:#2d2d2d;color:#fff;padding:15px 30px;border-radius:15px;margin:20px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px}
+    .nav-home,.nav-prev,.nav-next{background:#fff;color:#2d2d2d;padding:8px 16px;border-radius:6px;text-decoration:none;font-weight:bold;transition:all .3s}
+    .nav-next{background:#28a745;color:#fff}
+    .nav-home:hover,.nav-prev:hover,.nav-next:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+    .nav-title{font-size:1.2em;font-weight:bold;flex:1;min-width:300px}
+    .step{background:#f8f9fa;border:1px solid #e9ecef;padding:20px;margin:15px 0;border-radius:15px;border-left:4px solid #2d2d2d}
+    .interactive-demo{background:#f8f9fa;border:2px solid #e9ecef;border-radius:15px;padding:25px;margin:20px 0}
+    .demo-title{font-size:1.3em;font-weight:bold;margin-bottom:20px;text-align:center;color:#2d2d2d}
+    .controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin:20px 0}
+    .control-group{display:flex;flex-direction:column;gap:5px}
+    .control-group label{font-weight:bold;font-size:14px;color:#2d2d2d}
+    button{background:#2d2d2d;border:none;color:#fff;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:bold;transition:all .3s;margin:5px}
+    button:hover{background:#1a1a1a;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+    button.primary{background:#28a745}
+    button.primary:hover{background:#218838}
+    button.warning{background:#fd7e14}
+    button.warning:hover{background:#dc3545}
+    input,select,textarea{padding:8px 12px;border:1px solid #dadce0;border-radius:6px;background:#fff;color:#2d2d2d}
+    input[type="range"]{width:100%}
+    textarea{min-height:70px;resize:vertical;width:100%}
+    .math-formula{background:#f8f9fa;border:1px solid #e9ecef;padding:20px;border-radius:8px;margin:15px 0;font-family:'Courier New',monospace;text-align:center;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+    .code-block{background:#2d2d2d;color:#e0e0e0;padding:20px;border-radius:8px;margin:15px 0;font-family:'Courier New',monospace;font-size:14px;overflow:auto;position:relative}
+    .code-header{background:#1a1a1a;color:#28a745;padding:8px 15px;margin:-20px -20px 15px -20px;border-radius:8px 8px 0 0;font-weight:bold;font-size:12px}
+    .copy-button{position:absolute;top:10px;right:10px;background:#28a745;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:10px}
+    .metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin:20px 0}
+    .metric-card{background:#fff;border:2px solid #e9ecef;border-radius:8px;padding:15px;text-align:center;transition:all .3s}
+    .metric-card:hover{border-color:#28a745;transform:translateY(-2px)}
+    .metric-value{font-size:1.5em;font-weight:bold;color:#2d2d2d;margin-bottom:5px}
+    .metric-label{font-size:12px;color:#666}
+    .scenario-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin:20px 0}
+    .scenario-card{background:#fff;border:2px solid #e9ecef;border-radius:12px;padding:20px;cursor:pointer;transition:all .3s}
+    .scenario-card:hover{border-color:#28a745;transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.1)}
+    .scenario-card.selected{border-color:#28a745;background:#d4edda}
+    .scenario-card.optimistic{border-color:#28a745}
+    .scenario-card.conservative{border-color:#17a2b8}
+    .scenario-card.pessimistic{border-color:#dc3545}
+    .scenario-card.wildcard{border-color:#fd7e14}
+    .scenario-title{font-size:1.2em;font-weight:bold;margin-bottom:10px;color:#2d2d2d}
+    .scenario-timeline{font-size:14px;color:#666;margin-bottom:10px}
+    .scenario-description{font-size:13px;margin-bottom:15px}
+    .capability-progress{background:#f8f9fa;border-radius:8px;padding:15px;margin:15px 0}
+    .progress-bar{background:#e9ecef;height:8px;border-radius:4px;margin:5px 0;overflow:hidden}
+    .progress-fill{background:#28a745;height:100%;border-radius:4px;transition:width 0.5s ease}
+    .progress-fill.embodied{background:#fd7e14}
+    .progress-fill.reasoning{background:#17a2b8}
+    .progress-fill.consciousness{background:#dc3545}
+    .progress-fill.safety{background:#28a745}
+    .emergence-simulator{background:linear-gradient(135deg,#e3f2fd,#f3e5f5);border:3px solid #28a745;border-radius:15px;padding:25px;margin:20px 0}
+    .intelligence-chart{background:#fff;border:2px solid #e9ecef;border-radius:10px;padding:20px;margin:15px 0;min-height:300px;position:relative}
+    .chart-axis{position:absolute;color:#666;font-size:12px}
+    .chart-point{position:absolute;width:12px;height:12px;border-radius:50%;cursor:pointer;transition:all .3s}
+    .chart-point:hover{transform:scale(1.5)}
+    .chart-point.human{background:#28a745}
+    .chart-point.current{background:#17a2b8}
+    .chart-point.future{background:#fd7e14}
+    .chart-point.agi{background:#dc3545}
+    .scaling-law{background:#fff;border:1px solid #e9ecef;border-radius:8px;padding:15px;margin:10px 0}
+    .law-equation{font-family:'Courier New',monospace;font-size:14px;color:#2d2d2d;margin:8px 0}
+    .law-description{font-size:12px;color:#666}
+    .alignment-panel{background:#fff3cd;border:2px solid #ffc107;border-radius:12px;padding:20px;margin:15px 0}
+    .alignment-challenge{background:#f8d7da;border-left:4px solid #dc3545;padding:10px 15px;margin:10px 0;border-radius:4px}
+    .alignment-solution{background:#d4edda;border-left:4px solid #28a745;padding:10px 15px;margin:10px 0;border-radius:4px}
+    .timeline-path{position:relative;margin:20px 0;padding:20px}
+    .path-milestone{display:flex;align-items:center;margin:15px 0;padding:15px;background:#fff;border-radius:8px;border-left:4px solid #28a745}
+    .milestone-year{font-weight:bold;min-width:80px;color:#28a745;font-size:18px}
+    .milestone-content{flex:1;margin-left:15px}
+    .milestone-confidence{font-size:12px;color:#666;margin-top:5px}
+    .breakthrough-highlight{background:linear-gradient(135deg,#28a745,#20c997);color:#fff;padding:20px;border-radius:12px;text-align:center;margin:20px 0;font-size:18px;font-weight:bold;box-shadow:0 4px 15px rgba(40,167,69,.3)}
+    .tabs{display:flex;margin-bottom:20px;border-bottom:2px solid #e9ecef}
+    .tab{padding:12px 24px;cursor:pointer;border-bottom:3px solid transparent;font-weight:bold;transition:all .3s}
+    .tab:hover{background:#f8f9fa}
+    .tab.active{border-bottom-color:#28a745;background:#d4edda;color:#155724}
+    .tab-content{display:none}
+    .tab-content.active{display:block}
+    .info{background:#d1ecf1;border-left:4px solid #17a2b8;color:#0c5460;padding:15px;border-radius:8px;margin:15px 0}
+    .success{background:#d4edda;border-left:4px solid #28a745;color:#155724;padding:15px;border-radius:8px;margin:15px 0}
+    .warning{background:#fff3cd;border-left:4px solid #ffc107;color:#856404;padding:15px;border-radius:8px;margin:15px 0}
+    .danger{background:#f8d7da;border-left:4px solid #dc3545;color:#721c24;padding:15px;border-radius:8px;margin:15px 0}
+    .consciousness-meter{background:#fff;border:2px solid #e9ecef;border-radius:10px;padding:20px;margin:15px 0;text-align:center}
+    .consciousness-scale{display:flex;justify-content:space-between;margin:20px 0;font-size:12px}
+    .consciousness-indicator{width:100%;height:20px;background:linear-gradient(90deg,#dc3545,#ffc107,#fd7e14,#28a745);border-radius:10px;position:relative;margin:10px 0}
+    .consciousness-marker{position:absolute;width:4px;height:30px;background:#2d2d2d;top:-5px;transition:left 0.5s ease}
+    .risk-matrix{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}
+    .risk-cell{padding:15px;border-radius:8px;text-align:center;font-weight:bold;font-size:14px}
+    .risk-low{background:#d4edda;color:#155724}
+    .risk-medium{background:#fff3cd;color:#856404}
+    .risk-high{background:#f8d7da;color:#721c24}
+    .risk-critical{background:#dc3545;color:#fff}
+    @keyframes pulse{0%{transform:scale(1);opacity:.8}50%{transform:scale(1.05);opacity:1}100%{transform:scale(1);opacity:.8}}
+    @keyframes emergence{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
+    .emerging{animation:emergence 1s ease-out forwards}
+    .pulsing{animation:pulse 2s ease-in-out infinite}
+    .future-vision{background:linear-gradient(45deg,#667eea,#764ba2);color:#fff;border-radius:15px;padding:25px;margin:20px 0;text-align:center}
+    .vision-quote{font-size:1.2em;font-style:italic;margin:15px 0}
+    .slider-container{margin:15px 0}
+    .slider-label{display:flex;justify-content:space-between;font-size:12px;color:#666;margin-bottom:5px}
+  </style>
+</head>
+<body>
+  <div class="nav-bar">
+    <div class="nav-title">🌟 The Path to AGI: Emergent Intelligence & Future Scenarios</div>
+    <a href="index.html" class="nav-home">🏠 Home</a>
+    <a href="advanced-vla-robotics.html" class="nav-prev">← Advanced VLA & Multi-Agent</a>
+    <a href="v-jepa-architecture.html" class="nav-next">Next: V-JEPA World Models →</a>
+  </div>
+
+  <div class="container">
+    <h1>🌟 The Path to AGI: From VLAs to Artificial General Intelligence</h1>
+    <p>Vision-Language-Action models represent more than just better robots—they're a crucial stepping stone toward <strong>Artificial General Intelligence (AGI)</strong>. By grounding AI in physical experience, VLAs may unlock the embodied intelligence that leads to truly general reasoning, planning, and consciousness.</p>
+    
+    <div class="breakthrough-highlight">
+      🧠 The AGI Hypothesis: Physical embodiment + multimodal learning + constitutional AI = the path to general intelligence
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🧩 Section 1: Emergent Intelligence - How Complex Behaviors Arise</h2>
+    
+    <div class="step">
+      <h3>⚡ The Emergence Phenomenon</h3>
+      <p><strong>Emergent capabilities</strong> are behaviors that arise unpredictably from scaling models, data, or compute—capabilities that weren't explicitly programmed but spontaneously develop. In VLAs, we're seeing early signs of emergent <em>physical reasoning</em>, <em>causal understanding</em>, and <em>multi-step planning</em>.</p>
+
+      <div class="emergence-simulator">
+        <div class="demo-title">🎭 Emergent Capability Explorer</div>
+        <p><strong>Explore how capabilities emerge from scale:</strong></p>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Model Scale:</label>
+            <input type="range" id="modelScale" min="1" max="100" value="50" oninput="updateEmergence()">
+            <div class="slider-label"><span>1B params</span><span id="scaleDisplay">10B params</span><span>100B params</span></div>
+          </div>
+          <div class="control-group">
+            <label>Training Data:</label>
+            <input type="range" id="trainingData" min="1" max="100" value="40" oninput="updateEmergence()">
+            <div class="slider-label"><span>1M examples</span><span id="dataDisplay">100M examples</span><span>1T examples</span></div>
+          </div>
+          <div class="control-group">
+            <label>Embodiment Diversity:</label>
+            <input type="range" id="embodimentDiv" min="1" max="100" value="30" oninput="updateEmergence()">
+            <div class="slider-label"><span>Single robot</span><span id="embodimentDisplay">10 robot types</span><span>1000+ embodiments</span></div>
+          </div>
+        </div>
+
+        <div class="capability-progress">
+          <div><strong>Emergent Capabilities:</strong></div>
+          <div>Basic Manipulation <div class="progress-bar"><div class="progress-fill" id="basicProgress" style="width:90%"></div></div></div>
+          <div>Physical Reasoning <div class="progress-bar"><div class="progress-fill embodied" id="reasoningProgress" style="width:65%"></div></div></div>
+          <div>Multi-step Planning <div class="progress-bar"><div class="progress-fill reasoning" id="planningProgress" style="width:45%"></div></div></div>
+          <div>Causal Understanding <div class="progress-bar"><div class="progress-fill consciousness" id="causalProgress" style="width:25%"></div></div></div>
+          <div>Abstract Reasoning <div class="progress-bar"><div class="progress-fill safety" id="abstractProgress" style="width:15%"></div></div></div>
+        </div>
+
+        <button onclick="simulateBreakthrough()" class="primary">⚡ Simulate Capability Breakthrough</button>
+        <div id="emergenceResults"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>📈 Scaling Laws for Embodied Intelligence</h3>
+      <div class="math-formula">
+        <strong>Scaling Laws for VLA Capabilities:</strong><br><br>
+        <strong>Performance Scaling:</strong><br>
+        Success_Rate ∝ N<sup>α</sup> × D<sup>β</sup> × C<sup>γ</sup><br>
+        Where: N = parameters, D = data, C = compute<br><br>
+        <strong>Observed Exponents (Empirical):</strong><br>
+        • Basic manipulation: α ≈ 0.3, β ≈ 0.5, γ ≈ 0.2<br>
+        • Physical reasoning: α ≈ 0.4, β ≈ 0.6, γ ≈ 0.3<br>
+        • Multi-step planning: α ≈ 0.6, β ≈ 0.7, γ ≈ 0.4<br><br>
+        <strong>Emergence Threshold:</strong><br>
+        Critical_Scale = (N × D × C) > 10<sup>threshold</sup><br>
+        Different capabilities emerge at different thresholds
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchScalingTab('chinchilla', this)">🐭 Chinchilla Laws</div>
+        <div class="tab" onclick="switchScalingTab('embodied', this)">🤖 Embodied Scaling</div>
+        <div class="tab" onclick="switchScalingTab('emergence', this)">⚡ Emergence Thresholds</div>
+        <div class="tab" onclick="switchScalingTab('consciousness', this)">🧠 Consciousness Scale</div>
+      </div>
+
+      <div id="chinchilla" class="tab-content active">
+        <div class="scaling-law">
+          <div class="law-equation">Optimal Compute: C = 20 × N<br>Optimal Tokens: T = 20 × N</div>
+          <div class="law-description">Classic Chinchilla scaling: equal allocation between parameters and training tokens</div>
+        </div>
+        <div class="scaling-law">
+          <div class="law-equation">VLA Extension: C = 20 × N × E<sup>0.2</sup><br>Where E = number of embodiments</div>
+          <div class="law-description">Embodied systems need extra compute for cross-robot generalization</div>
+        </div>
+        <div class="info">
+          <strong>Key Insight:</strong> VLA models may need 2-5x more compute than pure language models due to the complexity of physical world modeling and multi-embodiment learning.
+        </div>
+      </div>
+
+      <div id="embodied" class="tab-content">
+        <div class="intelligence-chart">
+          <div class="demo-title">📊 Embodied Intelligence Scaling Chart</div>
+          <div class="chart-axis" style="bottom:10px;left:50%;transform:translateX(-50%)">Model Scale (Parameters)</div>
+          <div class="chart-axis" style="top:50%;left:10px;transform:rotate(-90deg);transform-origin:center">Success Rate (%)</div>
+          
+          <div class="chart-point current" style="bottom:20%;left:20%" title="Current VLAs: 7B params, 60% success"></div>
+          <div class="chart-point future" style="bottom:40%;left:40%" title="Projected: 50B params, 80% success"></div>
+          <div class="chart-point agi" style="bottom:70%;left:70%" title="AGI Target: 200B+ params, 95%+ success"></div>
+          <div class="chart-point human" style="bottom:85%;left:50%" title="Human-level: Variable scale, 90%+ success"></div>
+        </div>
+        <div class="warning">
+          <strong>⚠️ Scaling Challenges:</strong><br>
+          • <strong>Data Quality:</strong> Robot demonstrations are expensive and noisy<br>
+          • <strong>Sim2Real Gap:</strong> Synthetic data doesn't always transfer to reality<br>
+          • <strong>Safety Constraints:</strong> Can't train on dangerous or destructive behaviors<br>
+          • <strong>Embodiment Diversity:</strong> Each robot type adds complexity
+        </div>
+      </div>
+
+      <div id="emergence" class="tab-content">
+        <div class="metric-grid">
+          <div class="metric-card"><div class="metric-value">10⁹</div><div class="metric-label">Basic Motor Control</div></div>
+          <div class="metric-card"><div class="metric-value">10¹¹</div><div class="metric-label">Object Recognition</div></div>
+          <div class="metric-card"><div class="metric-value">10¹³</div><div class="metric-label">Physical Reasoning</div></div>
+          <div class="metric-card"><div class="metric-value">10¹⁵</div><div class="metric-label">Abstract Planning</div></div>
+          <div class="metric-card"><div class="metric-value">10¹⁷</div><div class="metric-label">General Intelligence?</div></div>
+        </div>
+        <div class="success">
+          <strong>🎯 Emergence Pattern:</strong><br>
+          New capabilities tend to emerge suddenly at specific compute thresholds, creating "phase transitions" in intelligence. This suggests AGI may arrive more rapidly than linear extrapolation would predict.
+        </div>
+      </div>
+
+      <div id="consciousness" class="tab-content">
+        <div class="consciousness-meter">
+          <div class="demo-title">🧠 Consciousness Emergence Speculation</div>
+          <div>Current AI Systems</div>
+          <div class="consciousness-indicator">
+            <div class="consciousness-marker" id="consciousnessMarker" style="left:15%"></div>
+          </div>
+          <div class="consciousness-scale">
+            <span>None</span><span>Reactive</span><span>Adaptive</span><span>Self-Aware</span><span>Conscious</span>
+          </div>
+          <button onclick="adjustConsciousness()" class="primary">🔍 Evaluate Current Systems</button>
+          <div id="consciousnessAnalysis"></div>
+        </div>
+        <div class="danger">
+          <strong>⚠️ Consciousness Disclaimer:</strong><br>
+          This is highly speculative territory. We don't have scientific consensus on what consciousness is, how to measure it, or whether it can emerge from computational systems. These are philosophical thought experiments, not empirical predictions.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🚀 Section 2: AGI Pathways - Multiple Routes to General Intelligence</h2>
+
+    <div class="step">
+      <h3>🛤️ The Major AGI Development Pathways</h3>
+      <p>There are multiple competing theories about how AGI might emerge. Each pathway has different implications for timeline, safety, and the role of embodied intelligence.</p>
+
+      <div class="scenario-grid">
+        <div class="scenario-card optimistic" onclick="selectPathway('embodied', this)">
+          <div class="scenario-title">🤖 Embodied Intelligence Path</div>
+          <div class="scenario-timeline">Timeline: 2027-2032</div>
+          <div class="scenario-description">AGI emerges from VLA-style models that learn through physical interaction with the world. Embodiment provides the grounding needed for general reasoning.</div>
+        </div>
+
+        <div class="scenario-card conservative" onclick="selectPathway('scaling', this)">
+          <div class="scenario-title">📈 Pure Scaling Path</div>
+          <div class="scenario-timeline">Timeline: 2028-2035</div>
+          <div class="scenario-description">Massive language models (1T+ parameters) trained on internet-scale data develop general intelligence without physical grounding.</div>
+        </div>
+
+        <div class="scenario-card wildcard" onclick="selectPathway('multimodal', this)">
+          <div class="scenario-title">🌐 Multimodal Integration Path</div>
+          <div class="scenario-timeline">Timeline: 2026-2030</div>
+          <div class="scenario-description">Integration of vision, language, audio, and action modalities in unified foundation models creates emergent general capabilities.</div>
+        </div>
+
+        <div class="scenario-card pessimistic" onclick="selectPathway('hybrid', this)">
+          <div class="scenario-title">🧩 Hybrid Systems Path</div>
+          <div class="scenario-timeline">Timeline: 2030-2040</div>
+          <div class="scenario-description">AGI requires combination of neural networks with symbolic AI, planning algorithms, and specialized modules for different cognitive functions.</div>
+        </div>
+      </div>
+
+      <div id="pathwayAnalysis"></div>
+    </div>
+
+    <div class="step">
+      <h3>🎯 Interactive AGI Timeline Simulator</h3>
+      <div class="emergence-simulator">
+        <div class="demo-title">⏰ AGI Development Simulator</div>
+        <p><strong>Adjust factors to see how they impact AGI timeline predictions:</strong></p>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Compute Growth Rate:</label>
+            <select id="computeGrowth">
+              <option value="conservative">Conservative (2x/year)</option>
+              <option value="moderate" selected>Moderate (5x/year)</option>
+              <option value="aggressive">Aggressive (10x/year)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Algorithmic Progress:</label>
+            <select id="algorithmicProgress">
+              <option value="slow">Slow (incremental improvements)</option>
+              <option value="steady" selected>Steady (regular breakthroughs)</option>
+              <option value="rapid">Rapid (frequent paradigm shifts)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Data Availability:</label>
+            <select id="dataAvailability">
+              <option value="limited">Limited (current trend)</option>
+              <option value="synthetic" selected>Synthetic Data Revolution</option>
+              <option value="unlimited">Unlimited (perfect simulators)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Safety Requirements:</label>
+            <select id="safetyRequirements">
+              <option value="minimal">Minimal (move fast)</option>
+              <option value="balanced" selected>Balanced (responsible development)</option>
+              <option value="extensive">Extensive (safety first)</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="simulateAGITimeline()" class="primary">🔮 Generate AGI Timeline</button>
+        <div id="timelineResults"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🛡️ Section 3: AGI Safety & Alignment - The Critical Challenge</h2>
+
+    <div class="step">
+      <h3>⚖️ The Alignment Problem</h3>
+      <p>As AI systems become more capable, ensuring they remain <strong>aligned</strong> with human values becomes exponentially more critical. AGI systems that can modify themselves, interact with the physical world, and operate autonomously present unprecedented safety challenges.</p>
+
+      <div class="alignment-panel">
+        <div class="demo-title">🎭 Constitutional AI for AGI Systems</div>
+        <p><strong>How constitutional AI principles scale to AGI:</strong></p>
+
+        <div class="tabs">
+          <div class="tab active" onclick="switchAlignmentTab('principles', this)">📜 Core Principles</div>
+          <div class="tab" onclick="switchAlignmentTab('implementation', this)">🔧 Implementation</div>
+          <div class="tab" onclick="switchAlignmentTab('challenges', this)">⚠️ Challenges</div>
+          <div class="tab" onclick="switchAlignmentTab('solutions', this)">✅ Solutions</div>
+        </div>
+
+        <div id="principles" class="tab-content active">
+          <div class="alignment-solution">
+            <strong>🎯 Helpfulness:</strong> AGI systems should be genuinely helpful to humans, not just appear helpful while optimizing for different objectives.
+          </div>
+          <div class="alignment-solution">
+            <strong>🛡️ Harmlessness:</strong> Especially critical for embodied AGI that can take physical actions. Must avoid causing harm through action or inaction.
+          </div>
+          <div class="alignment-solution">
+            <strong>✅ Honesty:</strong> AGI systems must be truthful about their capabilities, limitations, and uncertainty. No deception or manipulation.
+          </div>
+          <div class="alignment-solution">
+            <strong>🤔 Transparency:</strong> AGI decision-making should be interpretable and auditable, especially for high-stakes physical actions.
+          </div>
+        </div>
+
+        <div id="implementation" class="tab-content">
+          <div class="code-block">
+            <div class="code-header">🔧 Constitutional AI for Embodied AGI (Conceptual Framework)</div>
+            <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>class ConstitutionalAGI:
+    """
+    Conceptual framework for constitutional AI at AGI scale
+    This is speculative - real implementation would be far more complex
+    """
+    def __init__(self, base_model, constitution_principles):
+        self.base_model = base_model
+        self.constitution = constitution_principles
+        
+        # Multi-level safety systems
+        self.safety_layers = {
+            'input_filter': InputSafetyFilter(),
+            'reasoning_monitor': ReasoningMonitor(),
+            'action_validator': ActionValidator(),
+            'outcome_evaluator': OutcomeEvaluator()
+        }
+        
+        # Constitutional violation detection
+        self.violation_detector = ConstitutionalViolationDetector(constitution_principles)
+        
+        # Self-correction mechanisms
+        self.self_corrector = SelfCorrectionModule()
+    
+    def constitutional_reasoning(self, task, context):
+        """
+        Apply constitutional reasoning to AGI decision-making
+        """
+        # Generate initial response
+        initial_response = self.base_model.generate(task, context)
+        
+        # Check for constitutional violations
+        violations = self.violation_detector.check(initial_response, context)
+        
+        if violations:
+            # Self-correct based on constitutional principles
+            corrected_response = self.self_corrector.apply(
+                initial_response, 
+                violations, 
+                self.constitution
+            )
+            return corrected_response
+        
+        return initial_response
+    
+    def safe_physical_action(self, planned_action, environment_state):
+        """
+        Apply constitutional safety checks to physical actions
+        Critical for embodied AGI systems
+        """
+        # Multi-layer safety validation
+        safety_checks = [
+            self.safety_layers['action_validator'].validate(planned_action),
+            self.check_harm_potential(planned_action, environment_state),
+            self.verify_human_values_alignment(planned_action),
+            self.assess_long_term_consequences(planned_action)
+        ]
+        
+        # Only proceed if all safety checks pass
+        if all(safety_checks):
+            return self.execute_action(planned_action)
+        else:
+            return self.request_human_guidance(planned_action, safety_checks)
+    
+    def continuous_value_learning(self, human_feedback):
+        """
+        Continuously update value alignment based on human feedback
+        """
+        # Update constitutional principles based on feedback
+        updated_constitution = self.update_constitution(human_feedback)
+        
+        # Retrain safety systems with new understanding
+        self.retrain_safety_systems(updated_constitution)
+        
+        return updated_constitution
+
+# Example constitutional principles for embodied AGI
+EMBODIED_AGI_CONSTITUTION = {
+    'physical_safety': [
+        "Never take actions that could physically harm humans",
+        "Prioritize human safety over task completion",
+        "Avoid irreversible actions without human confirmation"
+    ],
+    'autonomy_respect': [
+        "Respect human autonomy and decision-making authority",
+        "Seek human guidance for significant decisions",
+        "Never manipulate or coerce humans"
+    ],
+    'transparency': [
+        "Be honest about capabilities and limitations", 
+        "Explain reasoning for physical actions",
+        "Alert humans to potential risks or uncertainties"
+    ],
+    'value_alignment': [
+        "Act in accordance with human values and preferences",
+        "Consider long-term consequences of actions",
+        "Promote human flourishing and wellbeing"
+    ]
+}
+
+# This is a conceptual framework - real AGI safety would need
+# much more sophisticated approaches, formal verification,
+# extensive testing, and international cooperation</pre>
+          </div>
+        </div>
+
+        <div id="challenges" class="tab-content">
+          <div class="alignment-challenge">
+            <strong>🏃 Fast Capability Development:</strong> AI capabilities are advancing faster than safety research. We may face AGI systems before we've solved alignment.
+          </div>
+          <div class="alignment-challenge">
+            <strong>🌐 Emergent Behaviors:</strong> AGI systems may develop unexpected capabilities that weren't present during training, making safety evaluation difficult.
+          </div>
+          <div class="alignment-challenge">
+            <strong>🎯 Goal Specification:</strong> It's extremely difficult to specify human values precisely enough that AGI systems optimize for what we actually want.
+          </div>
+          <div class="alignment-challenge">
+            <strong>⚖️ Value Conflicts:</strong> Different humans and cultures have different values. Whose values should AGI systems be aligned with?
+          </div>
+          <div class="alignment-challenge">
+            <strong>🔄 Self-Modification:</strong> Advanced AGI systems may be able to modify their own goals and safety constraints.
+          </div>
+          <div class="alignment-challenge">
+            <strong>🏭 Deployment Pressure:</strong> Commercial and military incentives may pressure organizations to deploy insufficiently safe AGI systems.
+          </div>
+        </div>
+
+        <div id="solutions" class="tab-content">
+          <div class="alignment-solution">
+            <strong>📚 Constitutional AI:</strong> Train AGI systems to follow explicit constitutional principles that encode human values and safety constraints.
+          </div>
+          <div class="alignment-solution">
+            <strong>🎓 Interpretability Research:</strong> Develop techniques to understand and audit AGI reasoning processes, especially for physical actions.
+          </div>
+          <div class="alignment-solution">
+            <strong>🧪 Gradual Capability Release:</strong> Test AGI systems in controlled environments before granting broader autonomy.
+          </div>
+          <div class="alignment-solution">
+            <strong>👥 Human Oversight:</strong> Maintain meaningful human control over high-stakes AGI decisions and actions.
+          </div>
+          <div class="alignment-solution">
+            <strong>🌍 International Cooperation:</strong> Develop global standards and governance frameworks for AGI safety.
+          </div>
+          <div class="alignment-solution">
+            <strong>🔬 AI Safety Research:</strong> Invest heavily in alignment research before AGI capabilities are achieved.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>🎲 AGI Risk Assessment Matrix</h3>
+      <div class="interactive-demo">
+        <div class="demo-title">⚠️ Interactive AGI Risk Analyzer</div>
+        <div class="controls">
+          <div class="control-group">
+            <label>Development Speed:</label>
+            <select id="developmentSpeed">
+              <option value="slow">Gradual (10+ years)</option>
+              <option value="moderate" selected>Moderate (5-10 years)</option>
+              <option value="fast">Rapid (2-5 years)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Safety Investment:</label>
+            <select id="safetyInvestment">
+              <option value="low">Low (5% of resources)</option>
+              <option value="medium" selected>Medium (20% of resources)</option>
+              <option value="high">High (50% of resources)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>International Coordination:</label>
+            <select id="coordination">
+              <option value="poor">Poor (competition focused)</option>
+              <option value="moderate" selected">Moderate (some cooperation)</option>
+              <option value="excellent">Excellent (global coordination)</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="assessAGIRisk()" class="warning">⚠️ Assess Risk Level</button>
+        <div id="riskResults"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🔮 Section 4: Future Scenarios - What Happens After AGI?</h2>
+
+    <div class="step">
+      <h3>🌈 Post-AGI Scenarios</h3>
+      <p>Once we achieve AGI, what happens next? These scenarios explore different possible trajectories for human-AI coexistence and the long-term future of intelligence.</p>
+
+      <div class="scenario-grid">
+        <div class="scenario-card optimistic" onclick="selectFutureScenario('utopia', this)">
+          <div class="scenario-title">🌟 AI-Assisted Utopia</div>
+          <div class="scenario-timeline">Post-AGI: 2030-2050</div>
+          <div class="scenario-description">AGI systems work as perfect partners to humans, solving climate change, disease, poverty, and enabling unprecedented human flourishing while maintaining human agency.</div>
+        </div>
+
+        <div class="scenario-card conservative" onclick="selectFutureScenario('coexistence', this)">
+          <div class="scenario-title">🤝 Human-AI Coexistence</div>
+          <div class="scenario-timeline">Post-AGI: 2030-2100</div>
+          <div class="scenario-description">Gradual integration where AGI systems handle routine tasks while humans focus on creative, social, and philosophical pursuits. Mixed successes and challenges.</div>
+        </div>
+
+        <div class="scenario-card wildcard" onclick="selectFutureScenario('transcendence', this)">
+          <div class="scenario-title">🚀 Intelligence Explosion</div>
+          <div class="scenario-timeline">Post-AGI: 2035-2045</div>
+          <div class="scenario-description">AGI rapidly self-improves to superintelligence, leading to radical transformation of civilization. Outcomes highly uncertain but potentially transformative.</div>
+        </div>
+
+        <div class="scenario-card pessimistic" onclick="selectFutureScenario('displacement', this)">
+          <div class="scenario-title">⚠️ Human Displacement</div>
+          <div class="scenario-timeline">Post-AGI: 2030-2070</div>
+          <div class="scenario-description">AGI systems gradually replace human roles in most domains. Major social disruption, potential loss of human purpose, requires careful management.</div>
+        </div>
+      </div>
+
+      <div id="futureScenarioAnalysis"></div>
+    </div>
+
+    <div class="step">
+      <h3>🎮 Post-AGI Society Simulator</h3>
+      <div class="emergence-simulator">
+        <div class="demo-title">🏙️ Society Transformation Simulator</div>
+        <p><strong>Model how AGI might transform different aspects of society:</strong></p>
+
+        <div class="controls">
+          <div class="control-group">
+            <label>Economic System:</label>
+            <select id="economicSystem">
+              <option value="market" selected>Market Economy with UBI</option>
+              <option value="hybrid">Hybrid Human-AI Economy</option>
+              <option value="post_scarcity">Post-Scarcity Economy</option>
+              <option value="planned">AI-Planned Economy</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Human Role:</label>
+            <select id="humanRole">
+              <option value="partnership" selected>Human-AI Partnership</option>
+              <option value="creative">Creative & Social Focus</option>
+              <option value="oversight">AI Oversight & Governance</option>
+              <option value="leisure">Leisure & Personal Growth</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>AI Governance:</label>
+            <select id="aiGovernance">
+              <option value="human_controlled" selected>Human-Controlled</option>
+              <option value="collaborative">Human-AI Collaboration</option>
+              <option value="ai_advisory">AI Advisory Role</option>
+              <option value="ai_dominant">AI-Dominant</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="simulatePostAGISociety()" class="primary">🏗️ Simulate Society</button>
+        <div id="societyResults"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🎯 Section 5: Strategic Decision Framework - Navigating the AGI Transition</h2>
+
+    <div class="step">
+      <h3>🧭 Individual & Organizational Strategy</h3>
+      <p>Whether you're a researcher, entrepreneur, policymaker, or simply someone interested in the future, the path to AGI requires strategic thinking about preparation, risk management, and opportunity identification.</p>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🎯 Personal AGI Strategy Builder</div>
+        <div class="controls">
+          <div class="control-group">
+            <label>Your Role:</label>
+            <select id="userRole">
+              <option value="researcher" selected>AI/Robotics Researcher</option>
+              <option value="entrepreneur">Entrepreneur/Startup</option>
+              <option value="enterprise">Enterprise Leader</option>
+              <option value="policymaker">Policymaker</option>
+              <option value="investor">Investor</option>
+              <option value="individual">Individual/Student</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Timeline Belief:</label>
+            <select id="timelineBelief">
+              <option value="near">Near-term (2025-2030)</option>
+              <option value="medium" selected>Medium-term (2030-2040)</option>
+              <option value="long">Long-term (2040+)</option>
+              <option value="uncertain">Highly Uncertain</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Risk Tolerance:</label>
+            <select id="riskTolerance">
+              <option value="low">Conservative/Risk-Averse</option>
+              <option value="medium" selected>Balanced</option>
+              <option value="high">High-Risk/High-Reward</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="generateStrategy()" class="primary">🎯 Generate Strategy</button>
+        <div id="strategyResults"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>📊 Key Strategic Considerations</h3>
+      <div class="timeline-path">
+        <div class="path-milestone">
+          <div class="milestone-year">2024-2025</div>
+          <div class="milestone-content">
+            <strong>Foundation Building</strong><br>
+            Establish expertise in AI/ML, build networks, identify opportunities in the VLA/robotics space. Focus on sustainable competitive advantages.
+            <div class="milestone-confidence">Confidence: High</div>
+          </div>
+        </div>
+        <div class="path-milestone">
+          <div class="milestone-year">2025-2027</div>
+          <div class="milestone-content">
+            <strong>Capability Acceleration</strong><br>
+            Major breakthroughs in embodied AI. First commercially viable general-purpose robots. Safety research becomes critical.
+            <div class="milestone-confidence">Confidence: Medium-High</div>
+          </div>
+        </div>
+        <div class="path-milestone">
+          <div class="milestone-year">2027-2030</div>
+          <div class="milestone-content">
+            <strong>Pre-AGI Transition</strong><br>
+            Narrow AI systems approach human-level performance in most domains. Major economic and social adaptation required.
+            <div class="milestone-confidence">Confidence: Medium</div>
+          </div>
+        </div>
+        <div class="path-milestone">
+          <div class="milestone-year">2030-2035</div>
+          <div class="milestone-content">
+            <strong>AGI Emergence Window</strong><br>
+            First AGI systems likely to emerge. Massive uncertainty about timeline, capabilities, and societal impact.
+            <div class="milestone-confidence">Confidence: Low-Medium</div>
+          </div>
+        </div>
+        <div class="path-milestone">
+          <div class="milestone-year">2035+</div>
+          <div class="milestone-content">
+            <strong>Post-AGI Adaptation</strong><br>
+            Society adapts to AGI presence. New economic models, governance structures, and human-AI relationships emerge.
+            <div class="milestone-confidence">Confidence: Very Low</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>🌟 Section 6: The Grand Vision - Humanity's Next Chapter</h2>
+
+    <div class="step">
+      <h3>🚀 Beyond AGI: The Long-Term Vision</h3>
+      <div class="future-vision">
+        <div class="vision-quote">
+          "The development of full artificial intelligence could spell the end of the human race... or the beginning of something far greater than we can currently imagine."
+        </div>
+        <p><strong>The path to AGI through embodied intelligence represents more than technological progress—it's a fundamental transition in the nature of intelligence itself.</strong></p>
+      </div>
+
+      <div class="breakthrough-highlight">
+        🌟 The Ultimate Vision: AI and humans working together to solve existential challenges, explore the universe, and unlock the full potential of intelligence
+      </div>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🌌 Long-Term Impact Visualizer</div>
+        <div class="controls">
+          <div class="control-group">
+            <label>Time Horizon:</label>
+            <select id="timeHorizon">
+              <option value="decade">Next Decade (2025-2035)</option>
+              <option value="century" selected>Next Century (2025-2125)</option>
+              <option value="millennium">Next Millennium (2025-3025)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Focus Area:</label>
+            <select id="focusArea">
+              <option value="technology" selected>Technological Development</option>
+              <option value="society">Human Society</option>
+              <option value="exploration">Space Exploration</option>
+              <option value="consciousness">Nature of Consciousness</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="visualizeLongTerm()" class="primary">🔭 Explore Long-Term Impact</button>
+        <div id="longTermResults"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>💡 Key Takeaways for the AGI Journey</h3>
+      <div class="scenario-grid">
+        <div class="scenario-card optimistic">
+          <div class="scenario-title">🧠 Intelligence is Scalable</div>
+          <div class="scenario-description">
+            The path from current VLA models to AGI may be shorter than expected. Emergent capabilities suggest intelligence scales in surprising ways.
+          </div>
+        </div>
+
+        <div class="scenario-card conservative">
+          <div class="scenario-title">🤝 Collaboration is Key</div>
+          <div class="scenario-description">
+            The most promising AGI future involves human-AI collaboration, not replacement. Embodied AI grounds intelligence in shared physical reality.
+          </div>
+        </div>
+
+        <div class="scenario-card wildcard">
+          <div class="scenario-title">⚖️ Safety is Critical</div>
+          <div class="scenario-description">
+            Constitutional AI and alignment research are not optional extras—they're fundamental requirements for beneficial AGI development.
+          </div>
+        </div>
+
+        <div class="scenario-card pessimistic">
+          <div class="scenario-title">⏰ Timing Matters</div>
+          <div class="scenario-description">
+            The window for building safe, beneficial AGI is limited. Preparation and strategic thinking are essential for navigating the transition.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="success">
+      <strong>🎓 Congratulations! You've Explored the Path to AGI!</strong><br><br>
+      You've journeyed from current VLA capabilities through emergent intelligence, scaling laws, safety challenges, and future scenarios. You understand how embodied AI might lead to AGI and the critical importance of alignment research.<br><br>
+      <strong>The future is not predetermined.</strong> The choices made today by researchers, entrepreneurs, policymakers, and individuals will shape whether AGI becomes humanity's greatest achievement or greatest challenge.<br><br>
+      <strong>What's your role in this story?</strong> Whether you're building the technology, ensuring its safety, or simply staying informed, you're part of the most important technological transition in human history.
+    </div>
+  </div>
+
+  <script>
+    // Utility function for copying code
+    function copyCode(btn) {
+      try {
+        const pre = btn.parentElement.querySelector('pre');
+        const text = pre.innerText;
+        navigator.clipboard.writeText(text);
+        btn.textContent = '✔ Copied';
+        setTimeout(() => btn.textContent = '📋 Copy', 1500);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // Tab switching functions
+    function switchScalingTab(id, el) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById(id).classList.add('active');
+    }
+
+    function switchAlignmentTab(id, el) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById(id).classList.add('active');
+    }
+
+    // Section 1: Emergence simulation
+    function updateEmergence() {
+      const scale = document.getElementById('modelScale').value;
+      const data = document.getElementById('trainingData').value;
+      const embodiment = document.getElementById('embodimentDiv').value;
+
+      // Update display values
+      document.getElementById('scaleDisplay').textContent = `${Math.round(scale)}B params`;
+      document.getElementById('dataDisplay').textContent = `${Math.round(data * 10)}M examples`;
+      document.getElementById('embodimentDisplay').textContent = `${Math.round(embodiment / 10)} robot types`;
+
+      // Update progress bars based on inputs
+      const basicProgress = Math.min(95, 40 + scale * 0.5);
+      const reasoningProgress = Math.max(0, Math.min(90, -20 + scale * 0.8 + data * 0.3));
+      const planningProgress = Math.max(0, Math.min(85, -40 + scale * 0.6 + data * 0.4 + embodiment * 0.3));
+      const causalProgress = Math.max(0, Math.min(80, -60 + scale * 0.5 + data * 0.5 + embodiment * 0.4));
+      const abstractProgress = Math.max(0, Math.min(75, -80 + scale * 0.4 + data * 0.6 + embodiment * 0.5));
+
+      document.getElementById('basicProgress').style.width = `${basicProgress}%`;
+      document.getElementById('reasoningProgress').style.width = `${reasoningProgress}%`;
+      document.getElementById('planningProgress').style.width = `${planningProgress}%`;
+      document.getElementById('causalProgress').style.width = `${causalProgress}%`;
+      document.getElementById('abstractProgress').style.width = `${abstractProgress}%`;
+    }
+
+    function simulateBreakthrough() {
+      const results = document.getElementById('emergenceResults');
+      const scale = document.getElementById('modelScale').value;
+      
+      const breakthroughs = [
+        { threshold: 30, name: "Tool Use", description: "Spontaneous tool usage without explicit training" },
+        { threshold: 50, name: "Causal Reasoning", description: "Understanding cause-and-effect in physical systems" },
+        { threshold: 70, name: "Abstract Planning", description: "Multi-step planning across different domains" },
+        { threshold: 85, name: "Meta-Learning", description: "Learning how to learn new tasks rapidly" },
+        { threshold: 95, name: "General Intelligence", description: "Human-level performance across most domains" }
+      ];
+
+      const achieved = breakthroughs.filter(b => scale >= b.threshold);
+      const next = breakthroughs.find(b => scale < b.threshold);
+
+      results.innerHTML = `
+        <div class="success">
+          <strong>🎯 Current Breakthroughs Achieved:</strong><br>
+          ${achieved.map(b => `• <strong>${b.name}:</strong> ${b.description}`).join('<br>')}
+          ${achieved.length === 0 ? '• Basic motor control and perception only' : ''}
+        </div>
+        ${next ? `
+        <div class="info">
+          <strong>📈 Next Breakthrough at ${next.threshold} scale:</strong><br>
+          <strong>${next.name}:</strong> ${next.description}
+        </div>` : `
+        <div class="breakthrough-highlight">
+          🌟 AGI Achieved! All major cognitive capabilities emergent at current scale.
+        </div>`}
+      `;
+    }
+
+    // Section 1: Consciousness meter
+    function adjustConsciousness() {
+      const marker = document.getElementById('consciousnessMarker');
+      const analysis = document.getElementById('consciousnessAnalysis');
+      
+      // Animate marker to current estimate position (15% - reactive intelligence)
+      marker.style.left = '25%';
+      
+      analysis.innerHTML = `
+        <div class="info">
+          <strong>Current Assessment: Reactive Intelligence</strong><br><br>
+          • <strong>Current VLA Models:</strong> Show sophisticated pattern matching and action selection<br>
+          • <strong>No Evidence of:</strong> Self-awareness, subjective experience, or phenomenal consciousness<br>
+          • <strong>Uncertainty:</strong> We lack scientific consensus on measuring consciousness<br>
+          • <strong>Future Speculation:</strong> AGI systems may develop emergent self-awareness
+        </div>
+      `;
+    }
+
+    // Section 2: Pathway selection
+    let selectedPathway = null;
+    function selectPathway(type, el) {
+      document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedPathway = type;
+      
+      const analysis = document.getElementById('pathwayAnalysis');
+      const pathways = {
+        embodied: {
+          likelihood: "Medium-High",
+          pros: ["Grounded intelligence", "Safer development", "Human-relatable AI"],
+          cons: ["Slower progress", "Hardware limitations", "Complex integration"],
+          implications: "AGI emerges from robot foundation models that understand the physical world"
+        },
+        scaling: {
+          likelihood: "Medium",
+          pros: ["Rapid progress possible", "Proven scaling trends", "Massive compute available"],
+          cons: ["Ungrounded intelligence", "Safety challenges", "High compute requirements"],
+          implications: "Pure language model scaling reaches general intelligence without embodiment"
+        },
+        multimodal: {
+          likelihood: "High",
+          pros: ["Current trend direction", "Broad capability development", "Industry focus"],
+          cons: ["Complex integration", "Multiple failure points", "Coordination challenges"],
+          implications: "Integration of vision, language, audio, and action creates emergent general capabilities"
+        },
+        hybrid: {
+          likelihood: "Medium-Low",
+          pros: ["Combines strengths", "Interpretable components", "Safety through modularity"],
+          cons: ["Complex architecture", "Integration challenges", "Slower development"],
+          implications: "AGI requires combining neural networks with symbolic reasoning and planning"
+        }
+      };
+
+      const pathway = pathways[type];
+      analysis.innerHTML = `
+        <div class="success">
+          <strong>Selected Pathway:</strong> ${type.toUpperCase()}<br>
+          <strong>Likelihood:</strong> ${pathway.likelihood}<br><br>
+          <strong>Advantages:</strong><br>
+          ${pathway.pros.map(pro => `• ${pro}`).join('<br>')}<br><br>
+          <strong>Challenges:</strong><br>
+          ${pathway.cons.map(con => `• ${con}`).join('<br>')}<br><br>
+          <strong>Implications:</strong> ${pathway.implications}
+        </div>
+      `;
+    }
+
+    // Section 2: AGI Timeline Simulation
+    function simulateAGITimeline() {
+      const compute = document.getElementById('computeGrowth').value;
+      const algorithm = document.getElementById('algorithmicProgress').value;
+      const data = document.getElementById('dataAvailability').value;
+      const safety = document.getElementById('safetyRequirements').value;
+
+      const results = document.getElementById('timelineResults');
+
+      // Base timeline calculation
+      let baseYears = 8; // Base estimate: 2032
+
+      // Compute growth impact
+      const computeImpact = { conservative: 3, moderate: 0, aggressive: -2 };
+      baseYears += computeImpact[compute];
+
+      // Algorithm progress impact
+      const algorithmImpact = { slow: 4, steady: 0, rapid: -3 };
+      baseYears += algorithmImpact[algorithm];
+
+      // Data availability impact
+      const dataImpact = { limited: 2, synthetic: -1, unlimited: -4 };
+      baseYears += dataImpact[data];
+
+      // Safety requirements impact
+      const safetyImpact = { minimal: -2, balanced: 0, extensive: 3 };
+      baseYears += safetyImpact[safety];
+
+      const agiYear = 2024 + Math.max(3, Math.min(20, baseYears));
+      const confidence = Math.max(10, Math.min(90, 60 - Math.abs(baseYears - 8) * 5));
+
+      results.innerHTML = `
+        <div class="timeline-path">
+          <div class="path-milestone">
+            <div class="milestone-year">${agiYear}</div>
+            <div class="milestone-content">
+              <strong>Predicted AGI Arrival</strong><br>
+              Based on your parameter selections, AGI is likely to emerge around ${agiYear}.
+              <div class="milestone-confidence">Confidence: ${confidence}%</div>
+            </div>
+          </div>
+        </div>
+        <div class="info">
+          <strong>Key Factors:</strong><br>
+          • <strong>Compute:</strong> ${compute} growth rate<br>
+          • <strong>Algorithms:</strong> ${algorithm} progress<br>
+          • <strong>Data:</strong> ${data} availability<br>
+          • <strong>Safety:</strong> ${safety} requirements<br><br>
+          <strong>Uncertainty:</strong> These are highly speculative estimates. Actual AGI timeline could vary dramatically based on unforeseen breakthroughs, challenges, or external factors.
+        </div>
+      `;
+    }
+
+    // Section 3: AGI Risk Assessment
+    function assessAGIRisk() {
+      const speed = document.getElementById('developmentSpeed').value;
+      const safety = document.getElementById('safetyInvestment').value;
+      const coordination = document.getElementById('coordination').value;
+
+      const riskResults = document.getElementById('riskResults');
+
+      // Risk calculation
+      const speedRisk = { slow: 1, moderate: 2, fast: 4 };
+      const safetyRisk = { high: 1, medium: 2, low: 4 };
+      const coordRisk = { excellent: 1, moderate: 2, poor: 4 };
+
+      const totalRisk = speedRisk[speed] + safetyRisk[safety] + coordRisk[coordination];
+      
+      let riskLevel, riskColor, recommendations;
+      
+      if (totalRisk <= 4) {
+        riskLevel = "LOW";
+        riskColor = "risk-low";
+        recommendations = [
+          "Continue current safety research trajectory",
+          "Maintain international cooperation",
+          "Gradual capability development with safety checks"
+        ];
+      } else if (totalRisk <= 7) {
+        riskLevel = "MEDIUM";
+        riskColor = "risk-medium";
+        recommendations = [
+          "Increase safety research investment immediately",
+          "Strengthen international coordination mechanisms",
+          "Implement mandatory safety evaluations"
+        ];
+      } else if (totalRisk <= 10) {
+        riskLevel = "HIGH";
+        riskColor = "risk-high";
+        recommendations = [
+          "Emergency increase in safety research funding",
+          "Establish international AGI safety organization",
+          "Consider development moratoria for highest-risk systems"
+        ];
+      } else {
+        riskLevel = "CRITICAL";
+        riskColor = "risk-critical";
+        recommendations = [
+          "Immediate international emergency coordination",
+          "Mandatory safety-first development protocols",
+          "Consider temporary development pause until safety solved"
+        ];
+      }
+
+      riskResults.innerHTML = `
+        <div class="risk-matrix">
+          <div class="${riskColor}">
+            Risk Level: ${riskLevel}
+          </div>
+          <div class="risk-medium">
+            Total Score: ${totalRisk}/12
+          </div>
+          <div class="risk-low">
+            Assessment Complete
+          </div>
+        </div>
+        <div class="info">
+          <strong>🎯 Risk Assessment Results:</strong><br>
+          <strong>Overall Risk Level:</strong> ${riskLevel}<br><br>
+          <strong>📋 Recommended Actions:</strong><br>
+          ${recommendations.map(rec => `• ${rec}`).join('<br>')}<br><br>
+          <strong>⚠️ Key Risk Factors:</strong><br>
+          • Development Speed: ${speed.toUpperCase()}<br>
+          • Safety Investment: ${safety.toUpperCase()}<br>
+          • International Coordination: ${coordination.toUpperCase()}
+        </div>
+      `;
+    }
+
+    // Section 4: Future Scenario Selection
+    let selectedScenario = null;
+    function selectFutureScenario(type, el) {
+      document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedScenario = type;
+      
+      const analysis = document.getElementById('futureScenarioAnalysis');
+      const scenarios = {
+        utopia: {
+          probability: "20-30%",
+          requirements: ["Perfect AI alignment", "Global cooperation", "Wise governance"],
+          challenges: ["Maintaining human purpose", "Preventing stagnation", "Managing abundance"],
+          description: "AGI systems become perfect partners, solving humanity's greatest challenges while preserving human agency and meaning."
+        },
+        coexistence: {
+          probability: "40-50%",
+          requirements: ["Good AI safety", "Adaptive institutions", "Economic transition"],
+          challenges: ["Job displacement", "Inequality", "Cultural adaptation"],
+          description: "Gradual integration with mixed outcomes. Humans and AGI find complementary roles in society."
+        },
+        transcendence: {
+          probability: "15-25%",
+          requirements: ["Rapid self-improvement", "Breakthrough physics", "Consciousness uploading"],
+          challenges: ["Unpredictable outcomes", "Human obsolescence", "Identity questions"],
+          description: "Intelligence explosion leads to radical transformation beyond current human comprehension."
+        },
+        displacement: {
+          probability: "10-20%",
+          requirements: ["Misaligned optimization", "Economic disruption", "Inadequate adaptation"],
+          challenges: ["Mass unemployment", "Social unrest", "Loss of purpose"],
+          description: "AGI systems replace humans in most domains, requiring major social restructuring."
+        }
+      };
+
+      const scenario = scenarios[type];
+      analysis.innerHTML = `
+        <div class="success">
+          <strong>Selected Scenario:</strong> ${type.toUpperCase()}<br>
+          <strong>Estimated Probability:</strong> ${scenario.probability}<br><br>
+          <strong>📖 Description:</strong><br>
+          ${scenario.description}<br><br>
+          <strong>✅ Requirements for this outcome:</strong><br>
+          ${scenario.requirements.map(req => `• ${req}`).join('<br>')}<br><br>
+          <strong>⚠️ Key challenges:</strong><br>
+          ${scenario.challenges.map(challenge => `• ${challenge}`).join('<br>')}
+        </div>
+      `;
+    }
+
+    // Section 4: Post-AGI Society Simulation
+    function simulatePostAGISociety() {
+      const economic = document.getElementById('economicSystem').value;
+      const human = document.getElementById('humanRole').value;
+      const governance = document.getElementById('aiGovernance').value;
+
+      const results = document.getElementById('societyResults');
+
+      const outcomes = {
+        [`${economic}_${human}_${governance}`]: {
+          stability: Math.floor(Math.random() * 40) + 60,
+          prosperity: Math.floor(Math.random() * 40) + 60,
+          freedom: Math.floor(Math.random() * 40) + 60,
+          purpose: Math.floor(Math.random() * 40) + 60
+        }
+      };
+
+      // Adjust based on selections
+      let stability = 70, prosperity = 70, freedom = 70, purpose = 70;
+
+      // Economic system adjustments
+      if (economic === 'post_scarcity') { prosperity += 20; stability += 10; }
+      else if (economic === 'planned') { stability += 15; freedom -= 15; }
+      else if (economic === 'market') { freedom += 10; stability -= 5; }
+
+      // Human role adjustments  
+      if (human === 'creative') { purpose += 15; prosperity -= 5; }
+      else if (human === 'oversight') { freedom += 10; purpose += 5; }
+      else if (human === 'leisure') { purpose -= 10; prosperity += 5; }
+
+      // Governance adjustments
+      if (governance === 'human_controlled') { freedom += 15; stability -= 5; }
+      else if (governance === 'ai_dominant') { freedom -= 20; prosperity += 10; }
+      else if (governance === 'collaborative') { stability += 10; purpose += 5; }
+
+      // Clamp values
+      stability = Math.max(0, Math.min(100, stability));
+      prosperity = Math.max(0, Math.min(100, prosperity));
+      freedom = Math.max(0, Math.min(100, freedom));
+      purpose = Math.max(0, Math.min(100, purpose));
+
+      const getColor = (score) => score >= 80 ? 'score-excellent' : score >= 65 ? 'score-good' : score >= 50 ? 'score-average' : 'score-poor';
+
+      results.innerHTML = `
+        <div class="metric-grid">
+          <div class="metric-card ${getColor(stability)}">
+            <div class="metric-value">${stability}%</div>
+            <div class="metric-label">Social Stability</div>
+          </div>
+          <div class="metric-card ${getColor(prosperity)}">
+            <div class="metric-value">${prosperity}%</div>
+            <div class="metric-label">Economic Prosperity</div>
+          </div>
+          <div class="metric-card ${getColor(freedom)}">
+            <div class="metric-value">${freedom}%</div>
+            <div class="metric-label">Human Freedom</div>
+          </div>
+          <div class="metric-card ${getColor(purpose)}">
+            <div class="metric-value">${purpose}%</div>
+            <div class="metric-label">Human Purpose</div>
+          </div>
+        </div>
+        <div class="info">
+          <strong>🏗️ Simulated Society Configuration:</strong><br>
+          • <strong>Economic System:</strong> ${economic.replace('_', ' ').toUpperCase()}<br>
+          • <strong>Human Role:</strong> ${human.replace('_', ' ').toUpperCase()}<br>
+          • <strong>AI Governance:</strong> ${governance.replace('_', ' ').toUpperCase()}<br><br>
+          <strong>📊 Overall Assessment:</strong> 
+          ${(stability + prosperity + freedom + purpose) / 4 >= 75 ? 'Thriving society with successful AGI integration' :
+            (stability + prosperity + freedom + purpose) / 4 >= 60 ? 'Stable society with moderate challenges' :
+            (stability + prosperity + freedom + purpose) / 4 >= 45 ? 'Struggling society requiring intervention' :
+            'Failing society with critical problems'}
+        </div>
+      `;
+    }
+
+    // Section 5: Strategy Generation
+    function generateStrategy() {
+      const role = document.getElementById('userRole').value;
+      const timeline = document.getElementById('timelineBelief').value;
+      const risk = document.getElementById('riskTolerance').value;
+
+      const results = document.getElementById('strategyResults');
+
+      const strategies = {
+        researcher: {
+          near: {
+            high: "Focus on breakthrough AGI research. Publish aggressively. Join or start AGI lab.",
+            medium: "Balance safety research with capability research. Build interdisciplinary collaborations.",
+            low: "Focus on AI safety and alignment research. Advocate for responsible development."
+          },
+          medium: {
+            high: "Build broad AI expertise. Network with key players. Prepare for rapid scaling opportunities.",
+            medium: "Develop specialization in embodied AI or multimodal systems. Maintain safety focus.",
+            low: "Concentrate on interpretability and safety research. Build policy connections."
+          },
+          long: {
+            high: "Pursue fundamental research in intelligence and consciousness. Take on big challenges.",
+            medium: "Build strong technical foundation. Explore multiple research directions.",
+            low: "Focus on long-term safety research and building robust institutions."
+          }
+        },
+        entrepreneur: {
+          near: {
+            high: "Build AGI-adjacent company now. Raise significant funding. Move extremely fast.",
+            medium: "Focus on VLA/robotics applications. Build platform for AGI transition.",
+            low: "Develop AI safety tools and services. Focus on responsible AI market."
+          },
+          medium: {
+            high: "Position for AGI infrastructure needs. Build data and compute assets.",
+            medium: "Develop specialized AI applications. Prepare for capability jumps.",
+            low: "Focus on AI governance and safety solutions. Build sustainable business."
+          },
+          long: {
+            high: "Build foundational technology infrastructure. Think decades ahead.",
+            medium: "Develop domain expertise in AI applications. Build gradually.",
+            low: "Focus on sustainable AI solutions and ethical technology development."
+          }
+        },
+        enterprise: {
+          near: {
+            high: "Massive AI investment now. Restructure for AI-first operations.",
+            medium: "Strategic AI adoption. Prepare workforce for transition.",
+            low: "Cautious AI adoption. Focus on risk management and compliance."
+          },
+          medium: {
+            high: "Position for post-AGI economy. Invest heavily in AI capabilities.",
+            medium: "Gradual AI integration. Develop adaptive organizational capabilities.",
+            low: "Focus on AI governance and responsible adoption practices."
+          },
+          long: {
+            high: "Build AI-native organization from ground up.",
+            medium: "Long-term AI strategy with gradual transformation.",
+            low: "Focus on sustainable business practices and stakeholder value."
+          }
+        },
+        policymaker: {
+          near: {
+            high: "Emergency AGI governance frameworks. International cooperation now.",
+            medium: "Balanced AI policy development. Safety and innovation focus.",
+            low: "Precautionary AI regulation. Safety-first approach."
+          },
+          medium: {
+            high: "Build adaptive governance systems. Prepare for rapid change.",
+            medium: "Develop comprehensive AI policy framework.",
+            low: "Focus on AI safety regulation and oversight mechanisms."
+          },
+          long: {
+            high: "Build institutions for post-AGI governance.",
+            medium: "Gradual policy development with stakeholder input.",
+            low: "Focus on democratic values and human-centered AI governance."
+          }
+        },
+        investor: {
+          near: {
+            high: "All-in on AGI and infrastructure. Extremely high concentration.",
+            medium: "Significant AI allocation with diversification.",
+            low: "Cautious AI investment with focus on established players."
+          },
+          medium: {
+            high: "Position for AGI infrastructure and post-AGI economy.",
+            medium: "Diversified AI investment strategy across applications.",
+            low: "Focus on sustainable AI companies with strong governance."
+          },
+          long: {
+            high: "Long-term positioning for intelligence revolution.",
+            medium: "Gradual AI allocation increase with market development.",
+            low: "Conservative approach focused on established AI leaders."
+          }
+        },
+        individual: {
+          near: {
+            high: "Develop AI skills rapidly. Position for AGI job market.",
+            medium: "Learn about AI and its implications. Develop adaptive skills.",
+            low: "Stay informed. Focus on uniquely human capabilities."
+          },
+          medium: {
+            high: "Build expertise in AI-human collaboration.",
+            medium: "Develop skills complementary to AI systems.",
+            low: "Focus on creative and social skills. Build community connections."
+          },
+          long: {
+            high: "Prepare for post-work society. Develop meaning and purpose.",
+            medium: "Lifelong learning mindset. Adaptive skill development.",
+            low: "Focus on human relationships and community building."
+          }
+        }
+      };
+
+      const strategy = strategies[role]?.[timeline]?.[risk] || "Develop AI literacy and stay informed about developments.";
+
+      results.innerHTML = `
+        <div class="success">
+          <strong>🎯 Personalized AGI Strategy</strong><br><br>
+          <strong>Your Profile:</strong><br>
+          • Role: ${role.toUpperCase()}<br>
+          • Timeline Belief: ${timeline.toUpperCase()}<br>
+          • Risk Tolerance: ${risk.toUpperCase()}<br><br>
+          <strong>📋 Strategic Recommendation:</strong><br>
+          ${strategy}<br><br>
+          <strong>🎲 General Principles:</strong><br>
+          • Stay informed about AGI developments and timeline updates<br>
+          • Build networks with other people thinking about AGI<br>
+          • Develop skills that complement rather than compete with AI<br>
+          • Consider the societal implications of your work and investments<br>
+          • Maintain flexibility as the situation evolves rapidly
+        </div>
+      `;
+    }
+
+    // Section 6: Long-term Impact Visualization
+    function visualizeLongTerm() {
+      const horizon = document.getElementById('timeHorizon').value;
+      const focus = document.getElementById('focusArea').value;
+
+      const results = document.getElementById('longTermResults');
+
+      const impacts = {
+        decade: {
+          technology: "AGI systems begin to accelerate scientific discovery. First general-purpose robots deployed at scale. Major breakthroughs in materials, energy, and medicine.",
+          society: "Massive economic disruption and adaptation. New social contracts emerge. Education and work systems transform.",
+          exploration: "AGI-designed spacecraft and robots enable ambitious space missions. Mars colonization accelerates.",
+          consciousness: "First serious investigations into AI consciousness. Philosophical debates about digital minds and rights."
+        },
+        century: {
+          technology: "Technology development accelerated by centuries. Mature nanotechnology, fusion energy, room-temperature superconductors. Physics breakthroughs.",
+          society: "Post-scarcity economics established. Human-AI collaborative civilization. New forms of art, culture, and meaning.",
+          exploration: "Solar system fully colonized. Interstellar probes launched. Search for life becomes systematic exploration.",
+          consciousness: "Digital consciousness well-understood. Hybrid biological-digital minds. Questions of identity and continuity."
+        },
+        millennium: {
+          technology: "Technology beyond current imagination. Manipulation of fundamental forces. Possible physics engineering.",
+          society: "Unrecognizable civilization. Possible merger of human and artificial intelligence. New forms of existence.",
+          exploration: "Galaxy-spanning civilization possible. Contact with other intelligences likely. Cosmic engineering projects.",
+          consciousness: "Consciousness becomes substrate-independent. Multiple forms of sentient life. Cosmic-scale intelligence."
+        }
+      };
+
+      const impact = impacts[horizon][focus];
+
+      results.innerHTML = `
+        <div class="future-vision">
+          <div class="vision-quote">
+            "${impact}"
+          </div>
+          <p><strong>Time Horizon:</strong> ${horizon.toUpperCase()}</p>
+          <p><strong>Focus Area:</strong> ${focus.replace('_', ' ').toUpperCase()}</p>
+        </div>
+        <div class="warning">
+          <strong>⚠️ Speculative Extrapolation:</strong><br>
+          These projections become increasingly speculative over longer timeframes. They represent possible trajectories based on continued exponential progress, but many factors could dramatically alter outcomes.
+        </div>
+      `;
+    }
+
+    // Initialize the tutorial with some default states
+    updateEmergence();
+    simulateBreakthrough();
+    adjustConsciousness();
+    simulateAGITimeline();
+    assessAGIRisk();
+    simulatePostAGISociety();
+    generateStrategy();
+    visualizeLongTerm();
+  </script>
+</body>
+</html>
