@@ -249,6 +249,320 @@
         h<sub>fused</sub> = LayerNorm(h<sub>vision</sub> + h<sub>audio</sub> + h<sub>haptic</sub> + h<sub>proprio</sub>)
       </div>
 
+  <div class="step">
+      <h3>🔀 Multi-Modal Fusion Architecture Practical Implementation</h3>
+      <p>The core challenge in multi-modal VLA is converting heterogeneous sensor data into a unified representation for action prediction. Our architecture employs a token-based approach with cross-modal attention and temporal fusion.</p>
+
+      <div class="fusion-architecture">
+        <div class="fusion-layer">
+          <div class="layer-title">🎯 Modal-Specific Encoding Layer</div>
+          <div class="layer-flow">
+            <div class="flow-component">RGB-D<br>Vision<br>(224×224×4)</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-component">4-Channel<br>Audio<br>(48kHz)</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-component">Force/Torque<br>Haptic<br>(6D @ 1kHz)</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-component">Joint States<br>Proprioception<br>(14D @ 1kHz)</div>
+          </div>
+          <div style="text-align:center; margin-top:10px; font-size:12px; color:#666;">
+            Each modality processed through specialized encoders (ViT, Whisper, LSTM, MLP)
+          </div>
+        </div>
+
+        <div class="fusion-layer">
+          <div class="layer-title">📏 Temporal Alignment & Token Generation</div>
+          <div class="layer-flow">
+            <div class="flow-component">Vision Tokens<br>(196 patches)</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-component">Audio Tokens<br>(100 frames)</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-component">Haptic Tokens<br>(50Hz aligned)</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-component">Proprio Tokens<br>(50Hz aligned)</div>
+          </div>
+          <div style="text-align:center; margin-top:10px; font-size:12px; color:#666;">
+            All modalities aligned to 50Hz robot control frequency with position encodings
+          </div>
+        </div>
+
+        <div class="fusion-layer">
+          <div class="layer-title">🔄 Cross-Modal Attention Fusion</div>
+          <div class="layer-flow">
+            <div class="flow-component">Multi-Head<br>Attention<br>(12 heads)</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-component">Scale-Specific<br>Processing<br>(Short/Med/Long)</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-component">Task-Adaptive<br>Weighting<br>(Dynamic)</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-component">Uncertainty<br>Fusion<br>(Confidence)</div>
+          </div>
+          <div style="text-align:center; margin-top:10px; font-size:12px; color:#666;">
+            Cross-attention enables modalities to attend to each other with uncertainty weighting
+          </div>
+        </div>
+
+        <div class="fusion-layer">
+          <div class="layer-title">⚡ Temporal Fusion Pipeline</div>
+          <div class="layer-flow">
+            <div class="flow-component">T-3<br>Context</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-component">T-2<br>History</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-component">T-1<br>Recent</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-component">T-0<br>Current</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-component">Actions<br>T+1 to T+H</div>
+          </div>
+          <div style="text-align:center; margin-top:10px; font-size:12px; color:#666;">
+            Multi-scale temporal processing: LSTM (short-term), Transformer (medium-term), Conv1D (long-term)
+          </div>
+        </div>
+      </div>
+
+      <div class="math-formula">
+        <strong>Multi-Modal Cross-Attention with Temporal Fusion:</strong><br><br>
+        
+        <strong>1. Modal Encoding:</strong><br>
+        h<sub>vision</sub> = ViT(RGB, Depth) ∈ ℝ<sup>196×768</sup><br>
+        h<sub>audio</sub> = Whisper(Audio<sub>4ch</sub>) ∈ ℝ<sup>100×768</sup><br>
+        h<sub>haptic</sub> = LSTM(Force, Torque) ∈ ℝ<sup>T×768</sup><br>
+        h<sub>proprio</sub> = MLP(q, q̇) ∈ ℝ<sup>T×768</sup><br><br>
+        
+        <strong>2. Temporal Alignment:</strong><br>
+        h<sub>aligned</sub> = TemporalAlign([h<sub>vision</sub>, h<sub>audio</sub>, h<sub>haptic</sub>, h<sub>proprio</sub>], freq=50Hz)<br><br>
+        
+        <strong>3. Cross-Modal Attention:</strong><br>
+        Q<sub>i</sub>, K<sub>i</sub>, V<sub>i</sub> = Linear(h<sub>i</sub>) for modality i<br>
+        CrossAttn<sub>i→j</sub> = softmax(Q<sub>i</sub>K<sub>j</sub><sup>T</sup>/√d) × V<sub>j</sub><br><br>
+        
+        <strong>4. Multi-Scale Temporal Processing:</strong><br>
+        h<sub>short</sub> = LSTM(h<sub>fused</sub>) &nbsp;&nbsp; # 0.1-0.5s patterns<br>
+        h<sub>medium</sub> = Transformer(h<sub>fused</sub>) &nbsp;&nbsp; # 0.5-2s patterns<br>
+        h<sub>long</sub> = Conv1D(h<sub>fused</sub>) &nbsp;&nbsp; # 2-10s patterns<br><br>
+        
+        <strong>5. Action Sequence Prediction:</strong><br>
+        a<sub>t+1:t+H</sub> = AutoRegressive(TemporalAttention(h<sub>short</sub>, h<sub>medium</sub>, h<sub>long</sub>))
+      </div>
+
+      <div class="interactive-demo">
+        <div class="demo-title">🎛️ Advanced Multi-Modal Architecture Explorer</div>
+        <p><strong>Explore different fusion strategies and their computational trade-offs:</strong></p>
+
+        <div class="tabs">
+          <div class="tab active" onclick="switchFusionTab('encoding', this)">📊 Modal Encoding</div>
+          <div class="tab" onclick="switchFusionTab('temporal', this)">⏱️ Temporal Fusion</div>
+          <div class="tab" onclick="switchFusionTab('attention', this)">🎯 Cross-Attention</div>
+          <div class="tab" onclick="switchFusionTab('performance', this)">⚡ Performance</div>
+        </div>
+
+        <div id="encoding" class="tab-content active">
+          <div class="controls">
+            <div class="control-group">
+              <label>Vision Encoder:</label>
+              <select id="advancedVisionEncoder">
+                <option value="vit_base" selected>ViT-Base (86M params)</option>
+                <option value="vit_large">ViT-Large (307M params)</option>
+                <option value="dinov2">DINOv2 (300M params)</option>
+                <option value="clip_vit">CLIP ViT-B/16 (86M params)</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>Temporal History:</label>
+              <select id="temporalHistory">
+                <option value="2">2 timesteps (T-1, T-0)</option>
+                <option value="4" selected>4 timesteps (T-3 to T-0)</option>
+                <option value="8">8 timesteps (T-7 to T-0)</option>
+                <option value="16">16 timesteps (T-15 to T-0)</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>Prediction Horizon:</label>
+              <select id="predictionHorizon">
+                <option value="1">1 step (20ms)</option>
+                <option value="5" selected>5 steps (100ms)</option>
+                <option value="10">10 steps (200ms)</option>
+                <option value="25">25 steps (500ms)</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>Fusion Strategy:</label>
+              <select id="advancedFusionStrategy">
+                <option value="hierarchical" selected>Hierarchical Fusion</option>
+                <option value="cross_attention">Full Cross-Attention</option>
+                <option value="early_fusion">Early Fusion (Concat)</option>
+                <option value="late_fusion">Late Fusion (Weighted)</option>
+                <option value="uncertainty_weighted">Uncertainty-Weighted</option>
+              </select>
+            </div>
+          </div>
+
+          <button onclick="analyzeArchitecture()" class="primary">🔬 Analyze Architecture</button>
+          <div id="architectureAnalysis"></div>
+        </div>
+
+        <div id="temporal" class="tab-content">
+          <div class="warning">
+            <strong>⏱️ Temporal Fusion Pipeline Configuration:</strong><br>
+            Multi-scale temporal processing captures different behavioral patterns at various time scales.
+          </div>
+
+          <div class="controls">
+            <div class="control-group">
+              <label>Short-Term Processing (0.1-0.5s):</label>
+              <select id="shortTermProcessor">
+                <option value="lstm" selected>LSTM (2 layers)</option>
+                <option value="gru">GRU (2 layers)</option>
+                <option value="transformer">Transformer (4 layers)</option>
+                <option value="conv1d">Conv1D (kernel=3)</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>Medium-Term Processing (0.5-2s):</label>
+              <select id="mediumTermProcessor">
+                <option value="transformer" selected>Transformer (6 layers)</option>
+                <option value="lstm">LSTM (3 layers)</option>
+                <option value="tcn">Temporal Conv Net</option>
+                <option value="attention_lstm">Attention + LSTM</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>Long-Term Processing (2-10s):</label>
+              <select id="longTermProcessor">
+                <option value="conv1d" selected>Conv1D (kernel=5)</option>
+                <option value="dilated_conv">Dilated Convolution</option>
+                <option value="global_attention">Global Attention</option>
+                <option value="memory_augmented">Memory Networks</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>Temporal Attention Type:</label>
+              <select id="temporalAttentionType">
+                <option value="multi_scale" selected>Multi-Scale Attention</option>
+                <option value="causal">Causal Attention</option>
+                <option value="sliding_window">Sliding Window</option>
+                <option value="sparse">Sparse Attention</option>
+              </select>
+            </div>
+          </div>
+
+          <button onclick="simulateTemporalFusion()" class="primary">⏱️ Simulate Temporal Processing</button>
+          <div id="temporalSimulation"></div>
+        </div>
+
+        <div id="attention" class="tab-content">
+          <div class="info">
+            <strong>🎯 Cross-Modal Attention Mechanisms:</strong><br>
+            Configure how different modalities attend to and influence each other during fusion.
+          </div>
+
+          <div class="controls">
+            <div class="control-group">
+              <label>Attention Heads:</label>
+              <select id="attentionHeads">
+                <option value="8">8 heads</option>
+                <option value="12" selected>12 heads</option>
+                <option value="16">16 heads</option>
+                <option value="24">24 heads</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>Attention Pattern:</label>
+              <select id="attentionPattern">
+                <option value="full" selected>Full Cross-Modal</option>
+                <option value="local">Local Attention</option>
+                <option value="sparse">Sparse Attention</option>
+                <option value="axial">Axial Attention</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>Modal Coupling:</label>
+              <select id="modalCoupling">
+                <option value="all_to_all" selected>All-to-All</option>
+                <option value="vision_centric">Vision-Centric</option>
+                <option value="hierarchical">Hierarchical</option>
+                <option value="task_specific">Task-Specific</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>Uncertainty Integration:</label>
+              <select id="uncertaintyIntegration">
+                <option value="none">None</option>
+                <option value="modal_weighting" selected>Modal Weighting</option>
+                <option value="attention_gating">Attention Gating</option>
+                <option value="bayesian">Bayesian Fusion</option>
+              </select>
+            </div>
+          </div>
+
+          <button onclick="visualizeAttentionPatterns()" class="primary">🔍 Visualize Attention</button>
+          <div id="attentionVisualization"></div>
+        </div>
+
+        <div id="performance" class="tab-content">
+          <div class="success">
+            <strong>⚡ Performance Analysis:</strong><br>
+            Real-time computational requirements and optimization strategies for multi-modal fusion.
+          </div>
+
+          <div class="controls">
+            <div class="control-group">
+              <label>Target Platform:</label>
+              <select id="targetPlatform">
+                <option value="jetson_orin" selected>Jetson Orin (275 TOPS)</option>
+                <option value="jetson_thor">Jetson Thor (2070 TFLOPS)</option>
+                <option value="rtx_4090">RTX 4090 (83 TFLOPS)</option>
+                <option value="h100">H100 (1000 TFLOPS)</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>Optimization Level:</label>
+              <select id="optimizationLevel">
+                <option value="none">No Optimization</option>
+                <option value="quantization">INT8 Quantization</option>
+                <option value="pruning">Model Pruning</option>
+                <option value="distillation" selected>Knowledge Distillation</option>
+                <option value="full">Full Optimization</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>Real-Time Target:</label>
+              <select id="realTimeTarget">
+                <option value="10">10 Hz (100ms)</option>
+                <option value="20">20 Hz (50ms)</option>
+                <option value="50" selected>50 Hz (20ms)</option>
+                <option value="100">100 Hz (10ms)</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>Batch Size:</label>
+              <select id="batchSize">
+                <option value="1" selected>1 (Real-time)</option>
+                <option value="4">4 (Small batch)</option>
+                <option value="8">8 (Medium batch)</option>
+                <option value="16">16 (Large batch)</option>
+              </select>
+            </div>
+          </div>
+
+          <button onclick="benchmarkPerformance()" class="primary">📊 Benchmark Performance</button>
+          <div id="performanceBenchmark"></div>
+        </div>
+      </div>
+    </div>
       <div class="interactive-demo">
         <div class="demo-title">🎛️ Multi-Modal VLA Designer</div>
         <p><strong>Design your custom multi-modal VLA architecture:</strong></p>
@@ -4656,7 +4970,539 @@ if __name__ == "__main__":
         }
       }
     }
+// improved-multimodal-functions.js
+// Additional JavaScript functions for the improved Multi-Modal Fusion Architecture section
 
+// ---------------------------
+// Tab Switching for Fusion Explorer
+// ---------------------------
+function switchFusionTab(tabName, element) {
+    // Remove active class from all tabs and content
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    
+    // Add active class to clicked tab and corresponding content
+    element.classList.add('active');
+    document.getElementById(tabName).classList.add('active');
+}
+
+// ---------------------------
+// Architecture Analysis Functions
+// ---------------------------
+function analyzeArchitecture() {
+    const visionEncoder = document.getElementById('advancedVisionEncoder').value;
+    const temporalHistory = parseInt(document.getElementById('temporalHistory').value);
+    const predictionHorizon = parseInt(document.getElementById('predictionHorizon').value);
+    const fusionStrategy = document.getElementById('advancedFusionStrategy').value;
+
+    // Model specifications
+    const encoderSpecs = {
+        vit_base: { params: 86, flops_per_image: 17.5, memory_mb: 350 },
+        vit_large: { params: 307, flops_per_image: 61.6, memory_mb: 1200 },
+        dinov2: { params: 300, flops_per_image: 58.2, memory_mb: 1150 },
+        clip_vit: { params: 86, flops_per_image: 17.8, memory_mb: 360 }
+    };
+
+    const fusionSpecs = {
+        hierarchical: { complexity_factor: 1.8, accuracy_boost: 0.07, memory_factor: 1.4 },
+        cross_attention: { complexity_factor: 2.5, accuracy_boost: 0.12, memory_factor: 1.8 },
+        early_fusion: { complexity_factor: 1.0, accuracy_boost: 0.02, memory_factor: 1.1 },
+        late_fusion: { complexity_factor: 1.2, accuracy_boost: 0.05, memory_factor: 1.2 },
+        uncertainty_weighted: { complexity_factor: 2.2, accuracy_boost: 0.10, memory_factor: 1.6 }
+    };
+
+    const encoder = encoderSpecs[visionEncoder];
+    const fusion = fusionSpecs[fusionStrategy];
+
+    // Calculate total specifications
+    const totalParams = encoder.params + (temporalHistory * 0.5) + (predictionHorizon * 0.2);
+    const totalFlops = encoder.flops_per_image * fusion.complexity_factor * temporalHistory;
+    const totalMemory = encoder.memory_mb * fusion.memory_factor * temporalHistory;
+    const baseAccuracy = 0.847; // Base VLA accuracy
+    const finalAccuracy = baseAccuracy + fusion.accuracy_boost;
+
+    // Latency estimation (simplified)
+    const baseLatency = 25; // ms
+    const complexityLatency = baseLatency * fusion.complexity_factor;
+    const temporalLatency = temporalHistory * 2; // 2ms per timestep
+    const predictionLatency = predictionHorizon * 1; // 1ms per prediction step
+    const totalLatency = complexityLatency + temporalLatency + predictionLatency;
+
+    const resultDiv = document.getElementById('architectureAnalysis');
+    resultDiv.innerHTML = `
+        <div class="metric-grid" style="margin: 20px 0;">
+            <div class="metric-card">
+                <div class="metric-value">${totalParams.toFixed(1)}M</div>
+                <div class="metric-label">Total Parameters</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">${totalFlops.toFixed(1)}G</div>
+                <div class="metric-label">FLOPs per Forward</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">${totalMemory.toFixed(0)}MB</div>
+                <div class="metric-label">Memory Usage</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">${totalLatency.toFixed(1)}ms</div>
+                <div class="metric-label">Inference Latency</div>
+            </div>
+        </div>
+
+        <div class="success" style="margin: 15px 0;">
+            <h4>🎯 Architecture Analysis Results</h4>
+            <p><strong>Vision Processing:</strong> ${visionEncoder.replace('_', '-').toUpperCase()} encoder with ${encoder.params}M parameters</p>
+            <p><strong>Temporal Context:</strong> ${temporalHistory} timesteps providing ${temporalHistory * 20}ms of history</p>
+            <p><strong>Prediction Scope:</strong> ${predictionHorizon} future steps (${predictionHorizon * 20}ms planning horizon)</p>
+            <p><strong>Fusion Strategy:</strong> ${fusionStrategy.replace('_', ' ').toUpperCase()} with ${(fusion.accuracy_boost * 100).toFixed(1)}% accuracy improvement</p>
+            <p><strong>Expected Performance:</strong> ${(finalAccuracy * 100).toFixed(1)}% task success rate</p>
+        </div>
+
+        <div class="${totalLatency <= 50 ? 'info' : totalLatency <= 100 ? 'warning' : 'danger'}" style="margin: 15px 0;">
+            <h4>⚡ Real-Time Performance Assessment</h4>
+            <p><strong>Latency Budget:</strong> ${totalLatency.toFixed(1)}ms (Target: <50ms for real-time control)</p>
+            <p><strong>Control Frequency:</strong> ${totalLatency <= 20 ? 'Suitable for 50Hz' : totalLatency <= 50 ? 'Suitable for 20Hz' : 'Requires optimization for real-time'}</p>
+            <p><strong>Hardware Requirements:</strong> ${totalMemory > 8000 ? 'High-end GPU required' : totalMemory > 4000 ? 'Mid-range GPU suitable' : 'Edge deployment feasible'}</p>
+            <p><strong>Optimization Recommendation:</strong> ${totalLatency > 50 ? 'Consider quantization and pruning' : 'Architecture suitable for deployment'}</p>
+        </div>
+
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+            <h4>📊 Computational Breakdown</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px;">
+                <div>
+                    <strong>Vision Processing:</strong> ${(encoder.flops_per_image).toFixed(1)}G FLOPs<br>
+                    <strong>Temporal Modeling:</strong> ${(temporalLatency).toFixed(1)}ms<br>
+                    <strong>Cross-Modal Fusion:</strong> ${(fusion.complexity_factor * 10).toFixed(1)}G FLOPs
+                </div>
+                <div>
+                    <strong>Action Prediction:</strong> ${predictionLatency.toFixed(1)}ms<br>
+                    <strong>Memory Bandwidth:</strong> ${(totalMemory * 0.8).toFixed(0)}MB/s<br>
+                    <strong>Power Consumption:</strong> ~${Math.round(totalParams * 0.3)}W
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// ---------------------------
+// Temporal Fusion Simulation
+// ---------------------------
+function simulateTemporalFusion() {
+    const shortTerm = document.getElementById('shortTermProcessor').value;
+    const mediumTerm = document.getElementById('mediumTermProcessor').value;
+    const longTerm = document.getElementById('longTermProcessor').value;
+    const attentionType = document.getElementById('temporalAttentionType').value;
+
+    // Processor characteristics
+    const processorSpecs = {
+        lstm: { latency: 12, memory: 150, temporal_range: '0.1-0.5s', strength: 'Sequential patterns' },
+        gru: { latency: 10, memory: 120, temporal_range: '0.1-0.5s', strength: 'Simplified recurrence' },
+        transformer: { latency: 8, memory: 200, temporal_range: '0.5-2s', strength: 'Long-range dependencies' },
+        conv1d: { latency: 3, memory: 80, temporal_range: '2-10s', strength: 'Local temporal patterns' },
+        tcn: { latency: 6, memory: 100, temporal_range: '0.5-2s', strength: 'Causal modeling' },
+        attention_lstm: { latency: 15, memory: 220, temporal_range: '0.5-2s', strength: 'Attentive sequences' },
+        dilated_conv: { latency: 4, memory: 90, temporal_range: '2-10s', strength: 'Multi-scale patterns' },
+        global_attention: { latency: 18, memory: 300, temporal_range: '2-10s', strength: 'Global context' },
+        memory_augmented: { latency: 25, memory: 400, temporal_range: '2-10s', strength: 'External memory' }
+    };
+
+    const shortSpec = processorSpecs[shortTerm];
+    const mediumSpec = processorSpecs[mediumTerm];
+    const longSpec = processorSpecs[longTerm];
+
+    const totalLatency = shortSpec.latency + mediumSpec.latency + longSpec.latency + 5; // +5ms for attention fusion
+    const totalMemory = shortSpec.memory + mediumSpec.memory + longSpec.memory;
+
+    // Simulate temporal processing stages
+    const stages = [
+        { name: 'Short-Term Analysis', processor: shortTerm, spec: shortSpec, progress: 0 },
+        { name: 'Medium-Term Analysis', processor: mediumTerm, spec: mediumSpec, progress: 0 },
+        { name: 'Long-Term Analysis', processor: longTerm, spec: longSpec, progress: 0 },
+        { name: 'Temporal Attention Fusion', processor: attentionType, spec: { latency: 5, strength: 'Scale integration' }, progress: 0 }
+    ];
+
+    const resultDiv = document.getElementById('temporalSimulation');
+    resultDiv.innerHTML = `
+        <div class="metric-grid" style="margin: 20px 0;">
+            <div class="metric-card">
+                <div class="metric-value">${totalLatency}ms</div>
+                <div class="metric-label">Total Processing Time</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">${totalMemory}MB</div>
+                <div class="metric-label">Memory Usage</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">3</div>
+                <div class="metric-label">Temporal Scales</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">${attentionType.replace('_', '-').toUpperCase()}</div>
+                <div class="metric-label">Attention Type</div>
+            </div>
+        </div>
+
+        <div style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin: 15px 0;">
+            <h4>⏱️ Multi-Scale Temporal Processing Pipeline</h4>
+            <div id="temporalStages"></div>
+        </div>
+
+        <div class="info" style="margin: 15px 0;">
+            <h4>🔍 Processing Analysis</h4>
+            <p><strong>Short-Term (${shortSpec.temporal_range}):</strong> ${shortSpec.strength} using ${shortTerm.toUpperCase()}</p>
+            <p><strong>Medium-Term (${mediumSpec.temporal_range}):</strong> ${mediumSpec.strength} using ${mediumTerm.toUpperCase()}</p>
+            <p><strong>Long-Term (${longSpec.temporal_range}):</strong> ${longSpec.strength} using ${longTerm.toUpperCase()}</p>
+            <p><strong>Fusion Strategy:</strong> ${attentionType.replace('_', ' ')} attention for scale integration</p>
+        </div>
+
+        <div class="${totalLatency <= 30 ? 'success' : totalLatency <= 50 ? 'warning' : 'danger'}" style="margin: 15px 0;">
+            <h4>⚡ Performance Assessment</h4>
+            <p><strong>Pipeline Efficiency:</strong> ${totalLatency <= 30 ? 'Excellent' : totalLatency <= 50 ? 'Good' : 'Needs Optimization'}</p>
+            <p><strong>Real-Time Suitability:</strong> ${totalLatency <= 20 ? 'Perfect for 50Hz control' : totalLatency <= 50 ? 'Suitable for 20Hz control' : 'Too slow for real-time'}</p>
+            <p><strong>Memory Efficiency:</strong> ${totalMemory <= 200 ? 'Edge-deployable' : totalMemory <= 500 ? 'Requires good GPU' : 'High-end hardware needed'}</p>
+        </div>
+
+        <button onclick="animateTemporalProcessing()" class="secondary" style="margin-top: 15px;">
+            🎬 Animate Processing Pipeline
+        </button>
+    `;
+
+    // Display processing stages
+    displayTemporalStages(stages);
+}
+
+function displayTemporalStages(stages) {
+    const stagesDiv = document.getElementById('temporalStages');
+    if (!stagesDiv) return;
+
+    let stagesHtml = '';
+    stages.forEach((stage, index) => {
+        stagesHtml += `
+            <div style="display: flex; align-items: center; margin: 10px 0; padding: 10px; background: white; border-radius: 6px; border: 1px solid #dee2e6;">
+                <div style="min-width: 30px; height: 30px; border-radius: 50%; background: #e9ecef; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 15px;">
+                    ${index + 1}
+                </div>
+                <div style="flex: 1;">
+                    <div style="font-weight: bold; margin-bottom: 4px;">${stage.name}</div>
+                    <div style="font-size: 12px; color: #666;">
+                        Processor: ${stage.processor.replace('_', ' ').toUpperCase()} • 
+                        Latency: ${stage.spec.latency}ms • 
+                        Strength: ${stage.spec.strength}
+                    </div>
+                </div>
+                <div style="min-width: 100px;">
+                    <div style="background: #e9ecef; border-radius: 10px; height: 8px; overflow: hidden;">
+                        <div id="progress-${index}" style="background: #28a745; height: 100%; width: 0%; transition: width 0.3s ease;"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    stagesDiv.innerHTML = stagesHtml;
+}
+
+function animateTemporalProcessing() {
+    const progressBars = document.querySelectorAll('[id^="progress-"]');
+    
+    progressBars.forEach((bar, index) => {
+        setTimeout(() => {
+            bar.style.width = '100%';
+        }, index * 500);
+    });
+
+    // Show completion message
+    setTimeout(() => {
+        const stagesDiv = document.getElementById('temporalStages');
+        if (stagesDiv) {
+            stagesDiv.innerHTML += `
+                <div style="text-align: center; padding: 20px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 6px; margin-top: 15px;">
+                    <strong style="color: #155724;">✅ Temporal Fusion Pipeline Complete!</strong><br>
+                    <span style="color: #155724; font-size: 14px;">Multi-scale temporal features successfully integrated for action prediction</span>
+                </div>
+            `;
+        }
+    }, 2500);
+}
+
+// ---------------------------
+// Attention Visualization
+// ---------------------------
+function visualizeAttentionPatterns() {
+    const attentionHeads = parseInt(document.getElementById('attentionHeads').value);
+    const attentionPattern = document.getElementById('attentionPattern').value;
+    const modalCoupling = document.getElementById('modalCoupling').value;
+    const uncertaintyIntegration = document.getElementById('uncertaintyIntegration').value;
+
+    const patternSpecs = {
+        full: { connectivity: 1.0, complexity: 'O(N²)', description: 'Every modality attends to every other' },
+        local: { connectivity: 0.3, complexity: 'O(N)', description: 'Local neighborhood attention only' },
+        sparse: { connectivity: 0.1, complexity: 'O(N log N)', description: 'Sparse attention patterns' },
+        axial: { connectivity: 0.5, complexity: 'O(N√N)', description: 'Axial attention (rows + columns)' }
+    };
+
+    const couplingSpecs = {
+        all_to_all: { efficiency: 0.2, accuracy: 0.95, description: 'Maximum information sharing' },
+        vision_centric: { efficiency: 0.6, accuracy: 0.90, description: 'Vision dominates other modalities' },
+        hierarchical: { efficiency: 0.8, accuracy: 0.88, description: 'Structured information flow' },
+        task_specific: { efficiency: 0.9, accuracy: 0.92, description: 'Task-adapted attention patterns' }
+    };
+
+    const pattern = patternSpecs[attentionPattern];
+    const coupling = couplingSpecs[modalCoupling];
+
+    // Create attention visualization
+    const resultDiv = document.getElementById('attentionVisualization');
+    resultDiv.innerHTML = `
+        <div class="metric-grid" style="margin: 20px 0;">
+            <div class="metric-card">
+                <div class="metric-value">${attentionHeads}</div>
+                <div class="metric-label">Attention Heads</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">${(pattern.connectivity * 100).toFixed(0)}%</div>
+                <div class="metric-label">Connectivity</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">${pattern.complexity}</div>
+                <div class="metric-label">Complexity</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">${(coupling.accuracy * 100).toFixed(1)}%</div>
+                <div class="metric-label">Expected Accuracy</div>
+            </div>
+        </div>
+
+        <div style="background: white; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; margin: 15px 0;">
+            <h4 style="text-align: center; margin-bottom: 20px;">🎯 Cross-Modal Attention Matrix</h4>
+            <div id="attentionMatrix" style="display: grid; grid-template-columns: 100px repeat(4, 1fr); gap: 5px; font-size: 12px;"></div>
+        </div>
+
+        <div class="info" style="margin: 15px 0;">
+            <h4>🔍 Attention Configuration Analysis</h4>
+            <p><strong>Attention Pattern:</strong> ${pattern.description}</p>
+            <p><strong>Modal Coupling:</strong> ${coupling.description}</p>
+            <p><strong>Computational Efficiency:</strong> ${(coupling.efficiency * 100).toFixed(0)}% efficient</p>
+            <p><strong>Uncertainty Handling:</strong> ${uncertaintyIntegration.replace('_', ' ')} integration</p>
+        </div>
+
+        <div class="${coupling.efficiency > 0.7 ? 'success' : coupling.efficiency > 0.5 ? 'warning' : 'danger'}" style="margin: 15px 0;">
+            <h4>⚡ Performance Trade-offs</h4>
+            <p><strong>Accuracy vs Efficiency:</strong> ${(coupling.accuracy * 100).toFixed(1)}% accuracy at ${(coupling.efficiency * 100).toFixed(0)}% efficiency</p>
+            <p><strong>Recommendation:</strong> ${coupling.efficiency > 0.7 ? 'Well-balanced for production use' : coupling.accuracy > 0.9 ? 'High accuracy but computationally expensive' : 'Consider optimization for better performance'}</p>
+        </div>
+    `;
+
+    // Generate attention matrix visualization
+    generateAttentionMatrix(pattern, modalCoupling);
+}
+
+function generateAttentionMatrix(pattern, coupling) {
+    const matrixDiv = document.getElementById('attentionMatrix');
+    if (!matrixDiv) return;
+
+    const modalities = ['', 'Vision', 'Audio', 'Haptic', 'Proprio'];
+    const modalityNames = ['Vision', 'Audio', 'Haptic', 'Proprio'];
+    
+    // Define attention strengths based on coupling type
+    const attentionStrengths = {
+        all_to_all: [
+            [1.0, 0.8, 0.7, 0.9],
+            [0.8, 1.0, 0.6, 0.5],
+            [0.7, 0.6, 1.0, 0.8],
+            [0.9, 0.5, 0.8, 1.0]
+        ],
+        vision_centric: [
+            [1.0, 0.9, 0.9, 0.9],
+            [0.6, 1.0, 0.3, 0.2],
+            [0.6, 0.3, 1.0, 0.4],
+            [0.6, 0.2, 0.4, 1.0]
+        ],
+        hierarchical: [
+            [1.0, 0.5, 0.3, 0.7],
+            [0.8, 1.0, 0.6, 0.4],
+            [0.4, 0.7, 1.0, 0.9],
+            [0.9, 0.3, 0.8, 1.0]
+        ],
+        task_specific: [
+            [1.0, 0.4, 0.8, 0.9],
+            [0.6, 1.0, 0.3, 0.2],
+            [0.9, 0.4, 1.0, 0.7],
+            [0.8, 0.3, 0.6, 1.0]
+        ]
+    };
+
+    const strengths = attentionStrengths[coupling];
+    
+    // Create matrix header
+    modalities.forEach(modality => {
+        const cell = document.createElement('div');
+        cell.style.cssText = 'padding: 8px; text-align: center; font-weight: bold; background: #f8f9fa;';
+        cell.textContent = modality;
+        matrixDiv.appendChild(cell);
+    });
+
+    // Create matrix body
+    modalityNames.forEach((rowModality, i) => {
+        // Row header
+        const rowHeader = document.createElement('div');
+        rowHeader.style.cssText = 'padding: 8px; text-align: center; font-weight: bold; background: #f8f9fa;';
+        rowHeader.textContent = rowModality;
+        matrixDiv.appendChild(rowHeader);
+
+        // Attention values
+        modalityNames.forEach((colModality, j) => {
+            const cell = document.createElement('div');
+            const strength = strengths[i][j] * pattern.connectivity;
+            const intensity = Math.round(strength * 255);
+            const color = `rgb(${255 - intensity}, ${255 - intensity/2}, 255)`;
+            
+            cell.style.cssText = `
+                padding: 8px; 
+                text-align: center; 
+                background: ${color}; 
+                border: 1px solid #dee2e6;
+                font-weight: ${strength > 0.7 ? 'bold' : 'normal'};
+            `;
+            cell.textContent = strength.toFixed(2);
+            matrixDiv.appendChild(cell);
+        });
+    });
+}
+
+// ---------------------------
+// Performance Benchmarking
+// ---------------------------
+function benchmarkPerformance() {
+    const platform = document.getElementById('targetPlatform').value;
+    const optimization = document.getElementById('optimizationLevel').value;
+    const realTimeTarget = parseInt(document.getElementById('realTimeTarget').value);
+    const batchSize = parseInt(document.getElementById('batchSize').value);
+
+    // Platform specifications
+    const platformSpecs = {
+        jetson_orin: { 
+            tflops: 0.275, memory_gb: 32, power_w: 60, price_usd: 800,
+            description: 'Edge AI for robotics', optimization_factor: 0.8 
+        },
+        jetson_thor: { 
+            tflops: 2.07, memory_gb: 64, power_w: 130, price_usd: 3000,
+            description: 'Next-gen edge AI', optimization_factor: 0.9 
+        },
+        rtx_4090: { 
+            tflops: 83, memory_gb: 24, power_w: 450, price_usd: 1600,
+            description: 'High-end consumer GPU', optimization_factor: 1.0 
+        },
+        h100: { 
+            tflops: 1000, memory_gb: 80, power_w: 700, price_usd: 30000,
+            description: 'Data center AI accelerator', optimization_factor: 1.2 
+        }
+    };
+
+    const optimizationFactors = {
+        none: { speedup: 1.0, accuracy_drop: 0.0, description: 'No optimization' },
+        quantization: { speedup: 3.5, accuracy_drop: 0.02, description: 'INT8 quantization' },
+        pruning: { speedup: 2.2, accuracy_drop: 0.01, description: 'Structured pruning' },
+        distillation: { speedup: 4.0, accuracy_drop: 0.03, description: 'Teacher-student distillation' },
+        full: { speedup: 6.0, accuracy_drop: 0.05, description: 'All optimizations combined' }
+    };
+
+    const platform_spec = platformSpecs[platform];
+    const opt_factor = optimizationFactors[optimization];
+
+    // Base performance metrics (for 7B multi-modal model)
+    const base_latency = 45; // ms
+    const base_throughput = 22; // fps
+    const base_memory = 14000; // MB
+    const base_accuracy = 0.87;
+
+    // Calculate optimized performance
+    const optimized_latency = (base_latency / opt_factor.speedup) / platform_spec.optimization_factor;
+    const optimized_throughput = (base_throughput * opt_factor.speedup) * platform_spec.optimization_factor;
+    const optimized_memory = base_memory * (batchSize / 1.0);
+    const optimized_accuracy = base_accuracy - opt_factor.accuracy_drop;
+
+    const target_latency = 1000 / realTimeTarget; // ms for target Hz
+    const can_meet_target = optimized_latency <= target_latency;
+    const memory_fits = optimized_memory <= (platform_spec.memory_gb * 1000);
+
+    const resultDiv = document.getElementById('performanceBenchmark');
+    resultDiv.innerHTML = `
+        <div class="metric-grid" style="margin: 20px 0;">
+            <div class="metric-card">
+                <div class="metric-value" style="color: ${can_meet_target ? '#28a745' : '#dc3545'}">${optimized_latency.toFixed(1)}ms</div>
+                <div class="metric-label">Inference Latency</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">${optimized_throughput.toFixed(1)}</div>
+                <div class="metric-label">Throughput (FPS)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" style="color: ${memory_fits ? '#28a745' : '#dc3545'}">${(optimized_memory/1000).toFixed(1)}GB</div>
+                <div class="metric-label">Memory Usage</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">${(optimized_accuracy * 100).toFixed(1)}%</div>
+                <div class="metric-label">Model Accuracy</div>
+            </div>
+        </div>
+
+        <div style="background: white; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; margin: 15px 0;">
+            <h4>🖥️ Platform Specifications</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 14px;">
+                <div>
+                    <strong>Platform:</strong> ${platform.replace('_', ' ').toUpperCase()}<br>
+                    <strong>Compute:</strong> ${platform_spec.tflops} TFLOPS<br>
+                    <strong>Memory:</strong> ${platform_spec.memory_gb}GB<br>
+                    <strong>Power:</strong> ${platform_spec.power_w}W
+                </div>
+                <div>
+                    <strong>Price:</strong> $${platform_spec.price_usd.toLocaleString()}<br>
+                    <strong>Use Case:</strong> ${platform_spec.description}<br>
+                    <strong>Optimization:</strong> ${opt_factor.description}<br>
+                    <strong>Speedup:</strong> ${opt_factor.speedup}x
+                </div>
+            </div>
+        </div>
+
+        <div class="${can_meet_target && memory_fits ? 'success' : !can_meet_target ? 'danger' : 'warning'}" style="margin: 15px 0;">
+            <h4>⚡ Real-Time Performance Assessment</h4>
+            <p><strong>Target:</strong> ${realTimeTarget}Hz (${target_latency.toFixed(1)}ms per inference)</p>
+            <p><strong>Achieved:</strong> ${(1000/optimized_latency).toFixed(1)}Hz (${optimized_latency.toFixed(1)}ms actual latency)</p>
+            <p><strong>Real-Time Capable:</strong> ${can_meet_target ? '✅ YES' : '❌ NO'} ${!can_meet_target ? '- Need faster hardware or more optimization' : ''}</p>
+            <p><strong>Memory Constraint:</strong> ${memory_fits ? '✅ Fits in memory' : '❌ Exceeds available memory'}</p>
+        </div>
+
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+            <h4>📊 Performance Breakdown</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px;">
+                <div>
+                    <strong>Vision Processing:</strong> ${(optimized_latency * 0.4).toFixed(1)}ms<br>
+                    <strong>Audio Processing:</strong> ${(optimized_latency * 0.2).toFixed(1)}ms<br>
+                    <strong>Haptic Processing:</strong> ${(optimized_latency * 0.1).toFixed(1)}ms<br>
+                    <strong>Temporal Fusion:</strong> ${(optimized_latency * 0.3).toFixed(1)}ms
+                </div>
+                <div>
+                    <strong>Power Efficiency:</strong> ${(optimized_throughput / platform_spec.power_w * 1000).toFixed(1)} FPS/W<br>
+                    <strong>Cost Efficiency:</strong> ${(optimized_throughput / platform_spec.price_usd * 1000).toFixed(2)} FPS/$K<br>
+                    <strong>Batch Efficiency:</strong> ${batchSize}x parallelism<br>
+                    <strong>Utilization:</strong> ~${Math.min(100, (optimized_latency / target_latency * 100)).toFixed(0)}%
+                </div>
+            </div>
+        </div>
+
+        <div class="info" style="margin: 15px 0;">
+            <h4>💡 Optimization Recommendations</h4>
+            <p><strong>Current Setup:</strong> ${platform_spec.description} with ${opt_factor.description.toLowerCase()}</p>
+            <p><strong>Performance:</strong> ${can_meet_target ? 'Meets real-time requirements' : 'Falls short of real-time target'}</p>
+            <p><strong>Next Steps:</strong> ${
+                !can_meet_target ? 'Consider higher-end hardware or aggressive optimization' :
+                !memory_fits ? 'Reduce batch size or model size' :
+                'Configuration ready for deployment'
+            }</p>
+        </div>
+    `;
+}
     // Utility functions
     function copyCode(button) {
       const codeBlock = button.parentElement.querySelector('pre');
