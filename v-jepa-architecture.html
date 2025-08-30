@@ -55,11 +55,45 @@
     .prediction-accuracy{width:100%;height:8px;background:#e9ecef;border-radius:4px;margin:10px 0;overflow:hidden}
     .accuracy-fill{height:100%;background:#28a745;border-radius:4px;transition:width 0.5s ease}
     .world-model-viz{background:linear-gradient(135deg,#e3f2fd,#f3e5f5);border:3px solid #28a745;border-radius:15px;padding:25px;margin:20px 0}
-    .physics-simulation{background:#fff;border:2px dashed #28a745;border-radius:10px;padding:20px;margin:15px 0;min-height:200px;position:relative;overflow:hidden}
-    .physics-object{position:absolute;width:30px;height:30px;border-radius:50%;transition:all 1s ease;cursor:pointer}
-    .physics-object.ball{background:#ff6b6b}
-    .physics-object.block{background:#4ecdc4;border-radius:4px;width:40px;height:25px}
-    .physics-object.pendulum{background:#45b7d1}
+
+    .physics-simulation {
+      background: #fff;
+      border: 2px dashed #28a745;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 15px 0;
+      min-height: 300px; /* Increased height */
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .physics-object {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      transition: all 1s ease;
+      cursor: pointer;
+      /* Center initially */
+      top: 50%;
+      left: 10%;
+      transform: translate(-50%, -50%);
+    }
+    
+    .physics-object.ball {
+      background: #ff6b6b;
+    }
+    
+    .physics-object.block {
+      background: #4ecdc4;
+      border-radius: 8px;
+      width: 50px;
+      height: 35px;
+    }
+    
+    .physics-object.pendulum {
+      background: #45b7d1;
+    }
     .emergent-capability{background:#fff;border:2px solid #e9ecef;border-radius:10px;padding:15px;margin:10px 0}
     .capability-header{font-weight:bold;color:#2d2d2d;margin-bottom:8px}
     .capability-description{font-size:13px;color:#666;margin-bottom:8px}
@@ -106,7 +140,98 @@
     .progress-fill.finetuning{background:#fd7e14}
     .progress-fill.evaluation{background:#28a745}
     @keyframes pulse{0%{transform:scale(1);opacity:.8}50%{transform:scale(1.05);opacity:1}100%{transform:scale(1);opacity:.8}}
-    @keyframes physics{0%{transform:translateX(0px) translateY(0px)}25%{transform:translateX(100px) translateY(-20px)}50%{transform:translateX(200px) translateY(0px)}75%{transform:translateX(100px) translateY(20px)}100%{transform:translateX(0px) translateY(0px)}}
+    @keyframes gravity {
+      0% { 
+        left: 20%; 
+        top: 10%; 
+        transform: translate(-50%, -50%);
+      }
+      50% { 
+        left: 50%; 
+        top: 85%; 
+        transform: translate(-50%, -50%);
+      }
+      100% { 
+        left: 80%; 
+        top: 60%; 
+        transform: translate(-50%, -50%);
+      }
+    }
+    
+    /* Collision animation */
+    @keyframes collision {
+      0% { 
+        left: 15%; 
+        top: 50%; 
+        transform: translate(-50%, -50%);
+      }
+      30% { 
+        left: 45%; 
+        top: 50%; 
+        transform: translate(-50%, -50%) scale(1);
+      }
+      35% { 
+        left: 50%; 
+        top: 50%; 
+        transform: translate(-50%, -50%) scale(1.2); /* Impact effect */
+      }
+      40% { 
+        left: 55%; 
+        top: 50%; 
+        transform: translate(-50%, -50%) scale(1);
+      }
+      100% { 
+        left: 85%; 
+        top: 50%; 
+        transform: translate(-50%, -50%);
+      }
+    }
+    
+    /* Pendulum animation */
+    @keyframes pendulum {
+      0% { 
+        left: 30%; 
+        top: 20%; 
+        transform: translate(-50%, -50%) rotate(-45deg);
+      }
+      50% { 
+        left: 70%; 
+        top: 20%; 
+        transform: translate(-50%, -50%) rotate(45deg);
+      }
+      100% { 
+        left: 30%; 
+        top: 20%; 
+        transform: translate(-50%, -50%) rotate(-45deg);
+      }
+    }
+    @keyframes physics {
+      0% { 
+        left: 10%; 
+        top: 20%; 
+        transform: translate(-50%, -50%) rotate(0deg);
+      }
+      25% { 
+        left: 40%; 
+        top: 60%; 
+        transform: translate(-50%, -50%) rotate(90deg);
+      }
+      50% { 
+        left: 80%; 
+        top: 80%; 
+        transform: translate(-50%, -50%) rotate(180deg);
+      }
+      75% { 
+        left: 60%; 
+        top: 40%; 
+        transform: translate(-50%, -50%) rotate(270deg);
+      }
+      100% { 
+        left: 10%; 
+        top: 20%; 
+        transform: translate(-50%, -50%) rotate(360deg);
+      }
+    }
     .pulsing{animation:pulse 2s ease-in-out infinite}
     .physics-demo{animation:physics 4s ease-in-out infinite}
     .slider-container{margin:15px 0}
@@ -1820,7 +1945,7 @@ def compute_regularization_loss(model):
         <div id="performanceResults"></div>
       </div>
     </div>
-  </div>
+  </div></div>
 
   <div class="container">
     <h2>🤖 Section 3: V-JEPA for Robotics - World Models for Action Planning</h2>
@@ -2738,10 +2863,32 @@ def train_vjepa_vla_system(vjepa_vla_controller, robot_data_loader, num_epochs=1
     }
 
     function runPhysicsSimulation() {
-      const scenario = document.getElementById('physicsScenario').value;
-      const accuracy = document.getElementById('physicsAccuracy').value;
-      const physicsObject = document.getElementById('physicsObject');
-      const analysis = document.getElementById('physicsAnalysis');
+        const scenario = document.getElementById('physicsScenario').value;
+        const accuracy = document.getElementById('physicsAccuracy').value;
+        const physicsObject = document.getElementById('physicsObject');
+        const analysis = document.getElementById('physicsAnalysis');
+      
+        // Reset object
+        physicsObject.className = 'physics-object';
+        physicsObject.style.animation = 'none';
+        
+        // Apply scenario-specific styling and animation
+        if (scenario === 'gravity') {
+          physicsObject.classList.add('ball');
+          physicsObject.style.animation = 'gravity 3s ease-in-out infinite';
+        } else if (scenario === 'collision') {
+          physicsObject.classList.add('block');
+          physicsObject.style.animation = 'collision 2s ease-in-out infinite';
+        } else if (scenario === 'pendulum') {
+          physicsObject.classList.add('pendulum');
+          physicsObject.style.animation = 'pendulum 4s ease-in-out infinite';
+        } else if (scenario === 'fluid') {
+          physicsObject.classList.add('ball');
+          physicsObject.style.animation = 'physics 5s ease-in-out infinite';
+        } else if (scenario === 'occlusion') {
+          physicsObject.classList.add('ball');
+          physicsObject.style.animation = 'gravity 4s linear infinite';
+        }
 
       // Animate object based on scenario
       physicsObject.className = 'physics-object';
