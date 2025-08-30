@@ -842,217 +842,218 @@ def compute_regularization_loss(model):
     return reg_loss</pre>
         </div>
       </div>
-    </div>
-    <div class="step">
-  <h3>🔬 V-JEPA Architecture: Mathematical Deep Dive</h3>
-  <p>Now let's dive into the detailed mathematics of how V-JEPA processes video data through its four main components: patch tokenization, context encoding, prediction, and target encoding (training only).</p>
-
-  <div class="interactive-demo">
-    <div class="demo-title">📐 Mathematical Flow Visualizer</div>
-    <p><strong>Explore each step of V-JEPA's mathematical processing pipeline:</strong></p>
-    
-    <div class="controls">
-      <div class="control-group">
-        <label>Processing Step:</label>
-        <select id="mathStep">
-          <option value="tokenization" selected>1. Video Tokenization</option>
-          <option value="masking">2. Masking Strategy</option>
-          <option value="context">3. Context Encoding</option>
-          <option value="prediction">4. Prediction Network</option>
-          <option value="target">5. Target Encoding</option>
-          <option value="loss">6. Loss Computation</option>
-        </select>
+      <div class="step">
+        <h3>🔬 V-JEPA Architecture: Mathematical Deep Dive</h3>
+        <p>Now let's dive into the detailed mathematics of how V-JEPA processes video data through its four main components: patch tokenization, context encoding, prediction, and target encoding (training only).</p>
+      
+        <div class="interactive-demo">
+          <div class="demo-title">📐 Mathematical Flow Visualizer</div>
+          <p><strong>Explore each step of V-JEPA's mathematical processing pipeline:</strong></p>
+          
+          <div class="controls">
+            <div class="control-group">
+              <label>Processing Step:</label>
+              <select id="mathStep">
+                <option value="tokenization" selected>1. Video Tokenization</option>
+                <option value="masking">2. Masking Strategy</option>
+                <option value="context">3. Context Encoding</option>
+                <option value="prediction">4. Prediction Network</option>
+                <option value="target">5. Target Encoding</option>
+                <option value="loss">6. Loss Computation</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Complexity Level:</label>
+              <select id="mathComplexity">
+                <option value="simple" selected>Simplified</option>
+                <option value="detailed">Detailed Mathematics</option>
+                <option value="implementation">Implementation Details</option>
+              </select>
+            </div>
+          </div>
+          <button onclick="showMathStep()" class="primary">🔍 Explore Mathematics</button>
+          <div id="mathStepResults"></div>
+        </div>
+      
+        <div class="math-formula">
+          <strong>Complete V-JEPA Mathematical Pipeline:</strong><br><br>
+          <strong>1. Video Input:</strong><br>
+          V ∈ ℝ<sup>B×T×H×W×C</sup> (batch × time × height × width × channels)<br><br>
+          <strong>2. Patch Tokenization:</strong><br>
+          P ∈ ℝ<sup>B×T'×N×D</sup> where T' = T/T<sub>patch</sub>, N = (H×W)/P<sup>2</sup><br><br>
+          <strong>3. Context & Target Separation:</strong><br>
+          P<sub>context</sub> = P ⊙ M<sub>c</sub>, P<sub>target</sub> = P ⊙ M<sub>t</sub><br><br>
+          <strong>4. Encoding & Prediction:</strong><br>
+          z<sub>c</sub> = ContextEncoder(P<sub>context</sub>)<br>
+          ẑ<sub>t</sub> = Predictor(z<sub>c</sub>, mask_positions)<br>
+          z<sub>t</sub> = TargetEncoder(P<sub>target</sub>)<br><br>
+          <strong>5. Learning Objective:</strong><br>
+          L = MSE(ẑ<sub>t</sub>, z<sub>t</sub>) + λ × Regularization
+        </div>
+      
+        <div class="tabs">
+          <div class="tab active" onclick="switchMathTab('dimensions', this)">📊 Tensor Dimensions</div>
+          <div class="tab" onclick="switchMathTab('attention', this)">🎯 Attention Math</div>
+          <div class="tab" onclick="switchMathTab('ema', this)">🔄 EMA Updates</div>
+          <div class="tab" onclick="switchMathTab('complexity', this)">⚡ Complexity Analysis</div>
+        </div>
+      
+        <div id="dimensions" class="tab-content active">
+          <div class="interactive-demo">
+            <div class="demo-title">📏 Tensor Shape Calculator</div>
+            <div class="controls">
+              <div class="control-group">
+                <label>Batch Size:</label>
+                <input type="number" id="batchSize" value="4" min="1" max="32">
+              </div>
+              <div class="control-group">
+                <label>Video Frames:</label>
+                <input type="number" id="videoFrames" value="8" min="2" max="32">
+              </div>
+              <div class="control-group">
+                <label>Image Resolution:</label>
+                <select id="imageRes">
+                  <option value="224">224×224</option>
+                  <option value="256">256×256</option>
+                  <option value="384">384×384</option>
+                  <option value="512">512×512</option>
+                </select>
+              </div>
+              <div class="control-group">
+                <label>Patch Size:</label>
+                <select id="patchSize">
+                  <option value="16" selected>16×16</option>
+                  <option value="32">32×32</option>
+                  <option value="8">8×8</option>
+                </select>
+              </div>
+            </div>
+            <button onclick="calculateDimensions()" class="secondary">🧮 Calculate All Dimensions</button>
+            <div id="dimensionResults"></div>
+          </div>
+        </div>
+      
+        <div id="attention" class="tab-content">
+          <div class="math-formula">
+            <strong>Multi-Head Self-Attention Mathematics:</strong><br><br>
+            <strong>For each attention head h:</strong><br>
+            Q<sub>h</sub> = X W<sub>q</sub><sup>h</sup> ∈ ℝ<sup>B×N×d<sub>k</sub></sup> (Queries)<br>
+            K<sub>h</sub> = X W<sub>k</sub><sup>h</sup> ∈ ℝ<sup>B×N×d<sub>k</sub></sup> (Keys)<br>
+            V<sub>h</sub> = X W<sub>v</sub><sup>h</sup> ∈ ℝ<sup>B×N×d<sub>k</sub></sup> (Values)<br><br>
+            <strong>Attention Computation:</strong><br>
+            Attention<sub>h</sub> = softmax(Q<sub>h</sub> K<sub>h</sub><sup>T</sup> / √d<sub>k</sub>) V<sub>h</sub><br><br>
+            <strong>Multi-Head Combination:</strong><br>
+            MultiHead(X) = Concat(Attention<sub>1</sub>, ..., Attention<sub>H</sub>) W<sub>O</sub>
+          </div>
+      
+          <div class="interactive-demo">
+            <div class="demo-title">🎯 Attention Pattern Simulator</div>
+            <div class="controls">
+              <div class="control-group">
+                <label>Number of Heads:</label>
+                <input type="range" id="numHeads" min="4" max="16" value="12" oninput="updateHeadsDisplay()">
+                <div class="slider-label"><span>4</span><span id="headsDisplay">12</span><span>16</span></div>
+              </div>
+              <div class="control-group">
+                <label>Sequence Length:</label>
+                <input type="range" id="seqLength" min="64" max="512" value="196" oninput="updateSeqDisplay()">
+                <div class="slider-label"><span>64</span><span id="seqDisplay">196</span><span>512</span></div>
+              </div>
+            </div>
+            <button onclick="simulateAttention()" class="secondary">⚡ Simulate Attention</button>
+            <div id="attentionResults"></div>
+          </div>
+        </div>
+      
+        <div id="ema" class="tab-content">
+          <div class="math-formula">
+            <strong>Exponential Moving Average (EMA) for Target Encoder:</strong><br><br>
+            <strong>At each training step t:</strong><br>
+            θ<sub>target</sub><sup>(t)</sup> = τ × θ<sub>target</sub><sup>(t-1)</sup> + (1-τ) × θ<sub>context</sub><sup>(t)</sup><br><br>
+            <strong>Where:</strong><br>
+            • τ = momentum coefficient (typically 0.996)<br>
+            • θ<sub>target</sub> = target encoder parameters<br>
+            • θ<sub>context</sub> = context encoder parameters<br><br>
+            <strong>Intuition:</strong><br>
+            Target encoder slowly tracks context encoder, providing stable learning targets
+          </div>
+      
+          <div class="interactive-demo">
+            <div class="demo-title">🔄 EMA Dynamics Visualizer</div>
+            <div class="controls">
+              <div class="control-group">
+                <label>EMA Momentum (τ):</label>
+                <input type="range" id="emaMomentum" min="0.9" max="0.999" step="0.001" value="0.996" oninput="updateEMADisplay()">
+                <div class="slider-label"><span>0.900</span><span id="emaDisplay">0.996</span><span>0.999</span></div>
+              </div>
+              <div class="control-group">
+                <label>Training Steps:</label>
+                <input type="range" id="trainingSteps" min="100" max="10000" value="1000" oninput="updateStepsDisplay()">
+                <div class="slider-label"><span>100</span><span id="stepsDisplay">1000</span><span>10000</span></div>
+              </div>
+            </div>
+            <button onclick="simulateEMA()" class="secondary">📈 Simulate EMA Evolution</button>
+            <div id="emaResults"></div>
+          </div>
+        </div>
+      
+        <div id="complexity" class="tab-content">
+          <div class="comparison-table">
+            <thead>
+              <tr>
+                <th>Component</th>
+                <th>Time Complexity</th>
+                <th>Space Complexity</th>
+                <th>Parameters</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Patch Tokenization</strong></td>
+                <td class="score-good">O(B×T×H×W)</td>
+                <td class="score-good">O(B×T'×N×D)</td>
+                <td>3D Conv weights</td>
+              </tr>
+              <tr>
+                <td><strong>Context Encoder</strong></td>
+                <td class="score-average">O(B×N<sub>c</sub>²×D×L)</td>
+                <td class="score-average">O(B×N<sub>c</sub>×D×L)</td>
+                <td>~85M (12 layers)</td>
+              </tr>
+              <tr>
+                <td><strong>Predictor Network</strong></td>
+                <td class="score-average">O(B×N<sub>total</sub>²×D<sub>p</sub>×L<sub>p</sub>)</td>
+                <td class="score-good">O(B×N<sub>total</sub>×D<sub>p</sub>)</td>
+                <td>~45M (6 layers)</td>
+              </tr>
+              <tr>
+                <td><strong>Target Encoder</strong></td>
+                <td class="score-poor">O(B×N<sub>t</sub>²×D×L)</td>
+                <td class="score-average">O(B×N<sub>t</sub>×D×L)</td>
+                <td>~85M (EMA copy)</td>
+              </tr>
+            </tbody>
+          </table>
+      
+          <div class="warning">
+            <strong>⚠️ Computational Bottlenecks:</strong><br>
+            • <strong>Quadratic scaling:</strong> Self-attention scales as O(N²) with sequence length<br>
+            • <strong>Memory bottleneck:</strong> Storing gradients for all layers during backprop<br>
+            • <strong>Target encoder:</strong> Doubles compute during training (inference doesn't need it)<br>
+            • <strong>Masking efficiency:</strong> Sparse attention could reduce complexity for masked regions
+          </div>
+        </div>
+      
+        <div class="success">
+          <strong>🎯 Key Mathematical Insights:</strong><br>
+          • <strong>Representation Learning:</strong> Feature dimension D=768 captures rich abstract concepts<br>
+          • <strong>Temporal Modeling:</strong> Patch-based approach handles video sequences efficiently<br>
+          • <strong>Attention Patterns:</strong> Global attention enables long-range temporal dependencies<br>
+          • <strong>EMA Stability:</strong> Target encoder provides stable learning signals during training
+        </div>
       </div>
-      <div class="control-group">
-        <label>Complexity Level:</label>
-        <select id="mathComplexity">
-          <option value="simple" selected>Simplified</option>
-          <option value="detailed">Detailed Mathematics</option>
-          <option value="implementation">Implementation Details</option>
-        </select>
-      </div>
-    </div>
-    <button onclick="showMathStep()" class="primary">🔍 Explore Mathematics</button>
-    <div id="mathStepResults"></div>
-  </div>
-
-  <div class="math-formula">
-    <strong>Complete V-JEPA Mathematical Pipeline:</strong><br><br>
-    <strong>1. Video Input:</strong><br>
-    V ∈ ℝ<sup>B×T×H×W×C</sup> (batch × time × height × width × channels)<br><br>
-    <strong>2. Patch Tokenization:</strong><br>
-    P ∈ ℝ<sup>B×T'×N×D</sup> where T' = T/T<sub>patch</sub>, N = (H×W)/P<sup>2</sup><br><br>
-    <strong>3. Context & Target Separation:</strong><br>
-    P<sub>context</sub> = P ⊙ M<sub>c</sub>, P<sub>target</sub> = P ⊙ M<sub>t</sub><br><br>
-    <strong>4. Encoding & Prediction:</strong><br>
-    z<sub>c</sub> = ContextEncoder(P<sub>context</sub>)<br>
-    ẑ<sub>t</sub> = Predictor(z<sub>c</sub>, mask_positions)<br>
-    z<sub>t</sub> = TargetEncoder(P<sub>target</sub>)<br><br>
-    <strong>5. Learning Objective:</strong><br>
-    L = MSE(ẑ<sub>t</sub>, z<sub>t</sub>) + λ × Regularization
-  </div>
-
-  <div class="tabs">
-    <div class="tab active" onclick="switchMathTab('dimensions', this)">📊 Tensor Dimensions</div>
-    <div class="tab" onclick="switchMathTab('attention', this)">🎯 Attention Math</div>
-    <div class="tab" onclick="switchMathTab('ema', this)">🔄 EMA Updates</div>
-    <div class="tab" onclick="switchMathTab('complexity', this)">⚡ Complexity Analysis</div>
-  </div>
-
-  <div id="dimensions" class="tab-content active">
-    <div class="interactive-demo">
-      <div class="demo-title">📏 Tensor Shape Calculator</div>
-      <div class="controls">
-        <div class="control-group">
-          <label>Batch Size:</label>
-          <input type="number" id="batchSize" value="4" min="1" max="32">
-        </div>
-        <div class="control-group">
-          <label>Video Frames:</label>
-          <input type="number" id="videoFrames" value="8" min="2" max="32">
-        </div>
-        <div class="control-group">
-          <label>Image Resolution:</label>
-          <select id="imageRes">
-            <option value="224">224×224</option>
-            <option value="256">256×256</option>
-            <option value="384">384×384</option>
-            <option value="512">512×512</option>
-          </select>
-        </div>
-        <div class="control-group">
-          <label>Patch Size:</label>
-          <select id="patchSize">
-            <option value="16" selected>16×16</option>
-            <option value="32">32×32</option>
-            <option value="8">8×8</option>
-          </select>
-        </div>
-      </div>
-      <button onclick="calculateDimensions()" class="secondary">🧮 Calculate All Dimensions</button>
-      <div id="dimensionResults"></div>
-    </div>
-  </div>
-
-  <div id="attention" class="tab-content">
-    <div class="math-formula">
-      <strong>Multi-Head Self-Attention Mathematics:</strong><br><br>
-      <strong>For each attention head h:</strong><br>
-      Q<sub>h</sub> = X W<sub>q</sub><sup>h</sup> ∈ ℝ<sup>B×N×d<sub>k</sub></sup> (Queries)<br>
-      K<sub>h</sub> = X W<sub>k</sub><sup>h</sup> ∈ ℝ<sup>B×N×d<sub>k</sub></sup> (Keys)<br>
-      V<sub>h</sub> = X W<sub>v</sub><sup>h</sup> ∈ ℝ<sup>B×N×d<sub>k</sub></sup> (Values)<br><br>
-      <strong>Attention Computation:</strong><br>
-      Attention<sub>h</sub> = softmax(Q<sub>h</sub> K<sub>h</sub><sup>T</sup> / √d<sub>k</sub>) V<sub>h</sub><br><br>
-      <strong>Multi-Head Combination:</strong><br>
-      MultiHead(X) = Concat(Attention<sub>1</sub>, ..., Attention<sub>H</sub>) W<sub>O</sub>
     </div>
 
-    <div class="interactive-demo">
-      <div class="demo-title">🎯 Attention Pattern Simulator</div>
-      <div class="controls">
-        <div class="control-group">
-          <label>Number of Heads:</label>
-          <input type="range" id="numHeads" min="4" max="16" value="12" oninput="updateHeadsDisplay()">
-          <div class="slider-label"><span>4</span><span id="headsDisplay">12</span><span>16</span></div>
-        </div>
-        <div class="control-group">
-          <label>Sequence Length:</label>
-          <input type="range" id="seqLength" min="64" max="512" value="196" oninput="updateSeqDisplay()">
-          <div class="slider-label"><span>64</span><span id="seqDisplay">196</span><span>512</span></div>
-        </div>
-      </div>
-      <button onclick="simulateAttention()" class="secondary">⚡ Simulate Attention</button>
-      <div id="attentionResults"></div>
-    </div>
-  </div>
-
-  <div id="ema" class="tab-content">
-    <div class="math-formula">
-      <strong>Exponential Moving Average (EMA) for Target Encoder:</strong><br><br>
-      <strong>At each training step t:</strong><br>
-      θ<sub>target</sub><sup>(t)</sup> = τ × θ<sub>target</sub><sup>(t-1)</sup> + (1-τ) × θ<sub>context</sub><sup>(t)</sup><br><br>
-      <strong>Where:</strong><br>
-      • τ = momentum coefficient (typically 0.996)<br>
-      • θ<sub>target</sub> = target encoder parameters<br>
-      • θ<sub>context</sub> = context encoder parameters<br><br>
-      <strong>Intuition:</strong><br>
-      Target encoder slowly tracks context encoder, providing stable learning targets
-    </div>
-
-    <div class="interactive-demo">
-      <div class="demo-title">🔄 EMA Dynamics Visualizer</div>
-      <div class="controls">
-        <div class="control-group">
-          <label>EMA Momentum (τ):</label>
-          <input type="range" id="emaMomentum" min="0.9" max="0.999" step="0.001" value="0.996" oninput="updateEMADisplay()">
-          <div class="slider-label"><span>0.900</span><span id="emaDisplay">0.996</span><span>0.999</span></div>
-        </div>
-        <div class="control-group">
-          <label>Training Steps:</label>
-          <input type="range" id="trainingSteps" min="100" max="10000" value="1000" oninput="updateStepsDisplay()">
-          <div class="slider-label"><span>100</span><span id="stepsDisplay">1000</span><span>10000</span></div>
-        </div>
-      </div>
-      <button onclick="simulateEMA()" class="secondary">📈 Simulate EMA Evolution</button>
-      <div id="emaResults"></div>
-    </div>
-  </div>
-
-  <div id="complexity" class="tab-content">
-    <div class="comparison-table">
-      <thead>
-        <tr>
-          <th>Component</th>
-          <th>Time Complexity</th>
-          <th>Space Complexity</th>
-          <th>Parameters</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Patch Tokenization</strong></td>
-          <td class="score-good">O(B×T×H×W)</td>
-          <td class="score-good">O(B×T'×N×D)</td>
-          <td>3D Conv weights</td>
-        </tr>
-        <tr>
-          <td><strong>Context Encoder</strong></td>
-          <td class="score-average">O(B×N<sub>c</sub>²×D×L)</td>
-          <td class="score-average">O(B×N<sub>c</sub>×D×L)</td>
-          <td>~85M (12 layers)</td>
-        </tr>
-        <tr>
-          <td><strong>Predictor Network</strong></td>
-          <td class="score-average">O(B×N<sub>total</sub>²×D<sub>p</sub>×L<sub>p</sub>)</td>
-          <td class="score-good">O(B×N<sub>total</sub>×D<sub>p</sub>)</td>
-          <td>~45M (6 layers)</td>
-        </tr>
-        <tr>
-          <td><strong>Target Encoder</strong></td>
-          <td class="score-poor">O(B×N<sub>t</sub>²×D×L)</td>
-          <td class="score-average">O(B×N<sub>t</sub>×D×L)</td>
-          <td>~85M (EMA copy)</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="warning">
-      <strong>⚠️ Computational Bottlenecks:</strong><br>
-      • <strong>Quadratic scaling:</strong> Self-attention scales as O(N²) with sequence length<br>
-      • <strong>Memory bottleneck:</strong> Storing gradients for all layers during backprop<br>
-      • <strong>Target encoder:</strong> Doubles compute during training (inference doesn't need it)<br>
-      • <strong>Masking efficiency:</strong> Sparse attention could reduce complexity for masked regions
-    </div>
-  </div>
-
-  <div class="success">
-    <strong>🎯 Key Mathematical Insights:</strong><br>
-    • <strong>Representation Learning:</strong> Feature dimension D=768 captures rich abstract concepts<br>
-    • <strong>Temporal Modeling:</strong> Patch-based approach handles video sequences efficiently<br>
-    • <strong>Attention Patterns:</strong> Global attention enables long-range temporal dependencies<br>
-    • <strong>EMA Stability:</strong> Target encoder provides stable learning signals during training
-  </div>
-</div>
     <div class="step">
       <h3>🔗 V-JEPA vs CLIP: Temporal vs Cross-Modal Learning</h3>
       <p>V-JEPA shares some conceptual similarities with CLIP (Contrastive Language-Image Pre-training), but focuses on <strong>temporal understanding</strong> rather than <strong>cross-modal alignment</strong>. Both learn joint embeddings, but for very different purposes.</p>
