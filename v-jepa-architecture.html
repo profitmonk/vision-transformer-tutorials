@@ -211,7 +211,96 @@
         <div id="videoComparisonResults"></div>
       </div>
     </div>
+<div class="step">
+  <h3>🤔 V-JEPA Explained Simply: The Big Picture</h3>
+  <p><strong>What is V-JEPA?</strong> V-JEPA (Video Joint Embedding Predictive Architecture) is an AI system that learns to understand how the world works by watching videos - but in a very clever way.</p>
 
+  <div class="info">
+    <strong>🎯 The Core Problem V-JEPA Solves:</strong><br><br>
+    <strong>❌ Traditional Approach (Pixel Prediction):</strong><br>
+    • AI tries to predict the exact pixels of future video frames<br>
+    • Like trying to paint the exact colors of what will happen next<br>
+    • This is incredibly hard and often produces blurry, unrealistic results<br><br>
+    <strong>✅ V-JEPA's Approach (Representation Prediction):</strong><br>
+    • Instead of predicting pixels, predict abstract "features" or "representations"<br>
+    • Like understanding the concepts and relationships, not the exact visual details<br>
+    • Much more efficient and leads to better understanding
+  </div>
+
+  <div class="interactive-demo">
+    <div class="demo-title">🏀 Simple Analogy: Bouncing Ball Example</div>
+    <div class="controls">
+      <div class="control-group">
+        <label>Prediction Approach:</label>
+        <select id="predictionApproach">
+          <option value="traditional" selected>Traditional Pixel Prediction</option>
+          <option value="vjepa">V-JEPA Representation Prediction</option>
+        </select>
+      </div>
+    </div>
+    <button onclick="showPredictionApproach()" class="primary">🔍 See the Difference</button>
+    <div id="predictionApproachDemo"></div>
+  </div>
+
+  <div class="architecture-flow">
+    <div class="arch-component context">
+      <h4>1️⃣ Context Encoder</h4>
+      <div>The "Eyes"</div>
+      <div style="font-size:12px;margin-top:5px">
+        Understands what's<br>currently happening
+      </div>
+    </div>
+    <div class="arch-arrow">→</div>
+    <div class="arch-component predictor">
+      <h4>2️⃣ Predictor</h4>
+      <div>The "Brain"</div>
+      <div style="font-size:12px;margin-top:5px">
+        Makes educated guesses<br>about the future
+      </div>
+    </div>
+    <div class="arch-arrow">→</div>
+    <div class="arch-component target">
+      <h4>3️⃣ Target Encoder</h4>
+      <div>The "Teacher"</div>
+      <div style="font-size:12px;margin-top:5px">
+        Knows what actually<br>happened (for learning)
+      </div>
+    </div>
+    <div class="arch-arrow">→</div>
+    <div class="arch-component loss">
+      <h4>4️⃣ Learning</h4>
+      <div>Compare & Improve</div>
+      <div style="font-size:12px;margin-top:5px">
+        Learn from the<br>difference
+      </div>
+    </div>
+  </div>
+
+  <div class="interactive-demo">
+    <div class="demo-title">🎬 Step-by-Step: How V-JEPA Works</div>
+    <div class="controls">
+      <div class="control-group">
+        <label>Example Scenario:</label>
+        <select id="exampleScenario">
+          <option value="ball" selected>Bouncing Ball Physics</option>
+          <option value="water">Robot Pouring Water</option>
+          <option value="walking">Person Walking</option>
+          <option value="collision">Two Objects Colliding</option>
+        </select>
+      </div>
+    </div>
+    <button onclick="showVJEPASteps()" class="secondary">📚 Walk Through Steps</button>
+    <div id="vjepaStepsDemo"></div>
+  </div>
+
+  <div class="success">
+    <strong>🎯 Why V-JEPA is Revolutionary:</strong><br><br>
+    <strong>🧠 Abstract Understanding:</strong> Learns concepts like "objects have momentum" and "things fall due to gravity"<br>
+    <strong>⚡ Efficient Learning:</strong> Robust to lighting changes, shadows, and visual variations<br>
+    <strong>🔄 Transfer Learning:</strong> Understanding from bouncing balls applies to falling rocks, jumping animals, etc.<br>
+    <strong>🤖 Robotics Ready:</strong> Provides world understanding needed for robots to plan and predict consequences
+  </div>
+</div>
     <div class="step">
       <h3>🧩 V-JEPA Architecture Deep Dive</h3>
       <div class="math-formula">
@@ -2214,6 +2303,126 @@ def train_vjepa_vla_system(vjepa_vla_controller, robot_data_loader, num_epochs=1
         </div>
       `;
     }
+    // Simple explanation demo functions
+function showPredictionApproach() {
+  const approach = document.getElementById('predictionApproach').value;
+  const demo = document.getElementById('predictionApproachDemo');
+  
+  if (approach === 'traditional') {
+    demo.innerHTML = `
+      <div class="warning">
+        <strong>❌ Traditional Pixel Prediction:</strong><br><br>
+        <strong>Task:</strong> Predict exactly what the ball will look like in the next frame<br>
+        <strong>Challenge:</strong> "Pixel (120,85) should be RGB(255,67,42), pixel (121,85) should be RGB(254,68,43)..."<br>
+        <strong>Problem:</strong> Tiny changes in lighting, shadows, or camera angle make this wrong<br>
+        <strong>Result:</strong> Blurry, unrealistic predictions that get worse over time<br><br>
+        <strong>🎨 Like trying to:</strong> Paint an exact replica of what will happen next, down to every brush stroke
+      </div>
+    `;
+  } else {
+    demo.innerHTML = `
+      <div class="success">
+        <strong>✅ V-JEPA Representation Prediction:</strong><br><br>
+        <strong>Task:</strong> Understand the concepts and relationships in the scene<br>
+        <strong>Understanding:</strong> "There's a red ball, moving diagonally down-right, will hit ground and bounce up"<br>
+        <strong>Benefit:</strong> Robust to lighting changes, shadows, and minor visual variations<br>
+        <strong>Result:</strong> Coherent, realistic understanding that improves over time<br><br>
+        <strong>🧠 Like having:</strong> Intuitive physics understanding rather than memorizing exact appearances
+      </div>
+    `;
+  }
+}
+
+function showVJEPASteps() {
+  const scenario = document.getElementById('exampleScenario').value;
+  const demo = document.getElementById('vjepaStepsDemo');
+  
+  const scenarios = {
+    ball: {
+      name: "Bouncing Ball Physics",
+      context: "Ball at positions 1→2→3 (moving down-right)",
+      masked: "Positions 4, 5, 6 (hidden for prediction)",
+      context_understanding: "Red ball with downward trajectory, approaching ground",
+      prediction: "Ball should hit ground at position 4, bounce up at 5, continue arc at 6",
+      target_reality: "Ball actually bounced at position 4, reached peak at 5, started falling at 6",
+      learning: "Prediction was close! Small adjustment needed for bounce angle physics"
+    },
+    water: {
+      name: "Robot Pouring Water",
+      context: "Cup 20% full, robot tilting pitcher at 15 degrees",
+      masked: "Next 3 seconds of pouring (hidden for prediction)",
+      context_understanding: "Water flowing steadily, cup filling gradually, safe tilt angle",
+      prediction: "Cup will reach 40% full, flow will remain steady, no splashing",
+      target_reality: "Cup reached 45% full, slight splash occurred near rim",
+      learning: "Need to account for cup rim shape affecting splash dynamics"
+    },
+    walking: {
+      name: "Person Walking",
+      context: "Person mid-stride, left foot forward, right foot pushing off",
+      masked: "Next 3 steps of walking (hidden for prediction)",
+      context_understanding: "Normal walking gait, steady pace, balanced posture",
+      prediction: "Right foot will swing forward, left foot will plant, rhythm continues",
+      target_reality: "Person stumbled slightly on uneven ground, adjusted balance",
+      learning: "Need to better recognize ground texture and terrain variations"
+    },
+    collision: {
+      name: "Two Objects Colliding",
+      context: "Red ball moving right, blue ball moving left, approaching each other",
+      masked: "Collision moment and aftermath (hidden for prediction)",
+      context_understanding: "Two objects on collision course, similar masses, moderate speeds",
+      prediction: "Objects will collide, bounce off each other, red goes left, blue goes right",
+      target_reality: "Collision occurred as predicted, blue ball spun due to off-center impact",
+      learning: "Improve understanding of rotational dynamics in collisions"
+    }
+  };
+  
+  const scene = scenarios[scenario];
+  
+  demo.innerHTML = `
+    <div class="timeline-path">
+      <div class="path-milestone">
+        <div class="milestone-year">Step 1</div>
+        <div class="milestone-content">
+          <strong>📹 Video Input: ${scene.name}</strong><br>
+          Context: ${scene.context}<br>
+          Masked: ${scene.masked}
+        </div>
+      </div>
+      <div class="path-milestone">
+        <div class="milestone-year">Step 2</div>
+        <div class="milestone-content">
+          <strong>🔍 Context Encoding</strong><br>
+          Understanding: "${scene.context_understanding}"
+        </div>
+      </div>
+      <div class="path-milestone">
+        <div class="milestone-year">Step 3</div>
+        <div class="milestone-content">
+          <strong>🎯 Prediction</strong><br>
+          Predictor thinks: "${scene.prediction}"
+        </div>
+      </div>
+      <div class="path-milestone">
+        <div class="milestone-year">Step 4</div>
+        <div class="milestone-content">
+          <strong>✅ Reality Check</strong><br>
+          What actually happened: "${scene.target_reality}"
+        </div>
+      </div>
+      <div class="path-milestone">
+        <div class="milestone-year">Step 5</div>
+        <div class="milestone-content">
+          <strong>📚 Learning</strong><br>
+          Improvement: "${scene.learning}"
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Initialize the simple demos
+showPredictionApproach();
+showVJEPASteps();
 
     // Initialize the tutorial
     updateHorizonDisplay();
