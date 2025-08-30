@@ -2313,6 +2313,690 @@ if __name__ == "__main__":
     </div>
   </div>
 
-  <script src="deploying-vlas-script.js"></script>
+  <script>
+    // deploying-vlas-script.js
+
+// ---------------------------
+// Utility: copy code blocks
+// ---------------------------
+function copyCode(btn) {
+  try {
+    const pre = btn.parentElement.querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text);
+    btn.textContent = '✔ Copied';
+    setTimeout(() => btn.textContent = '📋 Copy', 1500);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+// ---------------------------
+// Section 1: Hardware Selection Calculator
+// ---------------------------
+function calculateHardware() {
+  const robotApp = document.getElementById('robotApplication').value;
+  const latency = document.getElementById('latencyReq').value;
+  const power = document.getElementById('powerConstraints').value;
+  const budget = document.getElementById('budgetRange').value;
+  const box = document.getElementById('hardwareRecommendation');
+
+  const recommendations = {
+    industrial: {
+      realtime: { unlimited: 'H100 Cluster', high: 'Jetson Thor', medium: 'Jetson Orin', low: 'Jetson Xavier', battery: 'Not Recommended' },
+      fast: { unlimited: 'H100/A100', high: 'Jetson Thor', medium: 'Jetson Orin', low: 'Jetson Xavier', battery: 'Jetson Nano' },
+      moderate: { unlimited: 'Cloud GPU', high: 'Jetson Orin', medium: 'Jetson Xavier', low: 'Jetson Nano', battery: 'Jetson Nano' },
+      relaxed: { unlimited: 'Cloud GPU', high: 'Workstation GPU', medium: 'Jetson Xavier', low: 'Jetson Nano', battery: 'ARM SoC' }
+    },
+    service: {
+      realtime: { unlimited: 'A100/H100', high: 'Jetson Thor', medium: 'Jetson Orin', low: 'Jetson Xavier', battery: 'Not Recommended' },
+      fast: { unlimited: 'A100', high: 'Jetson Thor', medium: 'Jetson Orin', low: 'Jetson Xavier', battery: 'Jetson Nano' },
+      moderate: { unlimited: 'Cloud GPU', high: 'Jetson Orin', medium: 'Jetson Xavier', low: 'Jetson Nano', battery: 'ARM Cortex' },
+      relaxed: { unlimited: 'Cloud GPU', high: 'Desktop GPU', medium: 'Jetson Nano', low: 'ARM SoC', battery: 'ARM Cortex' }
+    },
+    consumer: {
+      realtime: { unlimited: 'RTX 4090', high: 'Jetson Orin', medium: 'Jetson Xavier', low: 'Jetson Nano', battery: 'Not Feasible' },
+      fast: { unlimited: 'RTX 4090', high: 'Jetson Orin', medium: 'Jetson Xavier', low: 'Jetson Nano', battery: 'ARM SoC' },
+      moderate: { unlimited: 'RTX 4070', high: 'Jetson Xavier', medium: 'Jetson Nano', low: 'ARM SoC', battery: 'ARM Cortex' },
+      relaxed: { unlimited: 'RTX 4060', high: 'Jetson Nano', medium: 'ARM SoC', low: 'ARM Cortex', battery: 'ARM Cortex' }
+    }
+  };
+
+  const recommendation = recommendations[robotApp]?.[latency]?.[power] || 'Custom Solution Needed';
+  
+  const specs = {
+    'H100 Cluster': { tflops: 2000, memory: '80GB per GPU', power: '700W per GPU', cost: '$25K-40K', deployment: 'Data Center Only' },
+    'H100/A100': { tflops: 1000, memory: '80GB', power: '700W', cost: '$15K-30K', deployment: 'Data Center' },
+    'A100': { tflops: 624, memory: '40GB', power: '400W', cost: '$10K-15K', deployment: 'Data Center/Workstation' },
+    'Jetson Thor': { tflops: 2070, memory: '64GB', power: '130W', cost: '$3K-5K', deployment: 'Edge AI' },
+    'Jetson Orin': { tflops: 275, memory: '32GB', power: '60W', cost: '$800-1.2K', deployment: 'Edge Robotics' },
+    'Jetson Xavier': { tflops: 32, memory: '32GB', power: '30W', cost: '$400-600', deployment: 'Edge Computing' },
+    'Jetson Nano': { tflops: 0.5, memory: '4GB', power: '10W', cost: '$100-200', deployment: 'IoT/Embedded' },
+    'RTX 4090': { tflops: 83, memory: '24GB', power: '450W', cost: '$1.5K-2K', deployment: 'Workstation' },
+    'ARM SoC': { tflops: 0.1, memory: '8GB', power: '5W', cost: '$50-150', deployment: 'Ultra-Low Power' }
+  };
+
+  const spec = specs[recommendation] || { tflops: 0, memory: 'N/A', power: 'N/A', cost: 'N/A', deployment: 'N/A' };
+
+  box.innerHTML = `
+    <div class="metric-grid">
+      <div class="metric-card"><div class="metric-value">${recommendation}</div><div class="metric-label">Recommended Hardware</div></div>
+      <div class="metric-card"><div class="metric-value">${spec.tflops}</div><div class="metric-label">AI TFLOPS</div></div>
+      <div class="metric-card"><div class="metric-value">${spec.memory}</div><div class="metric-label">Memory</div></div>
+      <div class="metric-card"><div class="metric-value">${spec.power}</div><div class="metric-label">Power Draw</div></div>
+    </div>
+    <div class="success">
+      <strong>💰 Cost:</strong> ${spec.cost}<br>
+      <strong>🎯 Best for:</strong> ${spec.deployment}<br>
+      <strong>⚡ Performance Match:</strong> ${latency === 'realtime' ? 'Optimized for <10ms latency' : latency === 'fast' ? 'Good for <50ms latency' : 'Suitable for moderate latency requirements'}<br>
+      <strong>🔋 Power Efficiency:</strong> ${power === 'battery' ? 'Battery-optimized' : power === 'low' ? 'Low power consumption' : 'High performance priority'}
+    </div>
+  `;
+}
+
+// ---------------------------
+// Jetson Performance Simulator
+// ---------------------------
+function simulateJetsonPerformance() {
+  const model = document.getElementById('jetsonModel').value;
+  const quant = document.getElementById('jetsonQuant').value;
+  const freq = parseInt(document.getElementById('controlFreq').value);
+  const box = document.getElementById('jetsonSimResults');
+
+  const modelSpecs = {
+    smol: { params: 0.6, baseLatency: 8, baseMemory: 2.1 },
+    openvla: { params: 7, baseLatency: 45, baseMemory: 14.2 },
+    large: { params: 13, baseLatency: 85, baseMemory: 26.5 },
+    groot: { params: 20, baseLatency: 150, baseMemory: 42.0 }
+  };
+
+  const quantFactors = {
+    fp16: { latencyMult: 1.0, memoryMult: 1.0, accuracyDrop: 0 },
+    int8: { latencyMult: 0.35, memoryMult: 0.25, accuracyDrop: 2 },
+    int4: { latencyMult: 0.15, memoryMult: 0.125, accuracyDrop: 5 }
+  };
+
+  const spec = modelSpecs[model];
+  const factor = quantFactors[quant];
+
+  const actualLatency = spec.baseLatency * factor.latencyMult;
+  const actualMemory = spec.baseMemory * factor.memoryMult;
+  const maxFreq = 1000 / actualLatency; // Hz
+  const canMeetFreq = maxFreq >= freq;
+  const powerEst = 60 + (spec.params * 2); // Rough power estimate
+
+  box.innerHTML = `
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-value" style="color: ${canMeetFreq ? '#28a745' : '#dc3545'}">${actualLatency.toFixed(1)}ms</div>
+        <div class="metric-label">Inference Latency</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">${actualMemory.toFixed(1)}GB</div>
+        <div class="metric-label">Memory Usage</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" style="color: ${canMeetFreq ? '#28a745' : '#dc3545'}">${maxFreq.toFixed(1)}Hz</div>
+        <div class="metric-label">Max Control Freq</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">${powerEst.toFixed(0)}W</div>
+        <div class="metric-label">Est. Power Draw</div>
+      </div>
+    </div>
+    
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: ${Math.min(100, (maxFreq / 200) * 100)}%"></div>
+    </div>
+    
+    <div class="${canMeetFreq ? 'success' : 'warning'}">
+      <strong>Target Frequency:</strong> ${freq}Hz<br>
+      <strong>Achievable:</strong> ${canMeetFreq ? '✅ Yes' : '❌ No'}<br>
+      <strong>Quantization Impact:</strong> ${factor.accuracyDrop}% accuracy drop, ${((1 - factor.latencyMult) * 100).toFixed(0)}% faster<br>
+      <strong>Memory Fit:</strong> ${actualMemory <= 64 ? '✅ Fits in Jetson Thor' : '⚠️ May require model sharding'}<br>
+      <strong>Recommendation:</strong> ${canMeetFreq ? 'Suitable for real-time robot control' : 'Consider lighter model or lower frequency'}
+    </div>
+  `;
+}
+
+// ---------------------------
+// Deployment Strategy Selection
+// ---------------------------
+function selectDeployment(type, el) {
+  document.querySelectorAll('.deployment-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+
+  const box = document.getElementById('deploymentAnalysis');
+  const deploymentData = {
+    cloud: {
+      description: 'Centralized inference with unlimited compute scaling',
+      pros: ['Unlimited model size', 'Easy updates', 'Cost per robot decreases with scale', 'Advanced models (GPT-4V level)'],
+      cons: ['Network latency', 'Internet dependency', 'Data privacy concerns', 'Ongoing operational costs'],
+      ideal_for: 'Large robot fleets (100+ robots), complex reasoning tasks, applications with relaxed latency requirements',
+      cost_structure: 'Pay-per-inference, scales with usage'
+    },
+    edge: {
+      description: 'Local processing for low-latency, private, and reliable robot control',
+      pros: ['Low latency (5-25ms)', 'Network independence', 'Data privacy', 'One-time hardware cost'],
+      cons: ['Limited model size', 'Higher upfront cost', 'Manual updates required', 'Local maintenance'],
+      ideal_for: 'Real-time control, privacy-sensitive applications, remote deployments, autonomous systems',
+      cost_structure: 'High upfront cost, low operational cost'
+    },
+    mobile: {
+      description: 'Ultra-portable computing for consumer and battery-powered robots',
+      pros: ['Ultra-low power', 'Consumer pricing', 'Portable form factor', 'Battery operation'],
+      cons: ['Very limited compute', 'Simple tasks only', 'Frequent charging', 'Lower accuracy'],
+      ideal_for: 'Consumer robots, educational platforms, battery-powered systems, simple manipulation',
+      cost_structure: 'Lowest cost option, minimal operational expenses'
+    }
+  };
+
+  const data = deploymentData[type];
+  
+  box.innerHTML = `
+    <div class="info">
+      <h4>${type.charAt(0).toUpperCase() + type.slice(1)} Deployment Strategy</h4>
+      <p><strong>${data.description}</strong></p>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0;">
+        <div>
+          <strong style="color: #28a745;">✅ Advantages:</strong>
+          <ul style="margin: 5px 0; padding-left: 20px;">
+            ${data.pros.map(pro => `<li style="font-size: 13px;">${pro}</li>`).join('')}
+          </ul>
+        </div>
+        <div>
+          <strong style="color: #dc3545;">❌ Limitations:</strong>
+          <ul style="margin: 5px 0; padding-left: 20px;">
+            ${data.cons.map(con => `<li style="font-size: 13px;">${con}</li>`).join('')}
+          </ul>
+        </div>
+      </div>
+      
+      <p><strong>💰 Cost Structure:</strong> ${data.cost_structure}</p>
+      <p><strong>🎯 Ideal for:</strong> ${data.ideal_for}</p>
+    </div>
+  `;
+}
+
+// ---------------------------
+// Optimization Tab Switching
+// ---------------------------
+function switchOptTab(tabId, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+// ---------------------------
+// Platform Integration Tabs
+// ---------------------------
+function switchPlatformTab(tabId, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+// ---------------------------
+// Integration Wizard
+// ---------------------------
+let currentWizardStep = 1;
+const totalWizardSteps = 4;
+
+function nextWizardStep() {
+  if (currentWizardStep < totalWizardSteps) {
+    document.getElementById(`step${currentWizardStep}`).classList.remove('active');
+    currentWizardStep++;
+    document.getElementById(`step${currentWizardStep}`).classList.add('active');
+    updateWizardUI();
+    
+    if (currentWizardStep === 4) {
+      generateIntegrationCode();
+    }
+  }
+}
+
+function previousWizardStep() {
+  if (currentWizardStep > 1) {
+    document.getElementById(`step${currentWizardStep}`).classList.remove('active');
+    currentWizardStep--;
+    document.getElementById(`step${currentWizardStep}`).classList.add('active');
+    updateWizardUI();
+  }
+}
+
+function updateWizardUI() {
+  const progress = (currentWizardStep / totalWizardSteps) * 100;
+  document.getElementById('wizardProgress').style.width = `${progress}%`;
+  document.getElementById('stepIndicator').textContent = `Step ${currentWizardStep} of ${totalWizardSteps}`;
+  
+  document.getElementById('prevBtn').disabled = currentWizardStep === 1;
+  document.getElementById('nextBtn').textContent = currentWizardStep === totalWizardSteps ? 'Generate Code' : 'Next →';
+  
+  if (currentWizardStep === totalWizardSteps) {
+    document.getElementById('nextBtn').style.display = 'none';
+  } else {
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+}
+
+function generateIntegrationCode() {
+  const robot = document.getElementById('wizardRobot').value;
+  const interface = document.getElementById('wizardInterface').value;
+  const model = document.getElementById('wizardModel').value;
+  const hardware = document.getElementById('wizardHardware').value;
+  
+  const codeBox = document.getElementById('integrationCode');
+  
+  const codeTemplates = {
+    franka: {
+      ros: `# Franka Panda + ROS Integration
+roslaunch franka_ros_interface interface.launch
+rosrun vla_controllers franka_vla_controller.py --model=${model} --hardware=${hardware}`,
+      ethercat: `# Franka Panda + EtherCAT Integration  
+sudo ./franka_ethercat_interface --model=${model} --device=eth0`,
+      tcp: `# Franka Panda + TCP/IP Integration
+python franka_tcp_controller.py --ip=192.168.1.10 --model=${model}`
+    },
+    ur5: {
+      ros: `# UR5 + ROS Integration
+roslaunch ur_robot_driver ur5_bringup.launch robot_ip:=192.168.1.102
+rosrun vla_controllers ur5_vla_controller.py --model=${model}`,
+      tcp: `# UR5 + TCP/IP Integration
+python ur5_tcp_controller.py --robot_ip=192.168.1.102 --model=${model}`
+    },
+    aloha: {
+      ros: `# ALOHA + ROS Integration
+roslaunch aloha_interface bimanual_interface.launch
+rosrun vla_controllers aloha_vla_controller.py --model=${model} --arms=2`
+    }
+  };
+  
+  const code = codeTemplates[robot]?.[interface] || `# Custom ${robot} + ${interface} Integration\n# Implementation depends on specific robot API\npython custom_vla_controller.py --robot=${robot} --interface=${interface} --model=${model}`;
+  
+  codeBox.innerHTML = `
+    <div class="terminal-line terminal-success">🤖 VLA Integration Code Generated</div>
+    <div class="terminal-line">📋 Robot: ${robot.toUpperCase()}</div>
+    <div class="terminal-line">🔌 Interface: ${interface.toUpperCase()}</div>
+    <div class="terminal-line">🧠 Model: ${model.toUpperCase()}</div>
+    <div class="terminal-line">💻 Hardware: ${hardware.toUpperCase()}</div>
+    <div class="terminal-line terminal-prompt">$</div>
+    <div class="terminal-line">${code.replace(/\n/g, '<br><div class="terminal-line">')}</div>
+    <div class="terminal-line terminal-success">✅ Integration ready for deployment</div>
+  `;
+}
+
+// ---------------------------
+// ROI Calculator  
+// ---------------------------
+function calculateROI() {
+  const industry = document.getElementById('roiIndustry').value;
+  const robotCount = parseInt(document.getElementById('robotCount').value);
+  const deployment = document.getElementById('roiDeployment').value;
+  const laborCost = parseFloat(document.getElementById('laborCost').value);
+  const opHours = parseInt(document.getElementById('operatingHours').value);
+  const successRate = parseFloat(document.getElementById('successRate').value) / 100;
+  const box = document.getElementById('roiResults');
+
+  // Calculate costs and savings
+  const annualLaborCost = robotCount * laborCost * opHours * 365;
+  const robotCost = robotCount * (industry === 'manufacturing' ? 150000 : industry === 'warehouse' ? 80000 : 50000);
+  
+  const deploymentCosts = {
+    cloud: robotCost * 0.1 + robotCount * 2000, // Cloud subscription
+    edge: robotCost * 0.3 + robotCount * 5000,  // Edge hardware
+    hybrid: robotCost * 0.2 + robotCount * 3500 // Hybrid infrastructure
+  };
+  
+  const deploymentCost = deploymentCosts[deployment];
+  const annualOpCost = robotCount * (deployment === 'cloud' ? 8000 : deployment === 'edge' ? 2000 : 4000);
+  
+  // Calculate productivity gains
+  const baseProductivity = industry === 'manufacturing' ? 0.85 : industry === 'warehouse' ? 0.75 : 0.65;
+  const vlaProductivity = Math.min(0.95, baseProductivity * (1 + successRate * 0.3));
+  const productivityGain = vlaProductivity - baseProductivity;
+  
+  // Calculate savings
+  const annualSavings = annualLaborCost * productivityGain * 0.6; // 60% of productivity gain = labor savings
+  const totalCost = robotCost + deploymentCost + annualOpCost;
+  const netSavingsYear1 = annualSavings - annualOpCost;
+  const roiMonths = totalCost / (netSavingsYear1 / 12);
+  const roi5Year = (annualSavings * 5 - annualOpCost * 5 - totalCost) / totalCost;
+
+  box.innerHTML = `
+    <div class="cost-breakdown">
+      <div class="cost-header">💰 5-Year ROI Analysis</div>
+      <div class="cost-item"><span>Robot Fleet Investment:</span><span>$${robotCost.toLocaleString()}</span></div>
+      <div class="cost-item"><span>VLA Deployment Costs:</span><span>$${deploymentCost.toLocaleString()}</span></div>
+      <div class="cost-item"><span>Annual Operating Costs:</span><span>$${annualOpCost.toLocaleString()}</span></div>
+      <div class="cost-item"><span>Annual Labor Savings:</span><span>$${annualSavings.toLocaleString()}</span></div>
+      <div class="cost-total"><span>5-Year ROI:</span><span>${(roi5Year * 100).toFixed(0)}%</span></div>
+    </div>
+    
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-value" style="color: ${roiMonths <= 18 ? '#28a745' : roiMonths <= 36 ? '#ffc107' : '#dc3545'}">${roiMonths.toFixed(1)}</div>
+        <div class="metric-label">Payback (Months)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">${(productivityGain * 100).toFixed(1)}%</div>
+        <div class="metric-label">Productivity Gain</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">$${(annualSavings * 5).toLocaleString()}</div>
+        <div class="metric-label">5-Year Savings</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">${robotCount}</div>
+        <div class="metric-label">Robot Fleet Size</div>
+      </div>
+    </div>
+    
+    <div class="${roi5Year > 2 ? 'success' : roi5Year > 1 ? 'info' : 'warning'}">
+      <strong>Investment Recommendation:</strong> ${roi5Year > 2 ? '🟢 Highly Recommended' : roi5Year > 1 ? '🟡 Recommended with Conditions' : '🔴 High Risk Investment'}<br>
+      <strong>Break-even Point:</strong> ${roiMonths.toFixed(0)} months<br>
+      <strong>Annual Net Benefit:</strong> $${netSavingsYear1.toLocaleString()}<br>
+      <strong>Key Success Factor:</strong> Achieving ${(successRate * 100).toFixed(0)}% task success rate is critical for ROI projections
+    </div>
+  `;
+}
+
+// ---------------------------
+// Monitoring Dashboard Updates
+// ---------------------------
+function updateMonitoring() {
+  const aspect = document.getElementById('monitoringAspect').value;
+  const timeRange = document.getElementById('timeRange').value;
+  const box = document.getElementById('monitoringResults');
+
+  const monitoringData = {
+    performance: {
+      realtime: { value: '23ms', trend: 'stable', color: '#17a2b8' },
+      hour: { value: '24.1ms', trend: 'up', color: '#ffc107' },
+      day: { value: '22.8ms', trend: 'down', color: '#28a745' },
+      week: { value: '25.3ms', trend: 'up', color: '#dc3545' }
+    },
+    safety: {
+      realtime: { value: '0 alerts', trend: 'stable', color: '#28a745' },
+      hour: { value: '2 warnings', trend: 'up', color: '#ffc107' },
+      day: { value: '1 incident', trend: 'down', color: '#17a2b8' },
+      week: { value: '5 total', trend: 'stable', color: '#6c757d' }
+    },
+    hardware: {
+      realtime: { value: '67°C', trend: 'stable', color: '#17a2b8' },
+      hour: { value: '69°C avg', trend: 'up', color: '#ffc107' },
+      day: { value: '65°C avg', trend: 'down', color: '#28a745' },
+      week: { value: '68°C avg', trend: 'stable', color: '#6c757d' }
+    },
+    network: {
+      realtime: { value: '15ms', trend: 'stable', color: '#28a745' },
+      hour: { value: '18ms avg', trend: 'up', color: '#ffc107' },
+      day: { value: '14ms avg', trend: 'down', color: '#28a745' },
+      week: { value: '16ms avg', trend: 'stable', color: '#6c757d' }
+    },
+    model: {
+      realtime: { value: '94.2%', trend: 'stable', color: '#28a745' },
+      hour: { value: '93.8%', trend: 'down', color: '#ffc107' },
+      day: { value: '94.5%', trend: 'up', color: '#28a745' },
+      week: { value: '93.9%', trend: 'stable', color: '#6c757d' }
+    }
+  };
+
+  const data = monitoringData[aspect][timeRange];
+  const trendIcon = data.trend === 'up' ? '↗' : data.trend === 'down' ? '↘' : '→';
+  const trendClass = data.trend === 'up' ? 'trend-up' : data.trend === 'down' ? 'trend-down' : 'trend-stable';
+
+  box.innerHTML = `
+    <div class="monitoring-dashboard">
+      <div class="monitor-widget">
+        <div class="monitor-value" style="color: ${data.color}">${data.value}</div>
+        <div class="monitor-label">${aspect.charAt(0).toUpperCase() + aspect.slice(1)} Metric</div>
+        <div class="monitor-trend ${trendClass}">${trendIcon} ${data.trend.charAt(0).toUpperCase() + data.trend.slice(1)}</div>
+      </div>
+      
+      <div class="monitor-widget">
+        <div class="monitor-value" style="color: #28a745">${timeRange === 'realtime' ? '847' : '845'}</div>
+        <div class="monitor-label">Active Robots</div>
+        <div class="monitor-trend trend-stable">→ Stable</div>
+      </div>
+      
+      <div class="monitor-widget">
+        <div class="monitor-value" style="color: #17a2b8">${timeRange === 'realtime' ? '99.7%' : '99.6%'}</div>
+        <div class="monitor-label">System Uptime</div>
+        <div class="monitor-trend trend-stable">→ SLA Met</div>
+      </div>
+      
+      <div class="monitor-widget">
+        <div class="monitor-value" style="color: #6f42c1">${Math.floor(Math.random() * 50000 + 150000).toLocaleString()}</div>
+        <div class="monitor-label">Tasks Completed</div>
+        <div class="monitor-trend trend-up">↗ +5.2%</div>
+      </div>
+    </div>
+    
+    <div class="info">
+      <strong>Monitoring Focus:</strong> ${aspect.toUpperCase()}<br>
+      <strong>Time Range:</strong> ${timeRange === 'realtime' ? 'Real-time data' : `Last ${timeRange}`}<br>
+      <strong>Status:</strong> ${data.trend === 'stable' ? '✅ All systems normal' : data.trend === 'up' && aspect !== 'model' ? '⚠️ Attention required' : '📈 Performance improving'}
+    </div>
+  `;
+}
+
+// ---------------------------
+// Model Update Simulation
+// ---------------------------
+function simulateModelUpdate() {
+  const strategy = document.getElementById('updateStrategy').value;
+  const fleetSize = parseInt(document.getElementById('fleetSize').value);
+  const batchSize = parseInt(document.getElementById('batchSize').value);
+  const box = document.getElementById('updateSimulation');
+
+  const strategies = {
+    rolling: {
+      name: 'Rolling Update',
+      downtime: 0,
+      duration: Math.ceil(fleetSize / batchSize) * 5,
+      risk: 'Low',
+      description: 'Gradually update robots in batches, maintaining service availability'
+    },
+    blue_green: {
+      name: 'Blue-Green Deployment',
+      downtime: 2,
+      duration: 15,
+      risk: 'Medium',
+      description: 'Switch entire fleet to new model version simultaneously'
+    },
+    canary: {
+      name: 'Canary Release',
+      downtime: 0,
+      duration: 60,
+      risk: 'Very Low',
+      description: 'Test new model on small subset before full rollout'
+    },
+    shadow: {
+      name: 'Shadow Testing',
+      downtime: 0,
+      duration: 120,
+      risk: 'Minimal',
+      description: 'Run new model in parallel for validation before switching'
+    }
+  };
+
+  const strat = strategies[strategy];
+  const batches = Math.ceil(fleetSize / batchSize);
+  const timeline = [];
+  
+  for (let i = 0; i < batches && i < 10; i++) {
+    timeline.push({
+      batch: i + 1,
+      robots: Math.min(batchSize, fleetSize - i * batchSize),
+      duration: strat.duration / batches,
+      status: i === 0 ? 'active' : 'pending'
+    });
+  }
+
+  box.innerHTML = `
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-value">${strat.name}</div>
+        <div class="metric-label">Update Strategy</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">${batches}</div>
+        <div class="metric-label">Update Batches</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">${strat.duration}min</div>
+        <div class="metric-label">Total Duration</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">${strat.downtime}min</div>
+        <div class="metric-label">Service Downtime</div>
+      </div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 15%"></div>
+    </div>
+    
+    <div style="margin: 15px 0;">
+      <strong>Update Timeline:</strong>
+      ${timeline.slice(0, 5).map((batch, idx) => `
+        <div style="display: flex; justify-content: space-between; padding: 5px 10px; margin: 5px 0; background: ${batch.status === 'active' ? '#d4edda' : '#f8f9fa'}; border-radius: 4px; font-size: 12px;">
+          <span>Batch ${batch.batch}: ${batch.robots} robots</span>
+          <span>${batch.duration.toFixed(1)}min ${batch.status === 'active' ? '(In Progress)' : '(Pending)'}</span>
+        </div>
+      `).join('')}
+      ${batches > 5 ? `<div style="font-size: 12px; color: #666; text-align: center;">... and ${batches - 5} more batches</div>` : ''}
+    </div>
+
+    <div class="${strat.risk === 'Low' || strat.risk === 'Very Low' ? 'success' : 'info'}">
+      <strong>Strategy:</strong> ${strat.description}<br>
+      <strong>Risk Level:</strong> ${strat.risk}<br>
+      <strong>Rollback Time:</strong> ${strategy === 'canary' ? '<5 minutes' : strategy === 'blue_green' ? '<2 minutes' : '<10 minutes'}<br>
+      <strong>Recommendation:</strong> ${strategy === 'rolling' ? 'Best for production stability' : strategy === 'canary' ? 'Safest for critical systems' : strategy === 'blue_green' ? 'Fast but requires double resources' : 'Ideal for validation-critical deployments'}
+    </div>
+  `;
+}
+
+// ---------------------------
+// Case Study Analysis
+// ---------------------------
+function analyzeCaseStudy() {
+  const industry = document.getElementById('industryFocus').value;
+  const scale = document.getElementById('deploymentScale').value;
+  const box = document.getElementById('caseStudyAnalysis');
+
+  const caseStudies = {
+    manufacturing: {
+      pilot: {
+        company: 'BMW Factory Automation',
+        robots: 3,
+        tasks: 'Assembly line assistance',
+        results: '23% efficiency gain, 0 safety incidents',
+        cost: '$450K investment',
+        timeline: '6 months',
+        challenges: 'Worker acceptance, safety certification'
+      },
+      medium: {
+        company: 'Toyota Production System',
+        robots: 25,
+        tasks: 'Quality inspection, part handling',
+        results: '31% productivity increase, 99.2% uptime',
+        cost: '$2.8M investment',
+        timeline: '14 months',
+        challenges: 'Integration with legacy systems'
+      },
+      large: {
+        company: 'Tesla Gigafactory',
+        robots: 180,
+        tasks: 'Battery assembly, vehicle production',
+        results: '42% throughput increase, $12M annual savings',
+        cost: '$18M investment',
+        timeline: '2 years',
+        challenges: 'Scale coordination, model updates'
+      }
+    },
+    logistics: {
+      pilot: {
+        company: 'Local Fulfillment Center',
+        robots: 5,
+        tasks: 'Package sorting, inventory',
+        results: '28% faster processing, 15% cost reduction',
+        cost: '$320K investment',
+        timeline: '4 months',
+        challenges: 'Warehouse layout, peak season scaling'
+      },
+      medium: {
+        company: 'FedEx Regional Hub',
+        robots: 40,
+        tasks: 'Automated sorting, truck loading',
+        results: '35% capacity increase, 24/7 operation',
+        cost: '$4.2M investment',
+        timeline: '18 months',
+        challenges: 'Package variety, damage prevention'
+      },
+      large: {
+        company: 'Amazon Fulfillment Network',
+        robots: 1200,
+        tasks: 'Multi-level fulfillment operations',
+        results: '47M annual savings, 4.7x speed improvement',
+        cost: '$47M investment',
+        timeline: '3 years',
+        challenges: 'Fleet coordination, continuous learning'
+      }
+    }
+  };
+
+  const study = caseStudies[industry]?.[scale] || {
+    company: 'Custom Implementation',
+    robots: 'Variable',
+    tasks: 'Industry-specific',
+    results: 'Case by case',
+    cost: 'Varies by scale',
+    timeline: 'Depends on complexity',
+    challenges: 'Domain-specific requirements'
+  };
+
+  box.innerHTML = `
+    <div class="case-study">
+      <div class="case-company">${study.company}</div>
+      <div class="case-title">${industry.charAt(0).toUpperCase() + industry.slice(1)} VLA Deployment</div>
+      
+      <div class="case-metrics">
+        <div class="case-metric">
+          <div class="case-value">${study.robots}</div>
+          <div class="case-label">Robots Deployed</div>
+        </div>
+        <div class="case-metric">
+          <div class="case-value">${study.cost}</div>
+          <div class="case-label">Total Investment</div>
+        </div>
+        <div class="case-metric">
+          <div class="case-value">${study.timeline}</div>
+          <div class="case-label">Implementation Time</div>
+        </div>
+      </div>
+      
+      <div class="info">
+        <strong>Primary Tasks:</strong> ${study.tasks}<br>
+        <strong>Key Results:</strong> ${study.results}<br>
+        <strong>Main Challenges:</strong> ${study.challenges}<br>
+        <strong>Deployment Scale:</strong> ${scale.charAt(0).toUpperCase() + scale.slice(1)} deployment (${study.robots} robots)
+      </div>
+    </div>
+  `;
+}
+
+// Initialize the page with default values
+document.addEventListener('DOMContentLoaded', function() {
+  calculateHardware();
+  simulateJetsonPerformance();
+  updateMonitoring();
+  analyzeCaseStudy();
+});
+  </script>
+    
 </body>
 </html>
