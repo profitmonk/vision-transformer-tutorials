@@ -1325,331 +1325,331 @@ def compute_regularization_loss(model):
       </div>
     </div>
   </div>
-<div class="step">
-  <h3>🚀 V-JEPA Inference: What It Does and Doesn't Do</h3>
-  <p><strong>Important:</strong> During inference, V-JEPA does <em>NOT</em> generate video pixels. Instead, it outputs abstract feature representations that encode understanding about future states. The target encoder is also not needed during inference.</p>
-
-  <div class="warning">
-    <strong>❌ Common Misconception:</strong><br>
-    V-JEPA is <strong>NOT</strong> a video generation model. It doesn't output pixels or video frames.<br><br>
-    <strong>✅ What V-JEPA Actually Does:</strong><br>
-    Outputs abstract feature representations that encode physics understanding, object relationships, and temporal dynamics.
-  </div>
-
-  <div class="interactive-demo">
-    <div class="demo-title">🎭 Inference vs Training: Architecture Comparison</div>
-    <div class="controls">
-      <div class="control-group">
-        <label>Mode:</label>
-        <select id="inferenceMode">
-          <option value="training" selected>Training Mode</option>
-          <option value="inference">Inference Mode</option>
-        </select>
-      </div>
-    </div>
-    <button onclick="showInferenceArchitecture()" class="primary">🏗️ Show Architecture</button>
-    <div id="inferenceArchResults"></div>
-  </div>
-
-  <div class="tabs">
-    <div class="tab active" onclick="switchInferenceTab('components', this)">🧩 Components Needed</div>
-    <div class="tab" onclick="switchInferenceTab('output', this)">📤 Output Format</div>
-    <div class="tab" onclick="switchInferenceTab('applications', this)">🎯 Real Applications</div>
-    <div class="tab" onclick="switchInferenceTab('limitations', this)">⚠️ What It Can't Do</div>
-  </div>
-
-  <div id="components" class="tab-content active">
-    <div class="comparison-table">
-      <thead>
-        <tr>
-          <th>Component</th>
-          <th>Training</th>
-          <th>Inference</th>
-          <th>Why Different?</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Context Encoder</strong></td>
-          <td class="score-excellent">✅ Required</td>
-          <td class="score-excellent">✅ Required</td>
-          <td>Processes input video context</td>
-        </tr>
-        <tr>
-          <td><strong>Predictor Network</strong></td>
-          <td class="score-excellent">✅ Required</td>
-          <td class="score-excellent">✅ Required</td>
-          <td>Generates predictions from context</td>
-        </tr>
-        <tr>
-          <td><strong>Target Encoder</strong></td>
-          <td class="score-good">✅ Required</td>
-          <td class="score-poor">❌ Not Needed</td>
-          <td>No ground truth to compare against</td>
-        </tr>
-        <tr>
-          <td><strong>Loss Computation</strong></td>
-          <td class="score-good">✅ Required</td>
-          <td class="score-poor">❌ Not Needed</td>
-          <td>No learning during inference</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="code-block">
-      <div class="code-header">🚀 V-JEPA Inference Implementation</div>
-      <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
-<pre>class V_JEPA_Inference:
-    """
-    V-JEPA model optimized for inference
-    Only includes components needed for prediction
-    """
-    def __init__(self, model_path):
-        # Load only inference components
-        checkpoint = torch.load(model_path)
-        
-        self.context_encoder = ContextEncoder()  # ✅ NEEDED
-        self.predictor = PredictorNetwork()      # ✅ NEEDED
-        # self.target_encoder = ...             # ❌ NOT LOADED
-        
-        self.context_encoder.load_state_dict(checkpoint['context_encoder'])
-        self.predictor.load_state_dict(checkpoint['predictor'])
-        
-        # Set to evaluation mode
-        self.context_encoder.eval()
-        self.predictor.eval()
-    
-    def predict(self, input_video, prediction_positions):
-        """
-        Generate feature predictions from video context
-        
-        Args:
-            input_video: [B, T, H, W, C] - input video frames
-            prediction_positions: positions to predict
-            
-        Returns:
-            predicted_features: [B, N_pred, D] - abstract features
-        """
-        with torch.no_grad():  # No gradients needed for inference
-            # Step 1: Encode context
-            context_features = self.context_encoder(input_video)
-            
-            # Step 2: Generate predictions  
-            predicted_features = self.predictor(
-                context_features, 
-                prediction_positions
-            )
-            
-            # Return abstract features, NOT pixels!
-            return predicted_features
-    
-    def get_world_model_state(self, video_context):
-        """
-        Extract world model understanding from video
-        Returns abstract physics and object state representations
-        """
-        features = self.predict(video_context, "future_states")
-        
-        # Features encode concepts like:
-        # - Object positions and velocities
-        # - Physics state (momentum, potential energy)
-        # - Spatial relationships
-        # - Temporal dynamics
-        
-        return features  # Shape: [batch, features, embedding_dim]</pre>
-    </div>
-
-    <div class="info">
-      <strong>💾 Memory Savings:</strong><br>
-      Inference-only model uses ~33% less memory by excluding the target encoder and related components.
-    </div>
-  </div>
-
-  <div id="output" class="tab-content">
-    <div class="interactive-demo">
-      <div class="demo-title">📊 V-JEPA Output Format Explorer</div>
-      <div class="controls">
-        <div class="control-group">
-          <label>Input Scenario:</label>
-          <select id="outputScenario">
-            <option value="bouncing_ball" selected>Bouncing Ball</option>
-            <option value="pouring_water">Robot Pouring Water</option>
-            <option value="person_walking">Person Walking</option>
-            <option value="collision">Object Collision</option>
-          </select>
-        </div>
-        <div class="control-group">
-          <label>Feature Analysis:</label>
-          <select id="featureAnalysis">
-            <option value="raw" selected>Raw Feature Numbers</option>
-            <option value="concepts">Interpreted Concepts</option>
-            <option value="physics">Physics Understanding</option>
-          </select>
-        </div>
-      </div>
-      <button onclick="showOutputFormat()" class="secondary">📤 Analyze Output</button>
-      <div id="outputFormatResults"></div>
-    </div>
-
+  <div class="step">
+    <h3>🚀 V-JEPA Inference: What It Does and Doesn't Do</h3>
+    <p><strong>Important:</strong> During inference, V-JEPA does <em>NOT</em> generate video pixels. Instead, it outputs abstract feature representations that encode understanding about future states. The target encoder is also not needed during inference.</p>
+  
     <div class="warning">
-      <strong>🚫 What You CANNOT Do with V-JEPA Output:</strong><br>
-      • <code>display_video(v_jepa_output)</code> ❌ - Output is not pixels<br>
-      • <code>save_as_mp4(v_jepa_features)</code> ❌ - Features are abstract numbers<br>
-      • <code>show_image(predicted_frame)</code> ❌ - No visual frames generated<br><br>
-      <strong>✅ What You CAN Do:</strong><br>
-      • Use features for robot planning and control<br>
-      • Extract physics understanding and object states<br>
-      • Classify actions or predict outcomes<br>
-      • Condition other models (like video generators)
+      <strong>❌ Common Misconception:</strong><br>
+      V-JEPA is <strong>NOT</strong> a video generation model. It doesn't output pixels or video frames.<br><br>
+      <strong>✅ What V-JEPA Actually Does:</strong><br>
+      Outputs abstract feature representations that encode physics understanding, object relationships, and temporal dynamics.
     </div>
-  </div>
-
-  <div id="applications" class="tab-content">
-    <div class="robotics-integration">
-      <div class="demo-title">🤖 Real-World V-JEPA Applications</div>
-      
-      <div class="robot-scenario">
-        <div class="robot-icon">🧠</div>
-        <div class="scenario-content">
-          <div class="scenario-title">World Model for Robot Planning</div>
-          <div class="scenario-description">Robot uses V-JEPA features to understand physics and plan actions. Features encode "ball will bounce here" rather than exact pixel colors.</div>
-        </div>
-      </div>
-
-      <div class="robot-scenario">
-        <div class="robot-icon">🎯</div>
-        <div class="scenario-content">
-          <div class="scenario-title">Physics-Aware Control Systems</div>
-          <div class="scenario-description">Autonomous vehicles use V-JEPA to predict object trajectories and dynamics without generating visual frames - just understanding motion patterns.</div>
-        </div>
-      </div>
-
-      <div class="robot-scenario">
-        <div class="robot-icon">🔍</div>
-        <div class="scenario-content">
-          <div class="scenario-title">Feature Extraction for Downstream Tasks</div>
-          <div class="scenario-description">Use V-JEPA features as input to action classifiers, object trackers, or anomaly detectors - leveraging rich temporal understanding.</div>
-        </div>
-      </div>
-
-      <div class="robot-scenario">
-        <div class="robot-icon">🎨</div>
-        <div class="scenario-content">
-          <div class="scenario-title">Conditioning for Video Generation</div>
-          <div class="scenario-description">Use V-JEPA features to guide diffusion models or GANs in generating physically-realistic video sequences.</div>
-        </div>
-      </div>
-    </div>
-
+  
     <div class="interactive-demo">
-      <div class="demo-title">🎮 Application Simulator</div>
+      <div class="demo-title">🎭 Inference vs Training: Architecture Comparison</div>
       <div class="controls">
         <div class="control-group">
-          <label>Use Case:</label>
-          <select id="applicationUseCase">
-            <option value="robot_planning" selected>Robot Motion Planning</option>
-            <option value="autonomous_driving">Autonomous Driving</option>
-            <option value="sports_analysis">Sports Video Analysis</option>
-            <option value="surveillance">Surveillance Systems</option>
+          <label>Mode:</label>
+          <select id="inferenceMode">
+            <option value="training" selected>Training Mode</option>
+            <option value="inference">Inference Mode</option>
           </select>
         </div>
       </div>
-      <button onclick="simulateApplication()" class="secondary">🚀 Simulate Application</button>
-      <div id="applicationResults"></div>
+      <button onclick="showInferenceArchitecture()" class="primary">🏗️ Show Architecture</button>
+      <div id="inferenceArchResults"></div>
     </div>
-  </div>
-
-  <div id="limitations" class="tab-content">
-    <div class="prediction-grid">
-      <div class="prediction-card">
-        <div class="scenario-title">❌ Cannot Generate Videos</div>
-        <div class="scenario-description">
-          V-JEPA outputs abstract features, not pixels. For video generation, you need additional decoder networks or generative models.
-        </div>
+  
+    <div class="tabs">
+      <div class="tab active" onclick="switchInferenceTab('components', this)">🧩 Components Needed</div>
+      <div class="tab" onclick="switchInferenceTab('output', this)">📤 Output Format</div>
+      <div class="tab" onclick="switchInferenceTab('applications', this)">🎯 Real Applications</div>
+      <div class="tab" onclick="switchInferenceTab('limitations', this)">⚠️ What It Can't Do</div>
+    </div>
+  
+    <div id="components" class="tab-content active">
+      <div class="comparison-table">
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Training</th>
+            <th>Inference</th>
+            <th>Why Different?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Context Encoder</strong></td>
+            <td class="score-excellent">✅ Required</td>
+            <td class="score-excellent">✅ Required</td>
+            <td>Processes input video context</td>
+          </tr>
+          <tr>
+            <td><strong>Predictor Network</strong></td>
+            <td class="score-excellent">✅ Required</td>
+            <td class="score-excellent">✅ Required</td>
+            <td>Generates predictions from context</td>
+          </tr>
+          <tr>
+            <td><strong>Target Encoder</strong></td>
+            <td class="score-good">✅ Required</td>
+            <td class="score-poor">❌ Not Needed</td>
+            <td>No ground truth to compare against</td>
+          </tr>
+          <tr>
+            <td><strong>Loss Computation</strong></td>
+            <td class="score-good">✅ Required</td>
+            <td class="score-poor">❌ Not Needed</td>
+            <td>No learning during inference</td>
+          </tr>
+        </tbody>
+      </table>
+  
+      <div class="code-block">
+        <div class="code-header">🚀 V-JEPA Inference Implementation</div>
+        <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+  <pre>class V_JEPA_Inference:
+      """
+      V-JEPA model optimized for inference
+      Only includes components needed for prediction
+      """
+      def __init__(self, model_path):
+          # Load only inference components
+          checkpoint = torch.load(model_path)
+          
+          self.context_encoder = ContextEncoder()  # ✅ NEEDED
+          self.predictor = PredictorNetwork()      # ✅ NEEDED
+          # self.target_encoder = ...             # ❌ NOT LOADED
+          
+          self.context_encoder.load_state_dict(checkpoint['context_encoder'])
+          self.predictor.load_state_dict(checkpoint['predictor'])
+          
+          # Set to evaluation mode
+          self.context_encoder.eval()
+          self.predictor.eval()
+      
+      def predict(self, input_video, prediction_positions):
+          """
+          Generate feature predictions from video context
+          
+          Args:
+              input_video: [B, T, H, W, C] - input video frames
+              prediction_positions: positions to predict
+              
+          Returns:
+              predicted_features: [B, N_pred, D] - abstract features
+          """
+          with torch.no_grad():  # No gradients needed for inference
+              # Step 1: Encode context
+              context_features = self.context_encoder(input_video)
+              
+              # Step 2: Generate predictions  
+              predicted_features = self.predictor(
+                  context_features, 
+                  prediction_positions
+              )
+              
+              # Return abstract features, NOT pixels!
+              return predicted_features
+      
+      def get_world_model_state(self, video_context):
+          """
+          Extract world model understanding from video
+          Returns abstract physics and object state representations
+          """
+          features = self.predict(video_context, "future_states")
+          
+          # Features encode concepts like:
+          # - Object positions and velocities
+          # - Physics state (momentum, potential energy)
+          # - Spatial relationships
+          # - Temporal dynamics
+          
+          return features  # Shape: [batch, features, embedding_dim]</pre>
       </div>
-
-      <div class="prediction-card">
-        <div class="scenario-title">❌ No Visual Reconstruction</div>
-        <div class="scenario-description">
-          Cannot reconstruct or visualize what the predicted future looks like without additional components to convert features back to pixels.
-        </div>
-      </div>
-
-      <div class="prediction-card">
-        <div class="scenario-title">❌ Abstract Understanding Only</div>
-        <div class="scenario-description">
-          Understands concepts like "ball bouncing" but not visual details like exact colors, textures, or lighting conditions.
-        </div>
-      </div>
-
-      <div class="prediction-card">
-        <div class="scenario-title">✅ Rich Physics Modeling</div>
-        <div class="scenario-description">
-          Excels at understanding motion, causality, object interactions, and temporal dynamics through learned representations.
-        </div>
-      </div>
-
-      <div class="prediction-card">
-        <div class="scenario-title">✅ Efficient Planning</div>
-        <div class="scenario-description">
-          Perfect for robot control and autonomous systems that need world understanding for decision-making, not visual output.
-        </div>
-      </div>
-
-      <div class="prediction-card">
-        <div class="scenario-title">✅ Transfer Learning</div>
-        <div class="scenario-description">
-          Rich features transfer well to downstream tasks like action recognition, object tracking, and physics simulation.
-        </div>
+  
+      <div class="info">
+        <strong>💾 Memory Savings:</strong><br>
+        Inference-only model uses ~33% less memory by excluding the target encoder and related components.
       </div>
     </div>
-
-    <div class="code-block">
-      <div class="code-header">🎯 Correct vs Incorrect Usage</div>
-      <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
-<pre># ❌ INCORRECT USAGE - V-JEPA doesn't output pixels
-v_jepa = V_JEPA_Model()
-predicted_video = v_jepa.predict(input_video)  # This gives features, not video!
-cv2.imshow("prediction", predicted_video)      # Will fail - not image data
-
-# ✅ CORRECT USAGE - Use features for understanding
-v_jepa = V_JEPA_Model()
-future_features = v_jepa.predict(input_video)  # Shape: [batch, patches, 768]
-
-# Use features for robot planning
-def plan_robot_action(current_video):
-    world_model_features = v_jepa.predict(current_video)
-    
-    # Features encode physics understanding like:
-    # - Object will move from position A to B
-    # - Collision will occur at time T
-    # - Surface friction affects trajectory
-    
-    # Use this understanding for planning
-    best_action = planning_algorithm(world_model_features)
-    return best_action
-
-# Use features for downstream tasks
-action_classifier = ActionClassifier()
-predicted_action = action_classifier(future_features)
-
-physics_analyzer = PhysicsAnalyzer()
-motion_state = physics_analyzer(future_features)
-
-# Condition generative models
-if need_visual_output:
-    diffusion_model = VideoDiffusionModel()
-    generated_video = diffusion_model.generate(
-        conditioning=future_features  # Use V-JEPA features as guidance
-    )</pre>
+  
+    <div id="output" class="tab-content">
+      <div class="interactive-demo">
+        <div class="demo-title">📊 V-JEPA Output Format Explorer</div>
+        <div class="controls">
+          <div class="control-group">
+            <label>Input Scenario:</label>
+            <select id="outputScenario">
+              <option value="bouncing_ball" selected>Bouncing Ball</option>
+              <option value="pouring_water">Robot Pouring Water</option>
+              <option value="person_walking">Person Walking</option>
+              <option value="collision">Object Collision</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Feature Analysis:</label>
+            <select id="featureAnalysis">
+              <option value="raw" selected>Raw Feature Numbers</option>
+              <option value="concepts">Interpreted Concepts</option>
+              <option value="physics">Physics Understanding</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="showOutputFormat()" class="secondary">📤 Analyze Output</button>
+        <div id="outputFormatResults"></div>
+      </div>
+  
+      <div class="warning">
+        <strong>🚫 What You CANNOT Do with V-JEPA Output:</strong><br>
+        • <code>display_video(v_jepa_output)</code> ❌ - Output is not pixels<br>
+        • <code>save_as_mp4(v_jepa_features)</code> ❌ - Features are abstract numbers<br>
+        • <code>show_image(predicted_frame)</code> ❌ - No visual frames generated<br><br>
+        <strong>✅ What You CAN Do:</strong><br>
+        • Use features for robot planning and control<br>
+        • Extract physics understanding and object states<br>
+        • Classify actions or predict outcomes<br>
+        • Condition other models (like video generators)
+      </div>
     </div>
-  </div>
-
-  <div class="breakthrough-highlight">
-    🎯 Key Insight: V-JEPA is a "world understanding" model, not a "world visualization" model. It builds rich internal physics models that enable intelligent planning and decision-making.
+  
+    <div id="applications" class="tab-content">
+      <div class="robotics-integration">
+        <div class="demo-title">🤖 Real-World V-JEPA Applications</div>
+        
+        <div class="robot-scenario">
+          <div class="robot-icon">🧠</div>
+          <div class="scenario-content">
+            <div class="scenario-title">World Model for Robot Planning</div>
+            <div class="scenario-description">Robot uses V-JEPA features to understand physics and plan actions. Features encode "ball will bounce here" rather than exact pixel colors.</div>
+          </div>
+        </div>
+  
+        <div class="robot-scenario">
+          <div class="robot-icon">🎯</div>
+          <div class="scenario-content">
+            <div class="scenario-title">Physics-Aware Control Systems</div>
+            <div class="scenario-description">Autonomous vehicles use V-JEPA to predict object trajectories and dynamics without generating visual frames - just understanding motion patterns.</div>
+          </div>
+        </div>
+  
+        <div class="robot-scenario">
+          <div class="robot-icon">🔍</div>
+          <div class="scenario-content">
+            <div class="scenario-title">Feature Extraction for Downstream Tasks</div>
+            <div class="scenario-description">Use V-JEPA features as input to action classifiers, object trackers, or anomaly detectors - leveraging rich temporal understanding.</div>
+          </div>
+        </div>
+  
+        <div class="robot-scenario">
+          <div class="robot-icon">🎨</div>
+          <div class="scenario-content">
+            <div class="scenario-title">Conditioning for Video Generation</div>
+            <div class="scenario-description">Use V-JEPA features to guide diffusion models or GANs in generating physically-realistic video sequences.</div>
+          </div>
+        </div>
+      </div>
+  
+      <div class="interactive-demo">
+        <div class="demo-title">🎮 Application Simulator</div>
+        <div class="controls">
+          <div class="control-group">
+            <label>Use Case:</label>
+            <select id="applicationUseCase">
+              <option value="robot_planning" selected>Robot Motion Planning</option>
+              <option value="autonomous_driving">Autonomous Driving</option>
+              <option value="sports_analysis">Sports Video Analysis</option>
+              <option value="surveillance">Surveillance Systems</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="simulateApplication()" class="secondary">🚀 Simulate Application</button>
+        <div id="applicationResults"></div>
+      </div>
+    </div>
+  
+    <div id="limitations" class="tab-content">
+      <div class="prediction-grid">
+        <div class="prediction-card">
+          <div class="scenario-title">❌ Cannot Generate Videos</div>
+          <div class="scenario-description">
+            V-JEPA outputs abstract features, not pixels. For video generation, you need additional decoder networks or generative models.
+          </div>
+        </div>
+  
+        <div class="prediction-card">
+          <div class="scenario-title">❌ No Visual Reconstruction</div>
+          <div class="scenario-description">
+            Cannot reconstruct or visualize what the predicted future looks like without additional components to convert features back to pixels.
+          </div>
+        </div>
+  
+        <div class="prediction-card">
+          <div class="scenario-title">❌ Abstract Understanding Only</div>
+          <div class="scenario-description">
+            Understands concepts like "ball bouncing" but not visual details like exact colors, textures, or lighting conditions.
+          </div>
+        </div>
+  
+        <div class="prediction-card">
+          <div class="scenario-title">✅ Rich Physics Modeling</div>
+          <div class="scenario-description">
+            Excels at understanding motion, causality, object interactions, and temporal dynamics through learned representations.
+          </div>
+        </div>
+  
+        <div class="prediction-card">
+          <div class="scenario-title">✅ Efficient Planning</div>
+          <div class="scenario-description">
+            Perfect for robot control and autonomous systems that need world understanding for decision-making, not visual output.
+          </div>
+        </div>
+  
+        <div class="prediction-card">
+          <div class="scenario-title">✅ Transfer Learning</div>
+          <div class="scenario-description">
+            Rich features transfer well to downstream tasks like action recognition, object tracking, and physics simulation.
+          </div>
+        </div>
+      </div>
+  
+      <div class="code-block">
+        <div class="code-header">🎯 Correct vs Incorrect Usage</div>
+        <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+  <pre># ❌ INCORRECT USAGE - V-JEPA doesn't output pixels
+  v_jepa = V_JEPA_Model()
+  predicted_video = v_jepa.predict(input_video)  # This gives features, not video!
+  cv2.imshow("prediction", predicted_video)      # Will fail - not image data
+  
+  # ✅ CORRECT USAGE - Use features for understanding
+  v_jepa = V_JEPA_Model()
+  future_features = v_jepa.predict(input_video)  # Shape: [batch, patches, 768]
+  
+  # Use features for robot planning
+  def plan_robot_action(current_video):
+      world_model_features = v_jepa.predict(current_video)
+      
+      # Features encode physics understanding like:
+      # - Object will move from position A to B
+      # - Collision will occur at time T
+      # - Surface friction affects trajectory
+      
+      # Use this understanding for planning
+      best_action = planning_algorithm(world_model_features)
+      return best_action
+  
+  # Use features for downstream tasks
+  action_classifier = ActionClassifier()
+  predicted_action = action_classifier(future_features)
+  
+  physics_analyzer = PhysicsAnalyzer()
+  motion_state = physics_analyzer(future_features)
+  
+  # Condition generative models
+  if need_visual_output:
+      diffusion_model = VideoDiffusionModel()
+      generated_video = diffusion_model.generate(
+          conditioning=future_features  # Use V-JEPA features as guidance
+      )</pre>
+      </div>
+    </div>
+  
+    <div class="breakthrough-highlight">
+      🎯 Key Insight: V-JEPA is a "world understanding" model, not a "world visualization" model. It builds rich internal physics models that enable intelligent planning and decision-making.
+    </div>
   </div>
 </div>
-
   <div class="container">
     <h2>🌍 Section 2: World Model Learning - How V-JEPA Understands Physics</h2>
 
