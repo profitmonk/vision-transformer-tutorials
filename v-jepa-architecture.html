@@ -843,6 +843,276 @@ def compute_regularization_loss(model):
         </div>
       </div>
     </div>
+    <div class="step">
+  <h3>🔗 V-JEPA vs CLIP: Temporal vs Cross-Modal Learning</h3>
+  <p>V-JEPA shares some conceptual similarities with CLIP (Contrastive Language-Image Pre-training), but focuses on <strong>temporal understanding</strong> rather than <strong>cross-modal alignment</strong>. Both learn joint embeddings, but for very different purposes.</p>
+
+  <div class="interactive-demo">
+    <div class="demo-title">⚖️ Architecture Comparison: CLIP vs V-JEPA</div>
+    <div class="controls">
+      <div class="control-group">
+        <label>Comparison Aspect:</label>
+        <select id="comparisonAspect">
+          <option value="objective" selected>Learning Objective</option>
+          <option value="architecture">Architecture Design</option>
+          <option value="understanding">Type of Understanding</option>
+          <option value="applications">Applications</option>
+        </select>
+      </div>
+    </div>
+    <button onclick="showCLIPComparison()" class="primary">🔍 Compare Approaches</button>
+    <div id="clipComparisonResults"></div>
+  </div>
+
+  <div class="architecture-flow">
+    <div class="arch-component context">
+      <h4>🖼️ CLIP Approach</h4>
+      <div>Cross-Modal</div>
+      <div style="font-size:12px;margin-top:5px">
+        Image ↔ Text<br>
+        "What goes with what?"<br>
+        Semantic alignment
+      </div>
+    </div>
+    <div class="arch-arrow">vs</div>
+    <div class="arch-component predictor">
+      <h4>🎬 V-JEPA Approach</h4>
+      <div>Temporal</div>
+      <div style="font-size:12px;margin-top:5px">
+        Past → Future<br>
+        "What leads to what?"<br>
+        Causal prediction
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchComparisonTab('similarities', this)">🤝 Similarities</div>
+    <div class="tab" onclick="switchComparisonTab('differences', this)">⚡ Key Differences</div>
+    <div class="tab" onclick="switchComparisonTab('combination', this)">🔄 Potential Combination</div>
+    <div class="tab" onclick="switchComparisonTab('code', this)">💻 Code Comparison</div>
+  </div>
+
+  <div id="similarities" class="tab-content active">
+    <div class="prediction-grid">
+      <div class="emergent-capability">
+        <div class="capability-header">🧩 Joint Embedding Space</div>
+        <div class="capability-description">
+          <strong>CLIP:</strong> Maps images and text to same embedding space<br>
+          <strong>V-JEPA:</strong> Maps past and future video to same embedding space
+        </div>
+      </div>
+
+      <div class="emergent-capability">
+        <div class="capability-header">🎯 No Direct Generation</div>
+        <div class="capability-description">
+          <strong>CLIP:</strong> Doesn't generate pixels or text, learns representations<br>
+          <strong>V-JEPA:</strong> Doesn't generate pixels, predicts representations
+        </div>
+      </div>
+
+      <div class="emergent-capability">
+        <div class="capability-header">📊 Contrastive/Predictive Learning</div>
+        <div class="capability-description">
+          <strong>CLIP:</strong> Matches correct pairs, separates incorrect ones<br>
+          <strong>V-JEPA:</strong> Predicts future representations from past context
+        </div>
+      </div>
+
+      <div class="emergent-capability">
+        <div class="capability-header">⚡ Self-Supervised</div>
+        <div class="capability-description">
+          <strong>CLIP:</strong> Learns from image-text pairs without manual labels<br>
+          <strong>V-JEPA:</strong> Learns from video sequences without manual annotation
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="differences" class="tab-content">
+    <div class="comparison-table">
+      <thead>
+        <tr>
+          <th>Aspect</th>
+          <th>CLIP</th>
+          <th>V-JEPA</th>
+          <th>Impact</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Learning Focus</strong></td>
+          <td class="score-good">Cross-modal alignment</td>
+          <td class="score-excellent">Temporal prediction</td>
+          <td>Different types of intelligence</td>
+        </tr>
+        <tr>
+          <td><strong>Input Relationship</strong></td>
+          <td class="score-good">Image ↔ Text (same time)</td>
+          <td class="score-excellent">Video t₁ → Video t₂ (time sequence)</td>
+          <td>Static vs dynamic understanding</td>
+        </tr>
+        <tr>
+          <td><strong>Core Question</strong></td>
+          <td class="score-good">"Do these match?"</td>
+          <td class="score-excellent">"What happens next?"</td>
+          <td>Recognition vs prediction</td>
+        </tr>
+        <tr>
+          <td><strong>Understanding Type</strong></td>
+          <td class="score-good">Semantic (what things are)</td>
+          <td class="score-excellent">Causal (how things change)</td>
+          <td>Labeling vs physics modeling</td>
+        </tr>
+        <tr>
+          <td><strong>Time Dimension</strong></td>
+          <td class="score-average">Static/snapshot</td>
+          <td class="score-excellent">Dynamic/temporal</td>
+          <td>World model capabilities</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="math-formula">
+      <strong>Mathematical Difference:</strong><br><br>
+      <strong>CLIP Objective:</strong><br>
+      max Σ cos_sim(image_i, text_i) - cos_sim(image_i, text_j≠i)<br><br>
+      <strong>V-JEPA Objective:</strong><br>
+      min MSE(predictor(context_t), target_encoder(future_t+k))
+    </div>
+  </div>
+
+  <div id="combination" class="tab-content">
+    <div class="success">
+      <strong>🚀 Combining CLIP + V-JEPA: The Best of Both Worlds</strong><br><br>
+      A system that uses both approaches could achieve:<br>
+      • <strong>CLIP's strength:</strong> Understanding what things are and what instructions mean<br>
+      • <strong>V-JEPA's strength:</strong> Understanding how things change and what leads to what
+    </div>
+
+    <div class="robotics-integration">
+      <div class="demo-title">🤖 Combined System Example</div>
+      
+      <div class="robot-scenario">
+        <div class="robot-icon">👂</div>
+        <div class="scenario-content">
+          <div class="scenario-title">Human Instruction: "Pour water into the blue cup"</div>
+          <div class="scenario-description">CLIP processes the semantic meaning of "blue cup" and "pouring action"</div>
+        </div>
+      </div>
+
+      <div class="robot-scenario">
+        <div class="robot-icon">👁️</div>
+        <div class="scenario-content">
+          <div class="scenario-title">Visual Understanding</div>
+          <div class="scenario-description">CLIP identifies the blue cup in the scene and understands the current state</div>
+        </div>
+      </div>
+
+      <div class="robot-scenario">
+        <div class="robot-icon">🧠</div>
+        <div class="scenario-content">
+          <div class="scenario-title">Motion Prediction</div>
+          <div class="scenario-description">V-JEPA predicts the sequence of movements needed to successfully pour water</div>
+        </div>
+      </div>
+
+      <div class="robot-scenario">
+        <div class="robot-icon">🤖</div>
+        <div class="scenario-content">
+          <div class="scenario-title">Integrated Action</div>
+          <div class="scenario-description">Combined system executes semantically-aware, physically-realistic actions</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="interactive-demo">
+      <div class="demo-title">🎯 Use Case Selector</div>
+      <div class="controls">
+        <div class="control-group">
+          <label>Application Scenario:</label>
+          <select id="combinedUseCase">
+            <option value="cooking" selected>Kitchen Robot Cooking</option>
+            <option value="assembly">Manufacturing Assembly</option>
+            <option value="cleanup">Home Cleaning Robot</option>
+            <option value="assistance">Personal Assistant Robot</option>
+          </select>
+        </div>
+      </div>
+      <button onclick="showCombinedUseCase()" class="secondary">🔍 Analyze Combined Benefits</button>
+      <div id="combinedUseCaseResults"></div>
+    </div>
+  </div>
+
+  <div id="code" class="tab-content">
+    <div class="code-block">
+      <div class="code-header">💻 CLIP vs V-JEPA Implementation Comparison</div>
+      <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre># CLIP-Style Approach
+class CLIPStyle:
+    def forward(self, images, texts):
+        # Encode both modalities to same embedding space
+        image_features = self.image_encoder(images)
+        text_features = self.text_encoder(texts)
+        
+        # Compute similarity/alignment
+        similarity = cosine_similarity(image_features, text_features)
+        
+        # Contrastive learning: maximize correct pairs, minimize wrong pairs
+        loss = contrastive_loss(similarity, labels)
+        return loss
+
+# V-JEPA Approach  
+class VJEPAStyle:
+    def forward(self, past_video, future_video, mask):
+        # Encode context from past
+        context_features = self.context_encoder(past_video, ~mask)
+        
+        # Predict future representations
+        predicted_features = self.predictor(context_features, mask)
+        
+        # Encode actual future (target)
+        target_features = self.target_encoder(future_video)
+        
+        # Predictive learning: minimize prediction error
+        loss = mse_loss(predicted_features, target_features)
+        return loss
+
+# Combined Approach
+class MultiModalVJEPA:
+    def __init__(self):
+        self.clip_encoder = CLIPEncoder()     # Semantic understanding
+        self.vjepa_predictor = VJEPAPredictor()  # Temporal prediction
+    
+    def forward(self, video_context, text_instruction):
+        # CLIP: Understand semantic goal
+        semantic_goal = self.clip_encoder.encode_text(text_instruction)
+        current_state = self.clip_encoder.encode_image(video_context)
+        
+        # V-JEPA: Predict how to achieve goal
+        future_prediction = self.vjepa_predictor(
+            context=current_state,
+            goal=semantic_goal
+        )
+        
+        return future_prediction</pre>
+    </div>
+
+    <div class="info">
+      <strong>🎯 Key Implementation Differences:</strong><br>
+      • <strong>CLIP:</strong> Two encoders (vision + text) with similarity matching<br>
+      • <strong>V-JEPA:</strong> Context encoder + predictor + target encoder with MSE loss<br>
+      • <strong>Combined:</strong> Leverages CLIP for semantic understanding, V-JEPA for temporal prediction
+    </div>
+  </div>
+
+  <div class="warning">
+    <strong>🤔 Think of it this way:</strong><br>
+    • <strong>CLIP:</strong> "Temporal CLIP" - learns joint representations across <em>time</em> instead of modalities<br>
+    • <strong>V-JEPA:</strong> Adds crucial temporal/causal dimension that CLIP lacks<br>
+    • <strong>Together:</strong> Comprehensive understanding of both <em>what things are</em> and <em>how they change</em>
+  </div>
+</div>
   </div>
 
   <div class="container">
@@ -2419,7 +2689,152 @@ function showVJEPASteps() {
     </div>
   `;
 }
+// CLIP comparison functions
+function switchComparisonTab(id, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
 
+function showCLIPComparison() {
+  const aspect = document.getElementById('comparisonAspect').value;
+  const results = document.getElementById('clipComparisonResults');
+  
+  const comparisons = {
+    objective: {
+      clip: {
+        title: "Cross-Modal Alignment",
+        description: "Learn to match images with their text descriptions",
+        example: "Match 🐕 image with 'A golden retriever playing fetch'",
+        question: "Do this image and text describe the same thing?"
+      },
+      vjepa: {
+        title: "Temporal Prediction", 
+        description: "Learn to predict future video states from past context",
+        example: "From 🏀 trajectory, predict bounce and continued motion",
+        question: "Given this video context, what will happen next?"
+      }
+    },
+    architecture: {
+      clip: {
+        title: "Dual Encoder Design",
+        description: "Separate encoders for images and text, joint embedding space",
+        example: "Vision Transformer + Text Transformer → Cosine Similarity",
+        question: "How similar are these cross-modal representations?"
+      },
+      vjepa: {
+        title: "Context-Predictor-Target Design",
+        description: "Context encoder + predictor network + target encoder (EMA)",
+        example: "Context Encoder + Predictor → Future Features (MSE Loss)",
+        question: "How accurate is the temporal prediction?"
+      }
+    },
+    understanding: {
+      clip: {
+        title: "Semantic Understanding",
+        description: "Learns what things are and how to describe them",
+        example: "Understands 'dog', 'playing', 'beach' as concepts",
+        question: "What semantic concepts are present?"
+      },
+      vjepa: {
+        title: "Causal/Physics Understanding", 
+        description: "Learns how things change and what causes what",
+        example: "Understands gravity, momentum, collision dynamics",
+        question: "What physical laws govern this motion?"
+      }
+    },
+    applications: {
+      clip: {
+        title: "Recognition & Retrieval",
+        description: "Image search, content moderation, visual question answering",
+        example: "Search photos by description, generate image captions",
+        question: "What does this image show?"
+      },
+      vjepa: {
+        title: "Prediction & Planning",
+        description: "Robot control, video prediction, physics simulation", 
+        example: "Robot planning, autonomous driving, game physics",
+        question: "How will this scene evolve?"
+      }
+    }
+  };
+
+  const comparison = comparisons[aspect];
+  
+  results.innerHTML = `
+    <div class="comparison-grid">
+      <div class="comparison-card">
+        <div class="comparison-title">🖼️ CLIP: ${comparison.clip.title}</div>
+        <div class="comparison-description">${comparison.clip.description}</div>
+        <div class="comparison-math">
+          <strong>Example:</strong> ${comparison.clip.example}<br>
+          <strong>Core Question:</strong> ${comparison.clip.question}
+        </div>
+      </div>
+      <div class="comparison-card">
+        <div class="comparison-title">🎬 V-JEPA: ${comparison.vjepa.title}</div>
+        <div class="comparison-description">${comparison.vjepa.description}</div>
+        <div class="comparison-math">
+          <strong>Example:</strong> ${comparison.vjepa.example}<br>
+          <strong>Core Question:</strong> ${comparison.vjepa.question}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function showCombinedUseCase() {
+  const useCase = document.getElementById('combinedUseCase').value;
+  const results = document.getElementById('combinedUseCaseResults');
+  
+  const useCases = {
+    cooking: {
+      name: "Kitchen Robot Cooking",
+      instruction: "Make a sandwich with tomatoes and lettuce",
+      clip_role: "Identifies ingredients (tomatoes, lettuce, bread), understands 'sandwich' concept",
+      vjepa_role: "Predicts ingredient movements, slicing motions, assembly sequence",
+      benefit: "Semantic understanding of cooking + physics of food manipulation"
+    },
+    assembly: {
+      name: "Manufacturing Assembly", 
+      instruction: "Install the red component in slot B",
+      clip_role: "Identifies red component, locates slot B, understands spatial relationships",
+      vjepa_role: "Predicts insertion trajectory, force requirements, fit dynamics",
+      benefit: "Part recognition + assembly motion planning"
+    },
+    cleanup: {
+      name: "Home Cleaning Robot",
+      instruction: "Put the books back on the shelf",
+      clip_role: "Identifies books vs other objects, recognizes bookshelf location",
+      vjepa_role: "Predicts optimal stacking, collision avoidance, stable placement",
+      benefit: "Object recognition + spatial reasoning for organization"
+    },
+    assistance: {
+      name: "Personal Assistant Robot",
+      instruction: "Hand me the coffee mug carefully",
+      clip_role: "Identifies coffee mug, understands 'carefully' implies fragility",
+      vjepa_role: "Predicts gentle grasping motion, stable handover trajectory",
+      benefit: "Intent understanding + delicate manipulation planning"
+    }
+  };
+
+  const scenario = useCases[useCase];
+  
+  results.innerHTML = `
+    <div class="success">
+      <strong>🎯 Scenario:</strong> ${scenario.name}<br>
+      <strong>📝 Instruction:</strong> "${scenario.instruction}"<br><br>
+      <strong>🖼️ CLIP Contribution:</strong> ${scenario.clip_role}<br>
+      <strong>🎬 V-JEPA Contribution:</strong> ${scenario.vjepa_role}<br><br>
+      <strong>🚀 Combined Benefit:</strong> ${scenario.benefit}
+    </div>
+  `;
+}
+
+// Initialize comparison demo
+showCLIPComparison();
+showCombinedUseCase();
 // Initialize the simple demos
 showPredictionApproach();
 showVJEPASteps();
