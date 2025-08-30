@@ -844,276 +844,810 @@ def compute_regularization_loss(model):
       </div>
     </div>
     <div class="step">
-  <h3>🔗 V-JEPA vs CLIP: Temporal vs Cross-Modal Learning</h3>
-  <p>V-JEPA shares some conceptual similarities with CLIP (Contrastive Language-Image Pre-training), but focuses on <strong>temporal understanding</strong> rather than <strong>cross-modal alignment</strong>. Both learn joint embeddings, but for very different purposes.</p>
+  <h3>🔬 V-JEPA Architecture: Mathematical Deep Dive</h3>
+  <p>Now let's dive into the detailed mathematics of how V-JEPA processes video data through its four main components: patch tokenization, context encoding, prediction, and target encoding (training only).</p>
 
   <div class="interactive-demo">
-    <div class="demo-title">⚖️ Architecture Comparison: CLIP vs V-JEPA</div>
+    <div class="demo-title">📐 Mathematical Flow Visualizer</div>
+    <p><strong>Explore each step of V-JEPA's mathematical processing pipeline:</strong></p>
+    
     <div class="controls">
       <div class="control-group">
-        <label>Comparison Aspect:</label>
-        <select id="comparisonAspect">
-          <option value="objective" selected>Learning Objective</option>
-          <option value="architecture">Architecture Design</option>
-          <option value="understanding">Type of Understanding</option>
-          <option value="applications">Applications</option>
+        <label>Processing Step:</label>
+        <select id="mathStep">
+          <option value="tokenization" selected>1. Video Tokenization</option>
+          <option value="masking">2. Masking Strategy</option>
+          <option value="context">3. Context Encoding</option>
+          <option value="prediction">4. Prediction Network</option>
+          <option value="target">5. Target Encoding</option>
+          <option value="loss">6. Loss Computation</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label>Complexity Level:</label>
+        <select id="mathComplexity">
+          <option value="simple" selected>Simplified</option>
+          <option value="detailed">Detailed Mathematics</option>
+          <option value="implementation">Implementation Details</option>
         </select>
       </div>
     </div>
-    <button onclick="showCLIPComparison()" class="primary">🔍 Compare Approaches</button>
-    <div id="clipComparisonResults"></div>
+    <button onclick="showMathStep()" class="primary">🔍 Explore Mathematics</button>
+    <div id="mathStepResults"></div>
   </div>
 
-  <div class="architecture-flow">
-    <div class="arch-component context">
-      <h4>🖼️ CLIP Approach</h4>
-      <div>Cross-Modal</div>
-      <div style="font-size:12px;margin-top:5px">
-        Image ↔ Text<br>
-        "What goes with what?"<br>
-        Semantic alignment
-      </div>
-    </div>
-    <div class="arch-arrow">vs</div>
-    <div class="arch-component predictor">
-      <h4>🎬 V-JEPA Approach</h4>
-      <div>Temporal</div>
-      <div style="font-size:12px;margin-top:5px">
-        Past → Future<br>
-        "What leads to what?"<br>
-        Causal prediction
-      </div>
-    </div>
+  <div class="math-formula">
+    <strong>Complete V-JEPA Mathematical Pipeline:</strong><br><br>
+    <strong>1. Video Input:</strong><br>
+    V ∈ ℝ<sup>B×T×H×W×C</sup> (batch × time × height × width × channels)<br><br>
+    <strong>2. Patch Tokenization:</strong><br>
+    P ∈ ℝ<sup>B×T'×N×D</sup> where T' = T/T<sub>patch</sub>, N = (H×W)/P<sup>2</sup><br><br>
+    <strong>3. Context & Target Separation:</strong><br>
+    P<sub>context</sub> = P ⊙ M<sub>c</sub>, P<sub>target</sub> = P ⊙ M<sub>t</sub><br><br>
+    <strong>4. Encoding & Prediction:</strong><br>
+    z<sub>c</sub> = ContextEncoder(P<sub>context</sub>)<br>
+    ẑ<sub>t</sub> = Predictor(z<sub>c</sub>, mask_positions)<br>
+    z<sub>t</sub> = TargetEncoder(P<sub>target</sub>)<br><br>
+    <strong>5. Learning Objective:</strong><br>
+    L = MSE(ẑ<sub>t</sub>, z<sub>t</sub>) + λ × Regularization
   </div>
 
   <div class="tabs">
-    <div class="tab active" onclick="switchComparisonTab('similarities', this)">🤝 Similarities</div>
-    <div class="tab" onclick="switchComparisonTab('differences', this)">⚡ Key Differences</div>
-    <div class="tab" onclick="switchComparisonTab('combination', this)">🔄 Potential Combination</div>
-    <div class="tab" onclick="switchComparisonTab('code', this)">💻 Code Comparison</div>
+    <div class="tab active" onclick="switchMathTab('dimensions', this)">📊 Tensor Dimensions</div>
+    <div class="tab" onclick="switchMathTab('attention', this)">🎯 Attention Math</div>
+    <div class="tab" onclick="switchMathTab('ema', this)">🔄 EMA Updates</div>
+    <div class="tab" onclick="switchMathTab('complexity', this)">⚡ Complexity Analysis</div>
   </div>
 
-  <div id="similarities" class="tab-content active">
-    <div class="prediction-grid">
-      <div class="emergent-capability">
-        <div class="capability-header">🧩 Joint Embedding Space</div>
-        <div class="capability-description">
-          <strong>CLIP:</strong> Maps images and text to same embedding space<br>
-          <strong>V-JEPA:</strong> Maps past and future video to same embedding space
+  <div id="dimensions" class="tab-content active">
+    <div class="interactive-demo">
+      <div class="demo-title">📏 Tensor Shape Calculator</div>
+      <div class="controls">
+        <div class="control-group">
+          <label>Batch Size:</label>
+          <input type="number" id="batchSize" value="4" min="1" max="32">
+        </div>
+        <div class="control-group">
+          <label>Video Frames:</label>
+          <input type="number" id="videoFrames" value="8" min="2" max="32">
+        </div>
+        <div class="control-group">
+          <label>Image Resolution:</label>
+          <select id="imageRes">
+            <option value="224">224×224</option>
+            <option value="256">256×256</option>
+            <option value="384">384×384</option>
+            <option value="512">512×512</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label>Patch Size:</label>
+          <select id="patchSize">
+            <option value="16" selected>16×16</option>
+            <option value="32">32×32</option>
+            <option value="8">8×8</option>
+          </select>
         </div>
       </div>
-
-      <div class="emergent-capability">
-        <div class="capability-header">🎯 No Direct Generation</div>
-        <div class="capability-description">
-          <strong>CLIP:</strong> Doesn't generate pixels or text, learns representations<br>
-          <strong>V-JEPA:</strong> Doesn't generate pixels, predicts representations
-        </div>
-      </div>
-
-      <div class="emergent-capability">
-        <div class="capability-header">📊 Contrastive/Predictive Learning</div>
-        <div class="capability-description">
-          <strong>CLIP:</strong> Matches correct pairs, separates incorrect ones<br>
-          <strong>V-JEPA:</strong> Predicts future representations from past context
-        </div>
-      </div>
-
-      <div class="emergent-capability">
-        <div class="capability-header">⚡ Self-Supervised</div>
-        <div class="capability-description">
-          <strong>CLIP:</strong> Learns from image-text pairs without manual labels<br>
-          <strong>V-JEPA:</strong> Learns from video sequences without manual annotation
-        </div>
-      </div>
+      <button onclick="calculateDimensions()" class="secondary">🧮 Calculate All Dimensions</button>
+      <div id="dimensionResults"></div>
     </div>
   </div>
 
-  <div id="differences" class="tab-content">
+  <div id="attention" class="tab-content">
+    <div class="math-formula">
+      <strong>Multi-Head Self-Attention Mathematics:</strong><br><br>
+      <strong>For each attention head h:</strong><br>
+      Q<sub>h</sub> = X W<sub>q</sub><sup>h</sup> ∈ ℝ<sup>B×N×d<sub>k</sub></sup> (Queries)<br>
+      K<sub>h</sub> = X W<sub>k</sub><sup>h</sup> ∈ ℝ<sup>B×N×d<sub>k</sub></sup> (Keys)<br>
+      V<sub>h</sub> = X W<sub>v</sub><sup>h</sup> ∈ ℝ<sup>B×N×d<sub>k</sub></sup> (Values)<br><br>
+      <strong>Attention Computation:</strong><br>
+      Attention<sub>h</sub> = softmax(Q<sub>h</sub> K<sub>h</sub><sup>T</sup> / √d<sub>k</sub>) V<sub>h</sub><br><br>
+      <strong>Multi-Head Combination:</strong><br>
+      MultiHead(X) = Concat(Attention<sub>1</sub>, ..., Attention<sub>H</sub>) W<sub>O</sub>
+    </div>
+
+    <div class="interactive-demo">
+      <div class="demo-title">🎯 Attention Pattern Simulator</div>
+      <div class="controls">
+        <div class="control-group">
+          <label>Number of Heads:</label>
+          <input type="range" id="numHeads" min="4" max="16" value="12" oninput="updateHeadsDisplay()">
+          <div class="slider-label"><span>4</span><span id="headsDisplay">12</span><span>16</span></div>
+        </div>
+        <div class="control-group">
+          <label>Sequence Length:</label>
+          <input type="range" id="seqLength" min="64" max="512" value="196" oninput="updateSeqDisplay()">
+          <div class="slider-label"><span>64</span><span id="seqDisplay">196</span><span>512</span></div>
+        </div>
+      </div>
+      <button onclick="simulateAttention()" class="secondary">⚡ Simulate Attention</button>
+      <div id="attentionResults"></div>
+    </div>
+  </div>
+
+  <div id="ema" class="tab-content">
+    <div class="math-formula">
+      <strong>Exponential Moving Average (EMA) for Target Encoder:</strong><br><br>
+      <strong>At each training step t:</strong><br>
+      θ<sub>target</sub><sup>(t)</sup> = τ × θ<sub>target</sub><sup>(t-1)</sup> + (1-τ) × θ<sub>context</sub><sup>(t)</sup><br><br>
+      <strong>Where:</strong><br>
+      • τ = momentum coefficient (typically 0.996)<br>
+      • θ<sub>target</sub> = target encoder parameters<br>
+      • θ<sub>context</sub> = context encoder parameters<br><br>
+      <strong>Intuition:</strong><br>
+      Target encoder slowly tracks context encoder, providing stable learning targets
+    </div>
+
+    <div class="interactive-demo">
+      <div class="demo-title">🔄 EMA Dynamics Visualizer</div>
+      <div class="controls">
+        <div class="control-group">
+          <label>EMA Momentum (τ):</label>
+          <input type="range" id="emaMomentum" min="0.9" max="0.999" step="0.001" value="0.996" oninput="updateEMADisplay()">
+          <div class="slider-label"><span>0.900</span><span id="emaDisplay">0.996</span><span>0.999</span></div>
+        </div>
+        <div class="control-group">
+          <label>Training Steps:</label>
+          <input type="range" id="trainingSteps" min="100" max="10000" value="1000" oninput="updateStepsDisplay()">
+          <div class="slider-label"><span>100</span><span id="stepsDisplay">1000</span><span>10000</span></div>
+        </div>
+      </div>
+      <button onclick="simulateEMA()" class="secondary">📈 Simulate EMA Evolution</button>
+      <div id="emaResults"></div>
+    </div>
+  </div>
+
+  <div id="complexity" class="tab-content">
     <div class="comparison-table">
       <thead>
         <tr>
-          <th>Aspect</th>
-          <th>CLIP</th>
-          <th>V-JEPA</th>
-          <th>Impact</th>
+          <th>Component</th>
+          <th>Time Complexity</th>
+          <th>Space Complexity</th>
+          <th>Parameters</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><strong>Learning Focus</strong></td>
-          <td class="score-good">Cross-modal alignment</td>
-          <td class="score-excellent">Temporal prediction</td>
-          <td>Different types of intelligence</td>
+          <td><strong>Patch Tokenization</strong></td>
+          <td class="score-good">O(B×T×H×W)</td>
+          <td class="score-good">O(B×T'×N×D)</td>
+          <td>3D Conv weights</td>
         </tr>
         <tr>
-          <td><strong>Input Relationship</strong></td>
-          <td class="score-good">Image ↔ Text (same time)</td>
-          <td class="score-excellent">Video t₁ → Video t₂ (time sequence)</td>
-          <td>Static vs dynamic understanding</td>
+          <td><strong>Context Encoder</strong></td>
+          <td class="score-average">O(B×N<sub>c</sub>²×D×L)</td>
+          <td class="score-average">O(B×N<sub>c</sub>×D×L)</td>
+          <td>~85M (12 layers)</td>
         </tr>
         <tr>
-          <td><strong>Core Question</strong></td>
-          <td class="score-good">"Do these match?"</td>
-          <td class="score-excellent">"What happens next?"</td>
-          <td>Recognition vs prediction</td>
+          <td><strong>Predictor Network</strong></td>
+          <td class="score-average">O(B×N<sub>total</sub>²×D<sub>p</sub>×L<sub>p</sub>)</td>
+          <td class="score-good">O(B×N<sub>total</sub>×D<sub>p</sub>)</td>
+          <td>~45M (6 layers)</td>
         </tr>
         <tr>
-          <td><strong>Understanding Type</strong></td>
-          <td class="score-good">Semantic (what things are)</td>
-          <td class="score-excellent">Causal (how things change)</td>
-          <td>Labeling vs physics modeling</td>
-        </tr>
-        <tr>
-          <td><strong>Time Dimension</strong></td>
-          <td class="score-average">Static/snapshot</td>
-          <td class="score-excellent">Dynamic/temporal</td>
-          <td>World model capabilities</td>
+          <td><strong>Target Encoder</strong></td>
+          <td class="score-poor">O(B×N<sub>t</sub>²×D×L)</td>
+          <td class="score-average">O(B×N<sub>t</sub>×D×L)</td>
+          <td>~85M (EMA copy)</td>
         </tr>
       </tbody>
     </table>
 
-    <div class="math-formula">
-      <strong>Mathematical Difference:</strong><br><br>
-      <strong>CLIP Objective:</strong><br>
-      max Σ cos_sim(image_i, text_i) - cos_sim(image_i, text_j≠i)<br><br>
-      <strong>V-JEPA Objective:</strong><br>
-      min MSE(predictor(context_t), target_encoder(future_t+k))
+    <div class="warning">
+      <strong>⚠️ Computational Bottlenecks:</strong><br>
+      • <strong>Quadratic scaling:</strong> Self-attention scales as O(N²) with sequence length<br>
+      • <strong>Memory bottleneck:</strong> Storing gradients for all layers during backprop<br>
+      • <strong>Target encoder:</strong> Doubles compute during training (inference doesn't need it)<br>
+      • <strong>Masking efficiency:</strong> Sparse attention could reduce complexity for masked regions
     </div>
   </div>
 
-  <div id="combination" class="tab-content">
-    <div class="success">
-      <strong>🚀 Combining CLIP + V-JEPA: The Best of Both Worlds</strong><br><br>
-      A system that uses both approaches could achieve:<br>
-      • <strong>CLIP's strength:</strong> Understanding what things are and what instructions mean<br>
-      • <strong>V-JEPA's strength:</strong> Understanding how things change and what leads to what
+  <div class="success">
+    <strong>🎯 Key Mathematical Insights:</strong><br>
+    • <strong>Representation Learning:</strong> Feature dimension D=768 captures rich abstract concepts<br>
+    • <strong>Temporal Modeling:</strong> Patch-based approach handles video sequences efficiently<br>
+    • <strong>Attention Patterns:</strong> Global attention enables long-range temporal dependencies<br>
+    • <strong>EMA Stability:</strong> Target encoder provides stable learning signals during training
+  </div>
+</div>
+    <div class="step">
+      <h3>🔗 V-JEPA vs CLIP: Temporal vs Cross-Modal Learning</h3>
+      <p>V-JEPA shares some conceptual similarities with CLIP (Contrastive Language-Image Pre-training), but focuses on <strong>temporal understanding</strong> rather than <strong>cross-modal alignment</strong>. Both learn joint embeddings, but for very different purposes.</p>
+    
+      <div class="interactive-demo">
+        <div class="demo-title">⚖️ Architecture Comparison: CLIP vs V-JEPA</div>
+        <div class="controls">
+          <div class="control-group">
+            <label>Comparison Aspect:</label>
+            <select id="comparisonAspect">
+              <option value="objective" selected>Learning Objective</option>
+              <option value="architecture">Architecture Design</option>
+              <option value="understanding">Type of Understanding</option>
+              <option value="applications">Applications</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="showCLIPComparison()" class="primary">🔍 Compare Approaches</button>
+        <div id="clipComparisonResults"></div>
+      </div>
+    
+      <div class="architecture-flow">
+        <div class="arch-component context">
+          <h4>🖼️ CLIP Approach</h4>
+          <div>Cross-Modal</div>
+          <div style="font-size:12px;margin-top:5px">
+            Image ↔ Text<br>
+            "What goes with what?"<br>
+            Semantic alignment
+          </div>
+        </div>
+        <div class="arch-arrow">vs</div>
+        <div class="arch-component predictor">
+          <h4>🎬 V-JEPA Approach</h4>
+          <div>Temporal</div>
+          <div style="font-size:12px;margin-top:5px">
+            Past → Future<br>
+            "What leads to what?"<br>
+            Causal prediction
+          </div>
+        </div>
+      </div>
+    
+      <div class="tabs">
+        <div class="tab active" onclick="switchComparisonTab('similarities', this)">🤝 Similarities</div>
+        <div class="tab" onclick="switchComparisonTab('differences', this)">⚡ Key Differences</div>
+        <div class="tab" onclick="switchComparisonTab('combination', this)">🔄 Potential Combination</div>
+        <div class="tab" onclick="switchComparisonTab('code', this)">💻 Code Comparison</div>
+      </div>
+    
+      <div id="similarities" class="tab-content active">
+        <div class="prediction-grid">
+          <div class="emergent-capability">
+            <div class="capability-header">🧩 Joint Embedding Space</div>
+            <div class="capability-description">
+              <strong>CLIP:</strong> Maps images and text to same embedding space<br>
+              <strong>V-JEPA:</strong> Maps past and future video to same embedding space
+            </div>
+          </div>
+    
+          <div class="emergent-capability">
+            <div class="capability-header">🎯 No Direct Generation</div>
+            <div class="capability-description">
+              <strong>CLIP:</strong> Doesn't generate pixels or text, learns representations<br>
+              <strong>V-JEPA:</strong> Doesn't generate pixels, predicts representations
+            </div>
+          </div>
+    
+          <div class="emergent-capability">
+            <div class="capability-header">📊 Contrastive/Predictive Learning</div>
+            <div class="capability-description">
+              <strong>CLIP:</strong> Matches correct pairs, separates incorrect ones<br>
+              <strong>V-JEPA:</strong> Predicts future representations from past context
+            </div>
+          </div>
+    
+          <div class="emergent-capability">
+            <div class="capability-header">⚡ Self-Supervised</div>
+            <div class="capability-description">
+              <strong>CLIP:</strong> Learns from image-text pairs without manual labels<br>
+              <strong>V-JEPA:</strong> Learns from video sequences without manual annotation
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div id="differences" class="tab-content">
+        <div class="comparison-table">
+          <thead>
+            <tr>
+              <th>Aspect</th>
+              <th>CLIP</th>
+              <th>V-JEPA</th>
+              <th>Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Learning Focus</strong></td>
+              <td class="score-good">Cross-modal alignment</td>
+              <td class="score-excellent">Temporal prediction</td>
+              <td>Different types of intelligence</td>
+            </tr>
+            <tr>
+              <td><strong>Input Relationship</strong></td>
+              <td class="score-good">Image ↔ Text (same time)</td>
+              <td class="score-excellent">Video t₁ → Video t₂ (time sequence)</td>
+              <td>Static vs dynamic understanding</td>
+            </tr>
+            <tr>
+              <td><strong>Core Question</strong></td>
+              <td class="score-good">"Do these match?"</td>
+              <td class="score-excellent">"What happens next?"</td>
+              <td>Recognition vs prediction</td>
+            </tr>
+            <tr>
+              <td><strong>Understanding Type</strong></td>
+              <td class="score-good">Semantic (what things are)</td>
+              <td class="score-excellent">Causal (how things change)</td>
+              <td>Labeling vs physics modeling</td>
+            </tr>
+            <tr>
+              <td><strong>Time Dimension</strong></td>
+              <td class="score-average">Static/snapshot</td>
+              <td class="score-excellent">Dynamic/temporal</td>
+              <td>World model capabilities</td>
+            </tr>
+          </tbody>
+        </table>
+    
+        <div class="math-formula">
+          <strong>Mathematical Difference:</strong><br><br>
+          <strong>CLIP Objective:</strong><br>
+          max Σ cos_sim(image_i, text_i) - cos_sim(image_i, text_j≠i)<br><br>
+          <strong>V-JEPA Objective:</strong><br>
+          min MSE(predictor(context_t), target_encoder(future_t+k))
+        </div>
+      </div>
+    
+      <div id="combination" class="tab-content">
+        <div class="success">
+          <strong>🚀 Combining CLIP + V-JEPA: The Best of Both Worlds</strong><br><br>
+          A system that uses both approaches could achieve:<br>
+          • <strong>CLIP's strength:</strong> Understanding what things are and what instructions mean<br>
+          • <strong>V-JEPA's strength:</strong> Understanding how things change and what leads to what
+        </div>
+    
+        <div class="robotics-integration">
+          <div class="demo-title">🤖 Combined System Example</div>
+          
+          <div class="robot-scenario">
+            <div class="robot-icon">👂</div>
+            <div class="scenario-content">
+              <div class="scenario-title">Human Instruction: "Pour water into the blue cup"</div>
+              <div class="scenario-description">CLIP processes the semantic meaning of "blue cup" and "pouring action"</div>
+            </div>
+          </div>
+    
+          <div class="robot-scenario">
+            <div class="robot-icon">👁️</div>
+            <div class="scenario-content">
+              <div class="scenario-title">Visual Understanding</div>
+              <div class="scenario-description">CLIP identifies the blue cup in the scene and understands the current state</div>
+            </div>
+          </div>
+    
+          <div class="robot-scenario">
+            <div class="robot-icon">🧠</div>
+            <div class="scenario-content">
+              <div class="scenario-title">Motion Prediction</div>
+              <div class="scenario-description">V-JEPA predicts the sequence of movements needed to successfully pour water</div>
+            </div>
+          </div>
+    
+          <div class="robot-scenario">
+            <div class="robot-icon">🤖</div>
+            <div class="scenario-content">
+              <div class="scenario-title">Integrated Action</div>
+              <div class="scenario-description">Combined system executes semantically-aware, physically-realistic actions</div>
+            </div>
+          </div>
+        </div>
+    
+        <div class="interactive-demo">
+          <div class="demo-title">🎯 Use Case Selector</div>
+          <div class="controls">
+            <div class="control-group">
+              <label>Application Scenario:</label>
+              <select id="combinedUseCase">
+                <option value="cooking" selected>Kitchen Robot Cooking</option>
+                <option value="assembly">Manufacturing Assembly</option>
+                <option value="cleanup">Home Cleaning Robot</option>
+                <option value="assistance">Personal Assistant Robot</option>
+              </select>
+            </div>
+          </div>
+          <button onclick="showCombinedUseCase()" class="secondary">🔍 Analyze Combined Benefits</button>
+          <div id="combinedUseCaseResults"></div>
+        </div>
+      </div>
+    
+      <div id="code" class="tab-content">
+        <div class="code-block">
+          <div class="code-header">💻 CLIP vs V-JEPA Implementation Comparison</div>
+          <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+    <pre># CLIP-Style Approach
+    class CLIPStyle:
+        def forward(self, images, texts):
+            # Encode both modalities to same embedding space
+            image_features = self.image_encoder(images)
+            text_features = self.text_encoder(texts)
+            
+            # Compute similarity/alignment
+            similarity = cosine_similarity(image_features, text_features)
+            
+            # Contrastive learning: maximize correct pairs, minimize wrong pairs
+            loss = contrastive_loss(similarity, labels)
+            return loss
+    
+    # V-JEPA Approach  
+    class VJEPAStyle:
+        def forward(self, past_video, future_video, mask):
+            # Encode context from past
+            context_features = self.context_encoder(past_video, ~mask)
+            
+            # Predict future representations
+            predicted_features = self.predictor(context_features, mask)
+            
+            # Encode actual future (target)
+            target_features = self.target_encoder(future_video)
+            
+            # Predictive learning: minimize prediction error
+            loss = mse_loss(predicted_features, target_features)
+            return loss
+    
+    # Combined Approach
+    class MultiModalVJEPA:
+        def __init__(self):
+            self.clip_encoder = CLIPEncoder()     # Semantic understanding
+            self.vjepa_predictor = VJEPAPredictor()  # Temporal prediction
+        
+        def forward(self, video_context, text_instruction):
+            # CLIP: Understand semantic goal
+            semantic_goal = self.clip_encoder.encode_text(text_instruction)
+            current_state = self.clip_encoder.encode_image(video_context)
+            
+            # V-JEPA: Predict how to achieve goal
+            future_prediction = self.vjepa_predictor(
+                context=current_state,
+                goal=semantic_goal
+            )
+            
+            return future_prediction</pre>
+        </div>
+    
+        <div class="info">
+          <strong>🎯 Key Implementation Differences:</strong><br>
+          • <strong>CLIP:</strong> Two encoders (vision + text) with similarity matching<br>
+          • <strong>V-JEPA:</strong> Context encoder + predictor + target encoder with MSE loss<br>
+          • <strong>Combined:</strong> Leverages CLIP for semantic understanding, V-JEPA for temporal prediction
+        </div>
+      </div>
+    
+      <div class="warning">
+        <strong>🤔 Think of it this way:</strong><br>
+        • <strong>CLIP:</strong> "Temporal CLIP" - learns joint representations across <em>time</em> instead of modalities<br>
+        • <strong>V-JEPA:</strong> Adds crucial temporal/causal dimension that CLIP lacks<br>
+        • <strong>Together:</strong> Comprehensive understanding of both <em>what things are</em> and <em>how they change</em>
+      </div>
+    </div>
+  </div>
+<div class="step">
+  <h3>🚀 V-JEPA Inference: What It Does and Doesn't Do</h3>
+  <p><strong>Important:</strong> During inference, V-JEPA does <em>NOT</em> generate video pixels. Instead, it outputs abstract feature representations that encode understanding about future states. The target encoder is also not needed during inference.</p>
+
+  <div class="warning">
+    <strong>❌ Common Misconception:</strong><br>
+    V-JEPA is <strong>NOT</strong> a video generation model. It doesn't output pixels or video frames.<br><br>
+    <strong>✅ What V-JEPA Actually Does:</strong><br>
+    Outputs abstract feature representations that encode physics understanding, object relationships, and temporal dynamics.
+  </div>
+
+  <div class="interactive-demo">
+    <div class="demo-title">🎭 Inference vs Training: Architecture Comparison</div>
+    <div class="controls">
+      <div class="control-group">
+        <label>Mode:</label>
+        <select id="inferenceMode">
+          <option value="training" selected>Training Mode</option>
+          <option value="inference">Inference Mode</option>
+        </select>
+      </div>
+    </div>
+    <button onclick="showInferenceArchitecture()" class="primary">🏗️ Show Architecture</button>
+    <div id="inferenceArchResults"></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchInferenceTab('components', this)">🧩 Components Needed</div>
+    <div class="tab" onclick="switchInferenceTab('output', this)">📤 Output Format</div>
+    <div class="tab" onclick="switchInferenceTab('applications', this)">🎯 Real Applications</div>
+    <div class="tab" onclick="switchInferenceTab('limitations', this)">⚠️ What It Can't Do</div>
+  </div>
+
+  <div id="components" class="tab-content active">
+    <div class="comparison-table">
+      <thead>
+        <tr>
+          <th>Component</th>
+          <th>Training</th>
+          <th>Inference</th>
+          <th>Why Different?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Context Encoder</strong></td>
+          <td class="score-excellent">✅ Required</td>
+          <td class="score-excellent">✅ Required</td>
+          <td>Processes input video context</td>
+        </tr>
+        <tr>
+          <td><strong>Predictor Network</strong></td>
+          <td class="score-excellent">✅ Required</td>
+          <td class="score-excellent">✅ Required</td>
+          <td>Generates predictions from context</td>
+        </tr>
+        <tr>
+          <td><strong>Target Encoder</strong></td>
+          <td class="score-good">✅ Required</td>
+          <td class="score-poor">❌ Not Needed</td>
+          <td>No ground truth to compare against</td>
+        </tr>
+        <tr>
+          <td><strong>Loss Computation</strong></td>
+          <td class="score-good">✅ Required</td>
+          <td class="score-poor">❌ Not Needed</td>
+          <td>No learning during inference</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="code-block">
+      <div class="code-header">🚀 V-JEPA Inference Implementation</div>
+      <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
+<pre>class V_JEPA_Inference:
+    """
+    V-JEPA model optimized for inference
+    Only includes components needed for prediction
+    """
+    def __init__(self, model_path):
+        # Load only inference components
+        checkpoint = torch.load(model_path)
+        
+        self.context_encoder = ContextEncoder()  # ✅ NEEDED
+        self.predictor = PredictorNetwork()      # ✅ NEEDED
+        # self.target_encoder = ...             # ❌ NOT LOADED
+        
+        self.context_encoder.load_state_dict(checkpoint['context_encoder'])
+        self.predictor.load_state_dict(checkpoint['predictor'])
+        
+        # Set to evaluation mode
+        self.context_encoder.eval()
+        self.predictor.eval()
+    
+    def predict(self, input_video, prediction_positions):
+        """
+        Generate feature predictions from video context
+        
+        Args:
+            input_video: [B, T, H, W, C] - input video frames
+            prediction_positions: positions to predict
+            
+        Returns:
+            predicted_features: [B, N_pred, D] - abstract features
+        """
+        with torch.no_grad():  # No gradients needed for inference
+            # Step 1: Encode context
+            context_features = self.context_encoder(input_video)
+            
+            # Step 2: Generate predictions  
+            predicted_features = self.predictor(
+                context_features, 
+                prediction_positions
+            )
+            
+            # Return abstract features, NOT pixels!
+            return predicted_features
+    
+    def get_world_model_state(self, video_context):
+        """
+        Extract world model understanding from video
+        Returns abstract physics and object state representations
+        """
+        features = self.predict(video_context, "future_states")
+        
+        # Features encode concepts like:
+        # - Object positions and velocities
+        # - Physics state (momentum, potential energy)
+        # - Spatial relationships
+        # - Temporal dynamics
+        
+        return features  # Shape: [batch, features, embedding_dim]</pre>
     </div>
 
+    <div class="info">
+      <strong>💾 Memory Savings:</strong><br>
+      Inference-only model uses ~33% less memory by excluding the target encoder and related components.
+    </div>
+  </div>
+
+  <div id="output" class="tab-content">
+    <div class="interactive-demo">
+      <div class="demo-title">📊 V-JEPA Output Format Explorer</div>
+      <div class="controls">
+        <div class="control-group">
+          <label>Input Scenario:</label>
+          <select id="outputScenario">
+            <option value="bouncing_ball" selected>Bouncing Ball</option>
+            <option value="pouring_water">Robot Pouring Water</option>
+            <option value="person_walking">Person Walking</option>
+            <option value="collision">Object Collision</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label>Feature Analysis:</label>
+          <select id="featureAnalysis">
+            <option value="raw" selected>Raw Feature Numbers</option>
+            <option value="concepts">Interpreted Concepts</option>
+            <option value="physics">Physics Understanding</option>
+          </select>
+        </div>
+      </div>
+      <button onclick="showOutputFormat()" class="secondary">📤 Analyze Output</button>
+      <div id="outputFormatResults"></div>
+    </div>
+
+    <div class="warning">
+      <strong>🚫 What You CANNOT Do with V-JEPA Output:</strong><br>
+      • <code>display_video(v_jepa_output)</code> ❌ - Output is not pixels<br>
+      • <code>save_as_mp4(v_jepa_features)</code> ❌ - Features are abstract numbers<br>
+      • <code>show_image(predicted_frame)</code> ❌ - No visual frames generated<br><br>
+      <strong>✅ What You CAN Do:</strong><br>
+      • Use features for robot planning and control<br>
+      • Extract physics understanding and object states<br>
+      • Classify actions or predict outcomes<br>
+      • Condition other models (like video generators)
+    </div>
+  </div>
+
+  <div id="applications" class="tab-content">
     <div class="robotics-integration">
-      <div class="demo-title">🤖 Combined System Example</div>
+      <div class="demo-title">🤖 Real-World V-JEPA Applications</div>
       
-      <div class="robot-scenario">
-        <div class="robot-icon">👂</div>
-        <div class="scenario-content">
-          <div class="scenario-title">Human Instruction: "Pour water into the blue cup"</div>
-          <div class="scenario-description">CLIP processes the semantic meaning of "blue cup" and "pouring action"</div>
-        </div>
-      </div>
-
-      <div class="robot-scenario">
-        <div class="robot-icon">👁️</div>
-        <div class="scenario-content">
-          <div class="scenario-title">Visual Understanding</div>
-          <div class="scenario-description">CLIP identifies the blue cup in the scene and understands the current state</div>
-        </div>
-      </div>
-
       <div class="robot-scenario">
         <div class="robot-icon">🧠</div>
         <div class="scenario-content">
-          <div class="scenario-title">Motion Prediction</div>
-          <div class="scenario-description">V-JEPA predicts the sequence of movements needed to successfully pour water</div>
+          <div class="scenario-title">World Model for Robot Planning</div>
+          <div class="scenario-description">Robot uses V-JEPA features to understand physics and plan actions. Features encode "ball will bounce here" rather than exact pixel colors.</div>
         </div>
       </div>
 
       <div class="robot-scenario">
-        <div class="robot-icon">🤖</div>
+        <div class="robot-icon">🎯</div>
         <div class="scenario-content">
-          <div class="scenario-title">Integrated Action</div>
-          <div class="scenario-description">Combined system executes semantically-aware, physically-realistic actions</div>
+          <div class="scenario-title">Physics-Aware Control Systems</div>
+          <div class="scenario-description">Autonomous vehicles use V-JEPA to predict object trajectories and dynamics without generating visual frames - just understanding motion patterns.</div>
+        </div>
+      </div>
+
+      <div class="robot-scenario">
+        <div class="robot-icon">🔍</div>
+        <div class="scenario-content">
+          <div class="scenario-title">Feature Extraction for Downstream Tasks</div>
+          <div class="scenario-description">Use V-JEPA features as input to action classifiers, object trackers, or anomaly detectors - leveraging rich temporal understanding.</div>
+        </div>
+      </div>
+
+      <div class="robot-scenario">
+        <div class="robot-icon">🎨</div>
+        <div class="scenario-content">
+          <div class="scenario-title">Conditioning for Video Generation</div>
+          <div class="scenario-description">Use V-JEPA features to guide diffusion models or GANs in generating physically-realistic video sequences.</div>
         </div>
       </div>
     </div>
 
     <div class="interactive-demo">
-      <div class="demo-title">🎯 Use Case Selector</div>
+      <div class="demo-title">🎮 Application Simulator</div>
       <div class="controls">
         <div class="control-group">
-          <label>Application Scenario:</label>
-          <select id="combinedUseCase">
-            <option value="cooking" selected>Kitchen Robot Cooking</option>
-            <option value="assembly">Manufacturing Assembly</option>
-            <option value="cleanup">Home Cleaning Robot</option>
-            <option value="assistance">Personal Assistant Robot</option>
+          <label>Use Case:</label>
+          <select id="applicationUseCase">
+            <option value="robot_planning" selected>Robot Motion Planning</option>
+            <option value="autonomous_driving">Autonomous Driving</option>
+            <option value="sports_analysis">Sports Video Analysis</option>
+            <option value="surveillance">Surveillance Systems</option>
           </select>
         </div>
       </div>
-      <button onclick="showCombinedUseCase()" class="secondary">🔍 Analyze Combined Benefits</button>
-      <div id="combinedUseCaseResults"></div>
+      <button onclick="simulateApplication()" class="secondary">🚀 Simulate Application</button>
+      <div id="applicationResults"></div>
     </div>
   </div>
 
-  <div id="code" class="tab-content">
+  <div id="limitations" class="tab-content">
+    <div class="prediction-grid">
+      <div class="prediction-card">
+        <div class="scenario-title">❌ Cannot Generate Videos</div>
+        <div class="scenario-description">
+          V-JEPA outputs abstract features, not pixels. For video generation, you need additional decoder networks or generative models.
+        </div>
+      </div>
+
+      <div class="prediction-card">
+        <div class="scenario-title">❌ No Visual Reconstruction</div>
+        <div class="scenario-description">
+          Cannot reconstruct or visualize what the predicted future looks like without additional components to convert features back to pixels.
+        </div>
+      </div>
+
+      <div class="prediction-card">
+        <div class="scenario-title">❌ Abstract Understanding Only</div>
+        <div class="scenario-description">
+          Understands concepts like "ball bouncing" but not visual details like exact colors, textures, or lighting conditions.
+        </div>
+      </div>
+
+      <div class="prediction-card">
+        <div class="scenario-title">✅ Rich Physics Modeling</div>
+        <div class="scenario-description">
+          Excels at understanding motion, causality, object interactions, and temporal dynamics through learned representations.
+        </div>
+      </div>
+
+      <div class="prediction-card">
+        <div class="scenario-title">✅ Efficient Planning</div>
+        <div class="scenario-description">
+          Perfect for robot control and autonomous systems that need world understanding for decision-making, not visual output.
+        </div>
+      </div>
+
+      <div class="prediction-card">
+        <div class="scenario-title">✅ Transfer Learning</div>
+        <div class="scenario-description">
+          Rich features transfer well to downstream tasks like action recognition, object tracking, and physics simulation.
+        </div>
+      </div>
+    </div>
+
     <div class="code-block">
-      <div class="code-header">💻 CLIP vs V-JEPA Implementation Comparison</div>
+      <div class="code-header">🎯 Correct vs Incorrect Usage</div>
       <button class="copy-button" onclick="copyCode(this)">📋 Copy</button>
-<pre># CLIP-Style Approach
-class CLIPStyle:
-    def forward(self, images, texts):
-        # Encode both modalities to same embedding space
-        image_features = self.image_encoder(images)
-        text_features = self.text_encoder(texts)
-        
-        # Compute similarity/alignment
-        similarity = cosine_similarity(image_features, text_features)
-        
-        # Contrastive learning: maximize correct pairs, minimize wrong pairs
-        loss = contrastive_loss(similarity, labels)
-        return loss
+<pre># ❌ INCORRECT USAGE - V-JEPA doesn't output pixels
+v_jepa = V_JEPA_Model()
+predicted_video = v_jepa.predict(input_video)  # This gives features, not video!
+cv2.imshow("prediction", predicted_video)      # Will fail - not image data
 
-# V-JEPA Approach  
-class VJEPAStyle:
-    def forward(self, past_video, future_video, mask):
-        # Encode context from past
-        context_features = self.context_encoder(past_video, ~mask)
-        
-        # Predict future representations
-        predicted_features = self.predictor(context_features, mask)
-        
-        # Encode actual future (target)
-        target_features = self.target_encoder(future_video)
-        
-        # Predictive learning: minimize prediction error
-        loss = mse_loss(predicted_features, target_features)
-        return loss
+# ✅ CORRECT USAGE - Use features for understanding
+v_jepa = V_JEPA_Model()
+future_features = v_jepa.predict(input_video)  # Shape: [batch, patches, 768]
 
-# Combined Approach
-class MultiModalVJEPA:
-    def __init__(self):
-        self.clip_encoder = CLIPEncoder()     # Semantic understanding
-        self.vjepa_predictor = VJEPAPredictor()  # Temporal prediction
+# Use features for robot planning
+def plan_robot_action(current_video):
+    world_model_features = v_jepa.predict(current_video)
     
-    def forward(self, video_context, text_instruction):
-        # CLIP: Understand semantic goal
-        semantic_goal = self.clip_encoder.encode_text(text_instruction)
-        current_state = self.clip_encoder.encode_image(video_context)
-        
-        # V-JEPA: Predict how to achieve goal
-        future_prediction = self.vjepa_predictor(
-            context=current_state,
-            goal=semantic_goal
-        )
-        
-        return future_prediction</pre>
-    </div>
+    # Features encode physics understanding like:
+    # - Object will move from position A to B
+    # - Collision will occur at time T
+    # - Surface friction affects trajectory
+    
+    # Use this understanding for planning
+    best_action = planning_algorithm(world_model_features)
+    return best_action
 
-    <div class="info">
-      <strong>🎯 Key Implementation Differences:</strong><br>
-      • <strong>CLIP:</strong> Two encoders (vision + text) with similarity matching<br>
-      • <strong>V-JEPA:</strong> Context encoder + predictor + target encoder with MSE loss<br>
-      • <strong>Combined:</strong> Leverages CLIP for semantic understanding, V-JEPA for temporal prediction
+# Use features for downstream tasks
+action_classifier = ActionClassifier()
+predicted_action = action_classifier(future_features)
+
+physics_analyzer = PhysicsAnalyzer()
+motion_state = physics_analyzer(future_features)
+
+# Condition generative models
+if need_visual_output:
+    diffusion_model = VideoDiffusionModel()
+    generated_video = diffusion_model.generate(
+        conditioning=future_features  # Use V-JEPA features as guidance
+    )</pre>
     </div>
   </div>
 
-  <div class="warning">
-    <strong>🤔 Think of it this way:</strong><br>
-    • <strong>CLIP:</strong> "Temporal CLIP" - learns joint representations across <em>time</em> instead of modalities<br>
-    • <strong>V-JEPA:</strong> Adds crucial temporal/causal dimension that CLIP lacks<br>
-    • <strong>Together:</strong> Comprehensive understanding of both <em>what things are</em> and <em>how they change</em>
+  <div class="breakthrough-highlight">
+    🎯 Key Insight: V-JEPA is a "world understanding" model, not a "world visualization" model. It builds rich internal physics models that enable intelligent planning and decision-making.
   </div>
 </div>
-  </div>
 
   <div class="container">
     <h2>🌍 Section 2: World Model Learning - How V-JEPA Understands Physics</h2>
@@ -2831,7 +3365,484 @@ function showCombinedUseCase() {
     </div>
   `;
 }
+// Mathematical Deep Dive Functions
+function switchMathTab(id, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
 
+function showMathStep() {
+  const step = document.getElementById('mathStep').value;
+  const complexity = document.getElementById('mathComplexity').value;
+  const results = document.getElementById('mathStepResults');
+  
+  const steps = {
+    tokenization: {
+      simple: {
+        title: "Video → Patches",
+        description: "Convert continuous video frames into discrete patches that transformers can process",
+        math: "Video [4×8×224×224×3] → Patches [4×4×196×768]",
+        intuition: "Like cutting a video into puzzle pieces, each piece becomes a token"
+      },
+      detailed: {
+        title: "3D Patch Tokenization Mathematics",
+        description: "Spatiotemporal patch extraction with learnable linear projection",
+        math: "P = Conv3D(V, kernel=(2,16,16), stride=(2,16,16)) ∈ ℝ^(B×T'×N×D)",
+        intuition: "3D convolution creates patches across both space and time dimensions"
+      },
+      implementation: {
+        title: "Implementation Details",
+        description: "Practical considerations for efficient patch tokenization",
+        math: "kernel_size = (temporal_patch_size, patch_size, patch_size)\nstride = kernel_size  # Non-overlapping patches",
+        intuition: "Non-overlapping patches prevent information leakage, temporal patches capture motion"
+      }
+    },
+    masking: {
+      simple: {
+        title: "Hide & Predict",
+        description: "Hide some patches, try to predict what should be there",
+        math: "Context = visible patches, Target = hidden patches",
+        intuition: "Like covering parts of a video and asking 'what's behind the cover?'"
+      },
+      detailed: {
+        title: "Masking Strategy Mathematics", 
+        description: "Strategic selection of context and target patches for optimal learning",
+        math: "M_c, M_t ∈ {0,1}^(T'×N), M_c ∩ M_t = ∅, |M_t|/|M_c+M_t| = mask_ratio",
+        intuition: "Masking ratio controls learning difficulty - higher ratio = harder prediction task"
+      },
+      implementation: {
+        title: "Advanced Masking Patterns",
+        description: "Different masking strategies for different learning objectives",
+        math: "Temporal: mask entire frames\nSpatial: mask regions within frames\nBlock: mask coherent chunks",
+        intuition: "Each pattern teaches different aspects: temporal dynamics, spatial relationships, global structure"
+      }
+    },
+    context: {
+      simple: {
+        title: "Understand Current Scene",
+        description: "Process visible patches to understand what's happening now",
+        math: "context_features = ContextEncoder(visible_patches)",
+        intuition: "Like looking at the beginning of a video and understanding the current situation"
+      },
+      detailed: {
+        title: "Context Encoding with Transformers",
+        description: "Multi-layer transformer processing with positional encodings",
+        math: "z_c = LayerNorm(TransformerBlocks^L(P_c + pos)) ∈ ℝ^(B×N_c×D)",
+        intuition: "Each transformer layer builds more abstract understanding of the scene"
+      },
+      implementation: {
+        title: "Attention and Position Encoding",
+        description: "How transformers process spatiotemporal information",
+        math: "pos = pos_spatial ⊕ pos_temporal\nAttention = softmax(QK^T/√d_k)V",
+        intuition: "Position encoding tells the model where and when each patch is located"
+      }
+    },
+    prediction: {
+      simple: {
+        title: "Guess What Happens Next",
+        description: "Use context understanding to predict hidden patches",
+        math: "predicted_features = Predictor(context_features, mask_positions)",
+        intuition: "Like a smart guess about what the hidden parts of the video contain"
+      },
+      detailed: {
+        title: "Predictor Network Architecture",
+        description: "Cross-attention between context and mask tokens for prediction",
+        math: "ẑ_t = W_out × TransformerBlocks^(L_p)(W_proj × z_c + mask_tokens)",
+        intuition: "Mask tokens ask 'what should be here?' and context provides clues"
+      },
+      implementation: {
+        title: "Prediction Efficiency Optimizations",
+        description: "Dimension reduction and efficient cross-attention",
+        math: "D_p = D/2  # Predictor uses half dimensions for efficiency\nz_c_proj = z_c × W_proj ∈ ℝ^(B×N_c×D_p)",
+        intuition: "Smaller predictor dimension reduces computation while maintaining prediction quality"
+      }
+    },
+    target: {
+      simple: {
+        title: "The Answer Key (Training Only)",
+        description: "Process the actual future frames to create learning targets",
+        math: "target_features = TargetEncoder(actual_future_patches)",
+        intuition: "Like having the answer sheet to check if predictions were correct"
+      },
+      detailed: {
+        title: "EMA Target Encoder Mathematics",
+        description: "Exponential moving average for stable learning targets",
+        math: "θ_target^(t) = τ × θ_target^(t-1) + (1-τ) × θ_context^(t)\nτ = 0.996",
+        intuition: "Target encoder slowly follows context encoder, providing stable learning signals"
+      },
+      implementation: {
+        title: "EMA Update Implementation",
+        description: "Practical considerations for EMA parameter updates",
+        math: "# No gradients through target encoder\nwith torch.no_grad():\n    update_target_parameters()",
+        intuition: "Target encoder parameters update automatically, no backpropagation needed"
+      }
+    },
+    loss: {
+      simple: {
+        title: "Learn from Mistakes",
+        description: "Compare predictions with reality and improve",
+        math: "loss = MSE(predicted_features, target_features)",
+        intuition: "Measure how wrong the predictions were and adjust to do better next time"
+      },
+      detailed: {
+        title: "Loss Function Mathematics",
+        description: "Mean squared error with regularization terms",
+        math: "L = (1/N_t) Σ ||ẑ_t^(i) - z_t^(i)||² + λ × Regularization",
+        intuition: "MSE encourages accurate predictions, regularization prevents overfitting"
+      },
+      implementation: {
+        title: "Training Stability Techniques",
+        description: "Additional loss terms for stable training",
+        math: "L_var = -log(Var(z_t))  # Prevent feature collapse\nL_total = L_pred + λ₁×L_reg + λ₂×L_var",
+        intuition: "Variance loss ensures features remain diverse and informative"
+      }
+    }
+  };
+  
+  const stepInfo = steps[step][complexity];
+  results.innerHTML = `
+    <div class="success">
+      <strong>📐 ${stepInfo.title}</strong><br><br>
+      <strong>Description:</strong> ${stepInfo.description}<br><br>
+      <strong>Mathematics:</strong><br>
+      <div class="math-formula">${stepInfo.math}</div>
+      <strong>💡 Intuition:</strong> ${stepInfo.intuition}
+    </div>
+  `;
+}
+
+function calculateDimensions() {
+  const B = parseInt(document.getElementById('batchSize').value);
+  const T = parseInt(document.getElementById('videoFrames').value);
+  const H = parseInt(document.getElementById('imageRes').value);
+  const W = H; // Square images
+  const P = parseInt(document.getElementById('patchSize').value);
+  const C = 3; // RGB
+  const D = 768; // Embedding dimension
+  const T_p = 2; // Temporal patch size
+  
+  // Calculate derived dimensions
+  const T_prime = Math.floor(T / T_p);
+  const N = Math.floor(H / P) * Math.floor(W / P);
+  
+  const results = document.getElementById('dimensionResults');
+  results.innerHTML = `
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-value">[${B},${T},${H},${W},${C}]</div>
+        <div class="metric-label">Input Video Shape</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">[${B},${T_prime},${N},${D}]</div>
+        <div class="metric-label">Tokenized Shape</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">${(B * T_prime * N * D * 4 / 1e9).toFixed(2)}GB</div>
+        <div class="metric-label">Memory (FP32)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">${N}</div>
+        <div class="metric-label">Patches per Frame</div>
+      </div>
+    </div>
+    <div class="info">
+      <strong>🧮 Calculation Details:</strong><br>
+      • Temporal patches: T=${T} → T'=${T_prime} (grouped by ${T_p})<br>
+      • Spatial patches: ${H}×${W} → ${Math.floor(H/P)}×${Math.floor(W/P)} = ${N} patches<br>
+      • Total sequence length: ${T_prime}×${N} = ${T_prime * N} tokens<br>
+      • Memory scales with B×T'×N×D = ${B}×${T_prime}×${N}×${D}
+    </div>
+  `;
+}
+
+function updateHeadsDisplay() {
+  const heads = document.getElementById('numHeads').value;
+  document.getElementById('headsDisplay').textContent = heads;
+}
+
+function updateSeqDisplay() {
+  const seq = document.getElementById('seqLength').value;
+  document.getElementById('seqDisplay').textContent = seq;
+}
+
+function simulateAttention() {
+  const heads = parseInt(document.getElementById('numHeads').value);
+  const seqLen = parseInt(document.getElementById('seqLength').value);
+  const results = document.getElementById('attentionResults');
+  
+  // Calculate attention complexity
+  const attentionOps = seqLen * seqLen * heads;
+  const memoryMB = (seqLen * seqLen * heads * 4) / (1024 * 1024); // FP32
+  
+  results.innerHTML = `
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-value">${heads}</div>
+        <div class="metric-label">Attention Heads</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">${seqLen}</div>
+        <div class="metric-label">Sequence Length</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">${(attentionOps / 1e6).toFixed(1)}M</div>
+        <div class="metric-label">Attention Ops</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">${memoryMB.toFixed(1)}MB</div>
+        <div class="metric-label">Attention Memory</div>
+      </div>
+    </div>
+    <div class="warning">
+      <strong>⚡ Complexity Analysis:</strong><br>
+      • Self-attention: O(N²) scaling with sequence length<br>
+      • Memory requirement: O(N²×H) for attention matrices<br>
+      • For videos: N = temporal_patches × spatial_patches<br>
+      • Longer videos require quadratically more compute
+    </div>
+  `;
+}
+
+function updateEMADisplay() {
+  const momentum = parseFloat(document.getElementById('emaMomentum').value);
+  document.getElementById('emaDisplay').textContent = momentum.toFixed(3);
+}
+
+function updateStepsDisplay() {
+  const steps = document.getElementById('trainingSteps').value;
+  document.getElementById('stepsDisplay').textContent = steps;
+}
+
+function simulateEMA() {
+  const tau = parseFloat(document.getElementById('emaMomentum').value);
+  const steps = parseInt(document.getElementById('trainingSteps').value);
+  const results = document.getElementById('emaResults');
+  
+  // Calculate EMA convergence
+  const convergenceSteps = Math.log(0.01) / Math.log(tau); // 99% convergence
+  const halfLife = Math.log(0.5) / Math.log(tau);
+  
+  results.innerHTML = `
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-value">${tau.toFixed(3)}</div>
+        <div class="metric-label">Momentum (τ)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">${halfLife.toFixed(0)}</div>
+        <div class="metric-label">Half-life (steps)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">${convergenceSteps.toFixed(0)}</div>
+        <div class="metric-label">99% Convergence</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">${((1-tau)*100).toFixed(1)}%</div>
+        <div class="metric-label">Update Rate</div>
+      </div>
+    </div>
+    <div class="info">
+      <strong>🔄 EMA Dynamics:</strong><br>
+      • Higher τ (closer to 1): Slower updates, more stable targets<br>
+      • Lower τ: Faster updates, potentially unstable training<br>
+      • Sweet spot around τ=0.996: Balance of stability and responsiveness<br>
+      • Target encoder lags ${halfLife.toFixed(0)} steps behind context encoder
+    </div>
+  `;
+}
+
+// Inference Functions
+function switchInferenceTab(id, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+function showInferenceArchitecture() {
+  const mode = document.getElementById('inferenceMode').value;
+  const results = document.getElementById('inferenceArchResults');
+  
+  if (mode === 'training') {
+    results.innerHTML = `
+      <div class="architecture-flow">
+        <div class="arch-component context">
+          <h4>🔍 Context Encoder</h4>
+          <div>✅ Active</div>
+          <div style="font-size:12px;margin-top:5px">Processes visible patches</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-component predictor">
+          <h4>🎯 Predictor</h4>
+          <div>✅ Active</div>
+          <div style="font-size:12px;margin-top:5px">Generates predictions</div>
+        </div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-component target">
+          <h4>🎪 Target Encoder</h4>
+          <div>✅ Active</div>
+          <div style="font-size:12px;margin-top:5px">Processes ground truth</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-component loss">
+          <h4>📊 Loss Computation</h4>
+          <div>✅ Active</div>
+          <div style="font-size:12px;margin-top:5px">Learning & backprop</div>
+        </div>
+      </div>
+      <div class="warning">
+        <strong>📚 Training Mode:</strong> All components active. Target encoder provides ground truth for learning.
+      </div>
+    `;
+  } else {
+    results.innerHTML = `
+      <div class="architecture-flow">
+        <div class="arch-component context">
+          <h4>🔍 Context Encoder</h4>
+          <div>✅ Active</div>
+          <div style="font-size:12px;margin-top:5px">Processes input video</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-component predictor">
+          <h4>🎯 Predictor</h4>
+          <div>✅ Active</div>
+          <div style="font-size:12px;margin-top:5px">Generates features</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-component output">
+          <h4>📤 Feature Output</h4>
+          <div>✅ Final Result</div>
+          <div style="font-size:12px;margin-top:5px">Abstract representations</div>
+        </div>
+      </div>
+      <div class="architecture-flow">
+        <div class="arch-component target" style="opacity:0.3">
+          <h4>🎪 Target Encoder</h4>
+          <div>❌ Not Loaded</div>
+          <div style="font-size:12px;margin-top:5px">No ground truth needed</div>
+        </div>
+        <div class="arch-component loss" style="opacity:0.3">
+          <h4>📊 Loss Computation</h4>
+          <div>❌ Not Needed</div>
+          <div style="font-size:12px;margin-top:5px">No learning during inference</div>
+        </div>
+      </div>
+      <div class="success">
+        <strong>🚀 Inference Mode:</strong> Streamlined architecture with only essential components. 33% memory savings!
+      </div>
+    `;
+  }
+}
+
+function showOutputFormat() {
+  const scenario = document.getElementById('outputScenario').value;
+  const analysis = document.getElementById('featureAnalysis').value;
+  const results = document.getElementById('outputFormatResults');
+  
+  const scenarios = {
+    bouncing_ball: {
+      raw: "[-0.23, 0.45, -0.67, 0.12, 0.89, -0.34, ...]  # 768 numbers",
+      concepts: "Ball trajectory, downward velocity, bounce prediction, physics state",
+      physics: "Momentum: 0.45 m/s downward, Impact time: 0.3s, Bounce angle: 65°"
+    },
+    pouring_water: {
+      raw: "[0.12, -0.78, 0.34, -0.56, 0.23, 0.67, ...]  # 768 numbers", 
+      concepts: "Fluid flow, container fill level, splash risk, tilt angle effect",
+      physics: "Flow rate: 0.2 L/s, Fill level: 60%, Splash probability: 0.15"
+    },
+    person_walking: {
+      raw: "[0.67, 0.23, -0.45, 0.78, -0.12, 0.56, ...]  # 768 numbers",
+      concepts: "Gait pattern, next step location, balance state, movement rhythm", 
+      physics: "Step frequency: 1.8 Hz, Ground contact: 0.4s, Balance: stable"
+    },
+    collision: {
+      raw: "[-0.45, 0.89, 0.12, -0.67, 0.34, -0.23, ...]  # 768 numbers",
+      concepts: "Collision trajectory, momentum transfer, object deformation, rebound",
+      physics: "Impact velocity: 2.1 m/s, Energy transfer: 0.85, Rebound angle: 45°"
+    }
+  };
+  
+  const output = scenarios[scenario][analysis];
+  
+  results.innerHTML = `
+    <div class="code-block">
+      <div class="code-header">📊 V-JEPA Output for ${scenario.replace('_', ' ').toUpperCase()}</div>
+<pre># Input: Video frames showing ${scenario.replace('_', ' ')}
+predicted_features = v_jepa.predict(input_video)
+print(predicted_features.shape)
+# Output: torch.Size([1, 196, 768])  # batch=1, patches=196, features=768
+
+# Feature content (${analysis} view):
+${output}</pre>
+    </div>
+    <div class="info">
+      <strong>🎯 Key Points:</strong><br>
+      • <strong>Shape:</strong> [batch_size, num_patches, feature_dimension]<br>
+      • <strong>Content:</strong> Abstract representations, NOT pixel values<br>
+      • <strong>Interpretation:</strong> Features encode ${analysis === 'concepts' ? 'high-level concepts' : analysis === 'physics' ? 'physics understanding' : 'raw numerical features'}<br>
+      • <strong>Usage:</strong> Input for planning algorithms, classifiers, or other models
+    </div>
+  `;
+}
+
+function simulateApplication() {
+  const useCase = document.getElementById('applicationUseCase').value;
+  const results = document.getElementById('applicationResults');
+  
+  const applications = {
+    robot_planning: {
+      name: "Robot Motion Planning",
+      input: "Camera feed showing objects on table",
+      vjepa_output: "Features encoding object positions, collision boundaries, grasp opportunities",
+      downstream: "Motion planner uses features to generate safe, efficient robot trajectories",
+      benefit: "Robot understands scene dynamics without needing pixel-perfect visual rendering"
+    },
+    autonomous_driving: {
+      name: "Autonomous Driving", 
+      input: "Forward-facing camera showing traffic scene",
+      vjepa_output: "Features encoding vehicle trajectories, pedestrian movements, traffic patterns",
+      downstream: "Path planning system uses predictions for safe navigation decisions",
+      benefit: "Understands motion patterns and collision risks without generating visual predictions"
+    },
+    sports_analysis: {
+      name: "Sports Video Analysis",
+      input: "Video of basketball game showing player movements",
+      vjepa_output: "Features encoding player trajectories, ball physics, strategic patterns",
+      downstream: "Analytics system classifies plays, predicts outcomes, generates insights",
+      benefit: "Captures complex multi-agent dynamics and physics without visual complexity"
+    },
+    surveillance: {
+      name: "Surveillance Systems",
+      input: "Security camera feed showing public area",
+      vjepa_output: "Features encoding normal vs anomalous behavior patterns, crowd dynamics",
+      downstream: "Anomaly detection system flags unusual activities or potential threats",
+      benefit: "Understands behavioral patterns and temporal dynamics for security monitoring"
+    }
+  };
+  
+  const app = applications[useCase];
+  
+  results.innerHTML = `
+    <div class="success">
+      <strong>🎯 Application:</strong> ${app.name}<br><br>
+      <strong>📥 Input:</strong> ${app.input}<br>
+      <strong>🧠 V-JEPA Output:</strong> ${app.vjepa_output}<br>
+      <strong>🔄 Downstream Processing:</strong> ${app.downstream}<br>
+      <strong>✅ Key Benefit:</strong> ${app.benefit}
+    </div>
+  `;
+}
+
+// Initialize demos
+showMathStep();
+calculateDimensions();
+simulateAttention();
+simulateEMA();
+showInferenceArchitecture();
+showOutputFormat();
+simulateApplication();
 // Initialize comparison demo
 showCLIPComparison();
 showCombinedUseCase();
